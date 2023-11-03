@@ -1,0 +1,488 @@
+# Conditional Probability and Expectation {#probability}
+
+```{r }
+library(xfun, quietly = TRUE)
+library(tidyr, quietly = TRUE)
+library(dplyr, quietly = TRUE)
+library(purrr, quietly = TRUE)
+library(rsample, quietly = TRUE)
+library(fciR, quietly = TRUE)
+options(dplyr.summarise.inform = FALSE)
+```
+
+```{r include=FALSE}
+# TRUE = rerun the cache
+is_rerun <- FALSE
+# directory of data files
+dir_data <- file.path(getwd(), "data")
+# directory for functions
+dir_lib <- file.path(getwd(), "lib")
+```
+
+## Conditional Probability
+
+### Law of total probability
+
+It is important to note that $\sum_i{H_i} = H$, that is $H$ can be partitioned in $i$ non-overlapping partitions.
+
+Then the law of total probabilities is
+
+$$
+\begin{align*}
+P(A) &= \sum_i{P(A \cap H_i)}= \sum_i{P(A \mid H_i) P(H_i)} \\
+&\text{and we condition the whole expression with B} \\
+P(A \mid B) &= \sum_i{P(A \cap H_i \mid B)}= \sum_i{P(A \mid B, H_i) P(B,H_i)} \\
+\end{align*}
+$$
+
+and the multiplication rule is
+
+$$
+\begin{align*}
+P(A, B \mid C) &= \frac{P(A, B, C)}{P(C)} \\
+&= \frac{P(A \mid B, C) P(B, C)}{P(C)} \\
+&= \frac{P(A \mid B, C) P(B \mid C) P(C)}{P(C)} \\
+&= P(A \mid B, C) P(B \mid C)
+\end{align*}
+$$
+
+## Conditional Expectation and the Law of Total expectation
+
+The conditional expectation is defined as
+
+$$
+E(Y \mid T) = \sum_y y P(Y=y \mid T)
+$$
+
+and one way that helps me usually understand it well is that conditioning is the same as *filtering* the data.
+
+For example the conditional expectation of mortality of US resident at the beginning of 2019 $E(Y \mid T = 1) = 0.0088$
+
+```{r}
+data("mortality_long", package = "fciR")
+mortality_long |>
+  # condition on T = 1
+  filter(`T` == 1) |>
+  # compute probabilties
+  mutate(prob = n / sum(n)) |>
+  # compute expectation for each possible value of Y
+  group_by(Y) |>
+  summarize(EYT1 = sum(Y * prob)) |>
+  # output results in a named vector
+  pull() |>
+  setNames(nm = c("EY0T1", "EY1T1"))
+```
+
+where $E(Y=0 \mid T=1) = 0$ because when $Y=0 \implies 0 \cdot P(Y=0) = 0$ and *since* $Y$ is binary $E(Y=1 \mid T=1) = P(Y=1 \mid T=1)$.
+
+> Analogous to the law of total probability is the law of ttal expectation, also called double expectation theorem.
+
+This law is *used extensively in this textbook*.
+
+$$
+\begin{align*}
+E(Y \mid T) &= E_{H \mid T}(E(Y \mid H, T)) \\
+&= \sum_h \left[ \sum_y y P(Y=y \mid H=h, T) \right] P(H=h \mid T)
+\end{align*}
+$$ Also the following equivalence is used very often in this book.
+
+$$
+\begin{align*}
+E(H \mid T) = \sum_h h P(H=h \mid T) = E_{H \mid T} (H)
+\end{align*}
+$$
+
+### Mean independence and conditional mean independence
+
+> The random variable $Y$ is mean independent of $T$ if
+
+$$
+E(Y \mid T) = E(Y)
+$$
+
+> and is conditionally mean independent of $T$ given $H$ is
+
+$$
+E(Y \mid T, H) = E(Y \mid H)
+$$
+
+and the *conditional uncorrelation* and uncorrelation are
+
+$$
+E(YT \mid H) = E(Y \mid H)E(T \mid H) \implies \text{conditionally uncorrelated} \\
+E(YT) = E(Y)E(T) \implies \text{uncorrelated}
+$$
+
+> It happens that conditional mean independence implies conditional uncorrelation, but not the other way around.
+
+We prove it as follows
+
+$$
+\begin{align*}
+\text{assume Y is conditionally independent of T given H then} \\
+E(Y \mid T, H) &= E(Y \mid H) \\ \\
+\text{using double expectation theorem} \\
+E(TY \mid H) &= E_{T \mid H}(E(TY \mid H, T)) \\
+\text{expectation is a linear operator} \\
+&= E_{T \mid H}(TE(Y \mid H, T)) \\
+\text{by conditional mean independence from above} \\
+&= E_{T \mid H}(TE(Y \mid H)) \\
+\text{expectation is a linear operator} \\
+&= E_{T \mid H}(T)E_{T \mid H}(E(Y \mid H)) \\
+\text{which proves the conditional uncorrelation} \\
+&= E(T \mid H)E(Y \mid H)
+\end{align*}
+$$
+
+### Regression model
+
+> A statistical model for a conditional expectation is called a *regression model*.
+
+For a binary dataset the regression model is said to be *saturated* or *nonparametric* because the 4 proportions, or coefficients, cover all possibilities.
+
+$$
+E(Y \mid T, H) = \beta_0 + \beta_1 H + \beta_2 T + \beta_3 H * T
+$$
+
+When *unsaturated* or *parametric* the model makes an assumption. For example the following model assumes no interaction.
+
+$$
+E(Y \mid T, H) = \beta_0 + \beta_1 H + \beta_2 T
+$$
+
+### Nonlinear parametric models
+
+The three parametric models, also the most well-known, used in the book are
+
+$$
+\begin{align*}
+\text{linear: } \: E(Y \mid X_1, \ldots, X_p) &= \beta_0 + \beta_1 X_1 + \ldots + \beta_p X_p \\
+\text{loglinear: } \: E(Y \mid X_1, \ldots, X_p) &= \exp{(\beta_0 + \beta_1 X_1 + \ldots + \beta_p X_p)} \\
+\text{logistic: } \: E(Y \mid X_1, \ldots, X_p) &= \text{expit}(\beta_0 + \beta_1 X_1 + \ldots + \beta_p X_p)
+\end{align*}
+$$
+
+The function `expit()` used by the author is actually the same as `gtools::inv.logit()`, `boot::inv.logit()` or `stats::plogis()`. In this project we use `stats::plogis()` to minimize dependencies since it is in base R.
+
+## Estimation
+
+This section is extremely important as it is used extensively, especially from the chapter 6 on.
+
+Lets use the *What-if* example to illustrate the mathematics of it. In that case, we have 3 covariates, $T$ for naltrexone, $A$ for reduced drinking and $H$ for unsuppressed viral load. In the data set we have 165 observations, therefore $i=165$.
+
+Let $X_i$ denote the collection of $X_{ij}$ for $j=1, \ldots, p$ where $p$ is the number of covariates which is 3 in the What-if dataset. $X_i$ is a **horizontal** vector.
+
+So for the What-if study
+
+$$
+X_i = \begin{bmatrix}A_i & T_i & H_1 \end{bmatrix}
+$$ 
+
+and $\beta$ is a **vertical** vector.
+
+$$
+\beta = \begin{bmatrix}\beta_1 \\ \beta_2 \\ \beta_3 \end{bmatrix}
+$$ 
+
+therefore
+
+$$
+\begin{align*}
+X_i \beta &= \begin{bmatrix}A_i & T_i & H_1 \end{bmatrix} \times \begin{bmatrix}\beta_1 \\ \beta_2 \\ \beta_3 \end{bmatrix} \\
+&= \beta_1 A_i + \beta_2 T_i + \beta_3 H_i
+\end{align*}
+$$
+
+we also have
+
+$$
+\begin{align*}
+X_i^T (Y_i - X_i \beta) &= \begin{bmatrix}A_i \\ T_i \\ H_1 \end{bmatrix}(Y_i - \beta_1 A_i + \beta_2 T_i + \beta_3 H_i) \\
+&= \begin{bmatrix}
+A_i (Y_i - \beta_1 A_i + \beta_2 T_i + \beta_3 H_i) \\ 
+T_i (Y_i - \beta_1 A_i + \beta_2 T_i + \beta_3 H_i) \\ 
+H_1 (Y_i - \beta_1 A_i + \beta_2 T_i + \beta_3 H_i) 
+\end{bmatrix}
+\end{align*}
+$$ 
+
+Also, we can estimate the unconditional expectation of the binary outcome $Y$ as
+
+$$
+\hat{E}(Y) = \frac{1}{n} \sum_{i=1}^n Y_i
+$$ 
+
+which returns the proportion of participants with unsuppressed viral load after 4 months
+
+```{r}
+data("whatifdat", package = "fciR")
+mean(whatifdat$Y)
+```
+
+This is an unbiased estimator for $E(Y)$ because $E(\hat{E}(Y)) = E(Y)$
+
+Now let the saturated model for $E(Y)$ be
+
+$$
+E(Y) = \beta
+$$
+
+with the following *estimating equation*
+
+$$
+U(\beta) = \sum_{i=1}^n (Y_i - \beta) = 0
+$$ 
+
+
+and simple algebra, using the estimate of $\hat{E}(Y)$ from above gives $\beta = \hat{E}(Y)$ and we use the notation $\hat{E}(Y) = E(Y \mid X, \beta)$ to show its dependency on the data and $\beta$.
+
+$$
+\begin{align*}
+U(\beta) &= \sum_{i=1}^n (Y_i - \beta) \\
+&= \sum_{i=1}^n \left[ Y_i - E(Y \mid X, \beta) \right] \\
+&= 0
+\end{align*}
+$$ and to do the actual calculations we use a variation of the estimating equation as follows
+
+$$
+\begin{align*}
+U(\beta) = \sum_{i=1}^n X_i^T \left[ Y_i - E(Y \mid X, \beta) \right] = 0
+\end{align*}
+$$ 
+
+
+As an example, we fit the logistic regression model with the *What-if* dataset
+
+$$
+E(Y \mid A,T,H) = expit(\beta_0 + \beta_A A + \beta_T T + \beta_H H)
+$$
+
+```{r}
+whatif.mod <- glm(Y ~ A + `T` + H, family = "binomial", data = whatifdat)
+summary(whatif.mod)
+```
+
+The coefficients, $\beta_0, \beta_A, \beta_T, \beta_H$ are obtained with `coef()` which is an alias for `coefficient()`. The example in the book uses `lmod$coef` which is not a recommended coding practice. The data should be obtained with an extractor function such as `coef()`.
+
+```{r}
+coef(whatif.mod)
+```
+
+and since the model is binomial then the inverse function to convert from the logit scale to the natural scale is `stats::plogis()`.
+
+Therefore the parametric estimate is
+
+$$
+E(Y \mid A=1, T=1, H=1) = \beta_0 + \beta_A \cdot 1 + \beta_T \cdot 1 + \beta_H \cdot 1
+$$
+
+```{r}
+stats::plogis(sum(coef(whatif.mod)))
+```
+
+we can also use the linear model directly, thus avoiding a call to `plogis` and making the code a little more robust. This technique is used quite often in the book, especially starting from chapter 6 on.
+
+```{r}
+whatif.newdata <- whatifdat |>
+  filter(A == 1, `T` == 1, H == 1)
+whatif.EYT1 <- predict(whatif.mod, newdata = whatif.newdata, 
+                            type = "response") |>
+  mean()
+whatif.EYT1
+```
+
+and we can validate the result directly using the dataset
+
+```{r}
+whatifdat.est <- whatifdat |>
+  filter(A == 1, `T` == 1, H == 1) |>
+  pull(Y) |>
+  mean()
+whatifdat.est
+```
+
+which is close to the parametric estimate.
+
+## Sampling Distributions and the Bootstrap
+
+The previous section prived and estimate. But how variable is this estimator? One way would be to report the standard error $\sigma_{\hat{x}} = \frac{\sigma}{\sqrt{n}}$. Therefore, since $\sigma^2 = p(1-p)$ for a binomial distribution
+
+```{r}
+# the sample size
+whatifdat.n <- sum(whatifdat$A == 1 & whatifdat$`T` == 1 & whatifdat$H == 1)
+# whatifdat.n
+
+# the standard deviation
+whatifdat.sd <- sqrt(whatifdat.est * (1- whatifdat.est))
+# whatifdat.sd
+
+# the standard error
+whatifdat.se <- whatifdat.sd / sqrt(whatifdat.n)
+whatifdat.se
+```
+
+Note that the formula used by B. Brumback is using the standard deviation of the population $p(1-p)$ which is not entirely the right way since the standard error of the mean is defined using the *standard deviation of the sample*.
+
+That is Brumback uses
+
+```{r}
+x <- whatifdat$Y[whatifdat$A == 1 & whatifdat$`T` == 1 & whatifdat$H ==1]
+n <- length(x)
+sd(x) * sqrt(n-1) / n
+```
+
+when the correct definition is
+
+```{r}
+x <- whatifdat$Y[whatifdat$A == 1 & whatifdat$`T` == 1 & whatifdat$H ==1]
+sd(x) / sqrt(length(x))
+```
+
+> Another way would be by reporting the *sampling distribution* of our estimator.
+
+> the sampling distribution is centered at the true value of our estimand and it has a standard deviation equal to the true standard error of our estimator.
+
+The section 2.4 will not be repeated here, yet it is very instructive and cover a topic that we end to forget. We will just repeat the calculations below. They
+
+The `sim()` function in section 2.4, p. 31 is coded in `fciR::sim_intervals()` and its alias `fciR::sim()`.
+
+Run and verify with author's results on p. 32
+
+```{r}
+d <- fciR::sim_intervals(nsim = 500, n = 500)
+stopifnot(abs(d$bad - 0.8374) < 0.03, abs(d$good - 0.948) < 0.03)
+d
+```
+
+### Bootstrapping
+
+> As we have seen, replacing $\mu$ and $\sigma$ with estimates leads to some problems, but we can still form an interpretable 95% confidence interval. In many situations, we do not have a good estimate of $\sigma$. In those cases, we often can turn to *bootstrap*.
+
+Bootstrapping in base R is done with the `boot` from the `boot` package. Another option is the `rsample` package which isthe tidyverse way of doing it. Both methods will be used in this project. In the package `fciR`, the functions `boot_run` and `boot_est` use the classic R package `boot`. The functions `bootidy_run` and `bootidy_est` are similar but use the `rsample` package.
+
+#### `boot` package
+
+We use `boot::boot()` for boostrapping and `boot::boot.ci()` to compute the confidence interval of the estimand using the logistic model as done by the `lmodboot` function in section 2.4. We only run 100 boot samples since it is only an example. The default value is 1000.
+
+The first 3 arguments `data`, `statistic` and `R` are specific to `boot`, the `...` is for extra arguments used by `lmodboot`. The details of `lmdboots` can be found in the package `fciR` or in its alias `fciR::prob_lmod`.
+
+```{r}
+prob_lmod(whatifdat, formula = Y ~ `T` + A + H)
+```
+
+and we show the details on how to do the bootstrapping with the `boot` package as follows.
+
+```{r}
+# define the function used by boot
+whatifdat.fnc <- function(data, ids, ...) {
+  dat <- data[ids, ]
+  df <- prob_lmod(data = dat, ...)
+  # create the named vector
+  out <- c(df$estimate)
+  names(out) <- df$term
+  out
+}
+# run the bootstrapping
+whatifdat.boot <- boot::boot(data = whatifdat, statistic = whatifdat.fnc, 
+                             R = 100, formula = Y ~ `T` + A + H)
+# get the confidence interval for every term in the bootstrap object
+whatifdat.out <- lapply(X = seq_along(whatifdat.boot$t0), FUN = function(i, alpha = 0.05) {
+  est <- whatifdat.boot$t0[i]
+  # the method used to find the interval
+  the_method <- "norm"
+  # extract the interval from the boot object
+  ci <- boot::boot.ci(whatifdat.boot, conf = 1 - alpha, type = the_method, 
+                      index = i)$normal
+  # the dataframe of results, follow the format from rsample package
+  data.frame("term" = names(est),
+    ".lower" = plogis(ci[2]),
+    ".estimate" = plogis(unname(est)),
+    ".upper" = plogis(ci[3]),
+    ".alpha" = alpha,
+    ".method" = the_method)
+  })
+# bind the data.frame in one.
+# In this case it makes no difference as there is only one.
+# and we just want to show how it works in case of several items
+whatifdat.out <- do.call(rbind, whatifdat.out)
+whatifdat.out
+```
+
+#### `rsample` package
+
+Another way package that could be used for boostrapping is `rsample::bootstrap` which uses the tidyverse way of R programming.
+
+To be fully tidyverse-like we recode the `prob_lmod` function from above and call it `prob_lmod_td` where the `td` suffix stands for `tidyverse`. Note the use of a formula as an argument to the function and the `rlang` package which is a great tool to learn for quality code in R.
+
+```{r}
+prob_lmod_td <- function(data, formula = Y ~ `T` + A + H,
+                         condition.names = NULL) {
+  # independent variables from the formula
+  f_vars <- all.vars(rlang::f_rhs(formula))
+  # if condition.names is NULL then use all independent variables
+  # which is the same as saying there is no condition
+  if (is.null(condition.names)) condition.names <- f_vars
+  stopifnot(all(condition.names %in% f_vars))
+
+  # add intercept to conditions
+  x0 <- "(Intercept)"  # name of intercept used by lm, glm, etc.
+  condition.names <- c(x0, condition.names)
+  
+  
+  fit <- glm(formula = formula, family = "binomial", data = data) |>
+    tidy()
+  fit |>
+    filter(term %in% condition.names) |>
+    summarize(term = "logitP",
+              estimate = sum(estimate),
+              # don't know the std.err so no t-intervals
+              std.err = NA_real_)
+}
+```
+
+```{r}
+t <- prob_lmod_td(whatifdat, formula = Y ~ `T` + A + H)
+t
+```
+
+The following function is inspired from [rsample bootstrap](https://rsample.tidymodels.org/articles/Applications/Intervals.html).
+
+We obtain the confidence interval using `rsample::int_pctl` which uses a 
+percentile interval instead of assuming a normal distribution as Ms Brumback does. 
+The result are not materially different in the current case.
+
+```{r}
+whatifdat |>
+  rsample::bootstraps(times = 100, apparent = FALSE) |>
+  mutate(results = map_dfr(splits, function(x) {
+    dat <- analysis(x)
+    prob_lmod_td(dat, formula = Y ~ `T` + A + H)})
+    ) |>
+  rsample::int_pctl(results, alpha = 0.05) |>
+  mutate(term = "P",
+         .lower = plogis(.lower),
+         .estimate = plogis(.estimate),
+         .upper = plogis(.upper))
+```
+
+and `lmodboot()` is `fciR::boot_lmod()` with the alias `fciR::lmodboot()`
+
+Finally we run `fciR::boot_lmod()` and verify against the author's results on p.34
+
+```{r ch02_lmodboot}
+data("whatifdat", package = "fciR")
+out <- xfun::cache_rds({
+  fciR::boot_est(whatifdat, func = fciR::prob_lmod, times = 500,
+                 alpha = 0.05, seed = 123, transf = "expit", terms = NULL,
+                 formula = Y ~ `T` + A + H)
+  }, file = "ch02_lmodboot", rerun = is_rerun)
+out
+# check results with book
+stopifnot(abs(out[".estimate"] - 0.60596) < 0.02,
+          abs(out[".lower"] - 0.41638) < 0.02,
+          abs(out[".upper"] - 0.76823) < 0.02)
+```
+
+## Exercises
+
+The exercises are located in a separate project.

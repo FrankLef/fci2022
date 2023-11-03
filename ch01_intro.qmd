@@ -1,0 +1,204 @@
+# Introduction {#intro}
+
+```{r }
+library(conflicted)
+library(simpr)
+library(ggplot2)
+library(ggdag)
+options(dplyr.summarise.inform = FALSE)
+```
+
+```{r }
+#| include: false
+conflicts_prefer(dplyr::filter)
+# directory of data files
+dir_data <- file.path(getwd(), "data")
+# directory for functions
+dir_lib <- file.path(getwd(), "lib")
+```
+
+## A Brief History
+
+## Data Examples
+
+### Mortality Rates by Country
+
+This dataset is available with `fciR::doublewhatifsim`.
+
+
+```{r}
+#| file: "lib\\fci_01-A_mortability.R"
+```
+
+and the summary table is
+
+```{r}
+#| label: tbl-mortality
+#| tbl-cap: "Mortality Rates by Age and Country"
+fciR::mortality |>
+  gt::gt()
+```
+
+### National Center for Education Statistics
+
+This dataset is available with `fciR::nces`.
+
+The statistical summary is
+
+```{r}
+fciR::nces |>
+  skimr::skim()
+```
+
+and the frequency table is
+
+```{r}
+#| label: tbl-nces
+#| tbl-cap: "NCES Data"
+fciR::nces |>
+  dplyr::count(selective, female, highmathsat) |>
+  gt::gt()
+```
+
+
+
+
+### Reducing Alcohol Consumption
+
+#### The What-If? Study
+
+This dataset is available with `fciR::whatifdat`.
+
+The statistical summary is
+
+```{r}
+fciR::whatifdat |>
+  skimr::skim()
+```
+
+The frequency table is
+
+```{r}
+#| label: tbl-whatifdat
+#| tbl-cap: "The What-If? Study"
+fciR::whatifdat |>
+  dplyr::count(`T`, A, H, Y) |>
+  gt::gt()
+```
+
+
+##### The Double What-If? Study
+
+This dataset is available with `fciR::doublewhatifdat`.
+
+The statistical summary is
+
+```{r}
+fciR::doublewhatifdat |>
+  skimr::skim()
+```
+
+
+The DAG for the *Double What-If?* study in the `dagitty` version is
+
+```{r}
+#| label: fig-DoubleWhatIf
+#| fig-cap: "The Double What-If? Study"
+scm <- list()
+scm <- within(scm, {
+  the_nodes <- c("U" = "Unmeasured, healthy behavior (U=1)", 
+                 "AD0" = "Adherence time 0", 
+                 "VL0" = "Viral Load time 0", 
+                 "T" = "Naltrexone (T=1)", 
+                 "A" = "Reduced drinking (A=1)", 
+                 "AD1" = "Adherence time 1", 
+                 "VL1" = "Viral Load time 1")
+  coords <- data.frame(
+    name = names(the_nodes),
+    x = c(2, 3, 4, 1, 2, 3, 4),
+    y = c(2, 2, 2, 1, 1, 1, 1)
+  )
+  dag <- dagify(
+    AD0 ~ U,
+    VL0 ~ AD0,
+    A ~ `T` + U,
+    AD1 ~ A,
+    VL1 ~ AD0 + AD1 + U,
+  outcome = "VL1",
+  exposure = "T",
+  latent = "U",
+  coords = coords,
+  labels = the_nodes)
+  
+  # status' colors
+  colrs <- c("latent" = "palevioletred", "exposure" = "mediumspringgreen", 
+             "outcome" = "cornflowerblue")
+  # plot the DAG
+  plot <- dag %>% 
+    tidy_dagitty() %>%
+    ggdag_status(color = status, text = TRUE,  node_size = 10, text_size = 3, 
+                 text_col = "black") +
+    scale_color_manual(values = colrs, na.value = "honeydew3") +
+    scale_fill_manual(values = colrs, na.value = "honeydew3") +
+    ggdag::theme_dag_blank(panel.background = 
+                             element_rect(fill="snow", color="snow")) +
+    theme(legend.position = "bottom",
+          legend.title = element_blank()) +
+    labs(title = "The Double What-If? Study")
+})
+scm$plot
+```
+
+and the code for `doublewhatifsim.R` is
+
+```{r }
+#| file: "lib\\fci_01-B_doublewhatifsim.R"
+```
+
+
+
+### General Social Survey
+
+This dataset is available with `fciR::gss`.
+
+The statistical summary is
+
+```{r}
+fciR::gss |>
+  skimr::skim()
+```
+
+
+### A Cancer Clinical Trial
+
+This dataset is available with `fciR::cogdat`.
+
+The statistical summary is
+
+```{r}
+fciR::cogdat |>
+  skimr::skim()
+```
+
+and the frequency table is
+
+```{r}
+#| label: tbl-cogdat
+#| tbl-cap: "A Hypothetical Cancer Clinical Trial"
+df <- fciR::cogdat |>
+  filter(Y == 1) |>
+  count(A1, H2, A2, name = "nY")
+fciR::cogdat |>
+  count(A1, H2, A2) |>
+  left_join(df) |>
+  mutate(nY = dplyr::if_else(is.na(nY), 0, nY),
+         prop = round(nY / n, 2)) |>
+  gt::gt()
+rm(df)
+```
+
+
+
+## Exercises
+
+The exercises are located in a separate project.

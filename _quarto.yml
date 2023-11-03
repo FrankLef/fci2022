@@ -1,0 +1,35 @@
+project:
+  type: book
+  output-dir: docs
+
+book:
+  title: "Fundamentals of Causal Inference 2022 - Study Project"
+  author: "François Lefebvre"
+  abstract: "A study project of Fundamentals of Causal Inference 2022."
+  date: "2023-10-29"
+  date-format: iso
+  chapters:
+    - index.qmd
+    - part: part01.qmd
+      chapters:
+        - ch01_intro.qmd
+    - references.qmd
+  appendices: 
+    - app01_errata.qmd
+    - app02_notes.qmd
+    - app03_linreg.qmd
+    - app04_simdr.qmd
+
+bibliography: references.bib
+
+format:
+  html:
+    theme: cosmo
+  pdf:
+    documentclass: scrreprt
+
+editor: visual
+
+execute: 
+  echo: true
+
