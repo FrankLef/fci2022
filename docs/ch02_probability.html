@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Fundamentals of Causal Inference 2022 - Study Project - 2&nbsp; Conditional Probability and Expectation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./references.html" rel="next">
+<link href="./ch01_intro.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./part01.html">Part I Basics</a></li><li class="breadcrumb-item"><a href="./ch02_probability.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Conditional Probability and Expectation</span></a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Fundamentals of Causal Inference 2022 - Study Project</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./part01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Part I Basics</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch01_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch02_probability.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Conditional Probability and Expectation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./app01_errata.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Errata</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./app02_notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Notes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./app03_linreg.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Linear Regression with R</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./app04_simdr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">Doubly Robust Simulation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#conditional-probability" id="toc-conditional-probability" class="nav-link active" data-scroll-target="#conditional-probability"><span class="header-section-number">2.1</span> Conditional Probability</a>
+  <ul class="collapse">
+  <li><a href="#law-of-total-probability" id="toc-law-of-total-probability" class="nav-link" data-scroll-target="#law-of-total-probability"><span class="header-section-number">2.1.1</span> Law of total probability</a></li>
+  </ul></li>
+  <li><a href="#conditional-expectation-and-the-law-of-total-expectation" id="toc-conditional-expectation-and-the-law-of-total-expectation" class="nav-link" data-scroll-target="#conditional-expectation-and-the-law-of-total-expectation"><span class="header-section-number">2.2</span> Conditional Expectation and the Law of Total expectation</a>
+  <ul class="collapse">
+  <li><a href="#mean-independence-and-conditional-mean-independence" id="toc-mean-independence-and-conditional-mean-independence" class="nav-link" data-scroll-target="#mean-independence-and-conditional-mean-independence"><span class="header-section-number">2.2.1</span> Mean independence and conditional mean independence</a></li>
+  <li><a href="#regression-model" id="toc-regression-model" class="nav-link" data-scroll-target="#regression-model"><span class="header-section-number">2.2.2</span> Regression model</a></li>
+  <li><a href="#nonlinear-parametric-models" id="toc-nonlinear-parametric-models" class="nav-link" data-scroll-target="#nonlinear-parametric-models"><span class="header-section-number">2.2.3</span> Nonlinear parametric models</a></li>
+  </ul></li>
+  <li><a href="#estimation" id="toc-estimation" class="nav-link" data-scroll-target="#estimation"><span class="header-section-number">2.3</span> Estimation</a></li>
+  <li><a href="#sampling-distributions-and-the-bootstrap" id="toc-sampling-distributions-and-the-bootstrap" class="nav-link" data-scroll-target="#sampling-distributions-and-the-bootstrap"><span class="header-section-number">2.4</span> Sampling Distributions and the Bootstrap</a>
+  <ul class="collapse">
+  <li><a href="#bootstrapping" id="toc-bootstrapping" class="nav-link" data-scroll-target="#bootstrapping"><span class="header-section-number">2.4.1</span> Bootstrapping</a></li>
+  </ul></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">2.5</span> Exercises</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span id="probability" class="quarto-section-identifier"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Conditional Probability and Expectation</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(conflicted)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(xfun, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rsample, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fciR, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">dplyr.summarise.inform =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">conflicts_prefer</span>(dplyr<span class="sc">::</span>filter)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>[conflicted] Will prefer dplyr::filter over any other package.</code></pre>
+</div>
+</div>
+<section id="conditional-probability" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="conditional-probability"><span class="header-section-number">2.1</span> Conditional Probability</h2>
+<section id="law-of-total-probability" class="level3" data-number="2.1.1">
+<h3 data-number="2.1.1" class="anchored" data-anchor-id="law-of-total-probability"><span class="header-section-number">2.1.1</span> Law of total probability</h3>
+<p>It is important to note that <span class="math inline">\(\sum_i{H_i} = H\)</span>, that is <span class="math inline">\(H\)</span> can be partitioned in <span class="math inline">\(i\)</span> non-overlapping partitions.</p>
+<p>Then the law of total probabilities is</p>
+<p><span class="math display">\[
+\begin{align*}
+P(A) &amp;= \sum_i{P(A \cap H_i)}= \sum_i{P(A \mid H_i) P(H_i)} \\
+&amp;\text{and we condition the whole expression with B} \\
+P(A \mid B) &amp;= \sum_i{P(A \cap H_i \mid B)}= \sum_i{P(A \mid B, H_i) P(B,H_i)} \\
+\end{align*}
+\]</span></p>
+<p>and the multiplication rule is</p>
+<p><span class="math display">\[
+\begin{align*}
+P(A, B \mid C) &amp;= \frac{P(A, B, C)}{P(C)} \\
+&amp;= \frac{P(A \mid B, C) P(B, C)}{P(C)} \\
+&amp;= \frac{P(A \mid B, C) P(B \mid C) P(C)}{P(C)} \\
+&amp;= P(A \mid B, C) P(B \mid C)
+\end{align*}
+\]</span></p>
+</section>
+</section>
+<section id="conditional-expectation-and-the-law-of-total-expectation" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="conditional-expectation-and-the-law-of-total-expectation"><span class="header-section-number">2.2</span> Conditional Expectation and the Law of Total expectation</h2>
+<p>The conditional expectation is defined as</p>
+<p><span class="math display">\[
+E(Y \mid T) = \sum_y y P(Y=y \mid T)
+\]</span></p>
+<p>and one way that helps me usually understand it well is that conditioning is the same as <em>filtering</em> the data.</p>
+<p>For example the conditional expectation of mortality of US resident at the beginning of 2019 <span class="math inline">\(E(Y \mid T = 1) = 0.0088\)</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"mortality_long"</span>, <span class="at">package =</span> <span class="st">"fciR"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>fciR<span class="sc">::</span>mortality_long <span class="sc">|&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># condition on T = 1</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># compute probabilities</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">prob =</span> n <span class="sc">/</span> <span class="fu">sum</span>(n)) <span class="sc">|&gt;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># compute expectation for each possible value of Y</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Y) <span class="sc">|&gt;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">EYT1 =</span> <span class="fu">sum</span>(Y <span class="sc">*</span> prob)) <span class="sc">|&gt;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># output results in a named vector</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>() <span class="sc">|&gt;</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(<span class="at">nm =</span> <span class="fu">c</span>(<span class="st">"EY0T1"</span>, <span class="st">"EY1T1"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> EY0T1  EY1T1 
+0.0000 0.0088 </code></pre>
+</div>
+</div>
+<p>where <span class="math inline">\(E(Y=0 \mid T=1) = 0\)</span> because when <span class="math inline">\(Y=0 \implies 0 \cdot P(Y=0) = 0\)</span> and <em>since</em> <span class="math inline">\(Y\)</span> is binary <span class="math inline">\(E(Y=1 \mid T=1) = P(Y=1 \mid T=1)\)</span>.</p>
+<blockquote class="blockquote">
+<p>Analogous to the law of total probability is the law of ttal expectation, also called double expectation theorem.</p>
+</blockquote>
+<p>This law is <em>used extensively in this textbook</em>.</p>
+<p><span class="math display">\[
+\begin{align*}
+E(Y \mid T) &amp;= E_{H \mid T}(E(Y \mid H, T)) \\
+&amp;= \sum_h \left[ \sum_y y P(Y=y \mid H=h, T) \right] P(H=h \mid T)
+\end{align*}
+\]</span></p>
+<p>Also the following equivalence is used very often in this book.</p>
+<p><span class="math display">\[
+\begin{align*}
+E(H \mid T) = \sum_h h P(H=h \mid T) = E_{H \mid T} (H)
+\end{align*}
+\]</span></p>
+<section id="mean-independence-and-conditional-mean-independence" class="level3" data-number="2.2.1">
+<h3 data-number="2.2.1" class="anchored" data-anchor-id="mean-independence-and-conditional-mean-independence"><span class="header-section-number">2.2.1</span> Mean independence and conditional mean independence</h3>
+<blockquote class="blockquote">
+<p>The random variable <span class="math inline">\(Y\)</span> is mean independent of <span class="math inline">\(T\)</span> if</p>
+</blockquote>
+<p><span class="math display">\[
+E(Y \mid T) = E(Y)
+\]</span></p>
+<blockquote class="blockquote">
+<p>and is conditionally mean independent of <span class="math inline">\(T\)</span> given <span class="math inline">\(H\)</span> is</p>
+</blockquote>
+<p><span class="math display">\[
+E(Y \mid T, H) = E(Y \mid H)
+\]</span></p>
+<p>and the <em>conditional uncorrelation</em> and uncorrelation are</p>
+<p><span class="math display">\[
+E(YT \mid H) = E(Y \mid H)E(T \mid H) \implies \text{conditionally uncorrelated} \\
+E(YT) = E(Y)E(T) \implies \text{uncorrelated}
+\]</span></p>
+<blockquote class="blockquote">
+<p>It happens that conditional mean independence implies conditional uncorrelation, but not the other way around.</p>
+</blockquote>
+<p>We prove it as follows</p>
+<p><span class="math display">\[
+\begin{align*}
+\text{assume Y is conditionally independent of T given H then} \\
+E(Y \mid T, H) &amp;= E(Y \mid H) \\ \\
+\text{using double expectation theorem} \\
+E(TY \mid H) &amp;= E_{T \mid H}(E(TY \mid H, T)) \\
+\text{expectation is a linear operator} \\
+&amp;= E_{T \mid H}(TE(Y \mid H, T)) \\
+\text{by conditional mean independence from above} \\
+&amp;= E_{T \mid H}(TE(Y \mid H)) \\
+\text{expectation is a linear operator} \\
+&amp;= E_{T \mid H}(T)E_{T \mid H}(E(Y \mid H)) \\
+\text{which proves the conditional uncorrelation} \\
+&amp;= E(T \mid H)E(Y \mid H)
+\end{align*}
+\]</span></p>
+</section>
+<section id="regression-model" class="level3" data-number="2.2.2">
+<h3 data-number="2.2.2" class="anchored" data-anchor-id="regression-model"><span class="header-section-number">2.2.2</span> Regression model</h3>
+<blockquote class="blockquote">
+<p>A statistical model for a conditional expectation is called a <em>regression model</em>.</p>
+</blockquote>
+<p>For a binary dataset the regression model is said to be <em>saturated</em> or <em>nonparametric</em> because the 4 proportions, or coefficients, cover all possibilities.</p>
+<p><span class="math display">\[
+E(Y \mid T, H) = \beta_0 + \beta_1 H + \beta_2 T + \beta_3 H * T
+\]</span></p>
+<p>When <em>unsaturated</em> or <em>parametric</em> the model makes an assumption. For example the following model assumes no interaction.</p>
+<p><span class="math display">\[
+E(Y \mid T, H) = \beta_0 + \beta_1 H + \beta_2 T
+\]</span></p>
+</section>
+<section id="nonlinear-parametric-models" class="level3" data-number="2.2.3">
+<h3 data-number="2.2.3" class="anchored" data-anchor-id="nonlinear-parametric-models"><span class="header-section-number">2.2.3</span> Nonlinear parametric models</h3>
+<p>The three parametric models, also the most well-known, used in the book are</p>
+<p><span class="math display">\[
+\begin{align*}
+\text{linear: } \: E(Y \mid X_1, \ldots, X_p) &amp;= \beta_0 + \beta_1 X_1 + \ldots + \beta_p X_p \\
+\text{loglinear: } \: E(Y \mid X_1, \ldots, X_p) &amp;= \exp{(\beta_0 + \beta_1 X_1 + \ldots + \beta_p X_p)} \\
+\text{logistic: } \: E(Y \mid X_1, \ldots, X_p) &amp;= \text{expit}(\beta_0 + \beta_1 X_1 + \ldots + \beta_p X_p)
+\end{align*}
+\]</span></p>
+<p>The function <code>expit()</code> used by the author is actually the same as <code>gtools::inv.logit()</code>, <code>boot::inv.logit()</code> or <code>stats::plogis()</code>. In this project we use <code>stats::plogis()</code> to minimize dependencies since it is in base R.</p>
+</section>
+</section>
+<section id="estimation" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="estimation"><span class="header-section-number">2.3</span> Estimation</h2>
+<p>This section is extremely important as it is used extensively, especially from the chapter 6 on.</p>
+<p>Lets use the <em>What-if</em> example to illustrate the mathematics of it. In that case, we have 3 covariates, <span class="math inline">\(T\)</span> for naltrexone, <span class="math inline">\(A\)</span> for reduced drinking and <span class="math inline">\(H\)</span> for unsuppressed viral load. In the data set we have 165 observations, therefore <span class="math inline">\(i=165\)</span>.</p>
+<p>Let <span class="math inline">\(X_i\)</span> denote the collection of <span class="math inline">\(X_{ij}\)</span> for <span class="math inline">\(j=1, \ldots, p\)</span> where <span class="math inline">\(p\)</span> is the number of covariates which is 3 in the What-if dataset. <span class="math inline">\(X_i\)</span> is a <strong>horizontal</strong> vector.</p>
+<p>So for the What-if study</p>
+<p><span class="math display">\[
+X_i = \begin{bmatrix}A_i &amp; T_i &amp; H_1 \end{bmatrix}
+\]</span></p>
+<p>and <span class="math inline">\(\beta\)</span> is a <strong>vertical</strong> vector.</p>
+<p><span class="math display">\[
+\beta = \begin{bmatrix}\beta_1 \\ \beta_2 \\ \beta_3 \end{bmatrix}
+\]</span></p>
+<p>therefore</p>
+<p><span class="math display">\[
+\begin{align*}
+X_i \beta &amp;= \begin{bmatrix}A_i &amp; T_i &amp; H_1 \end{bmatrix} \times \begin{bmatrix}\beta_1 \\ \beta_2 \\ \beta_3 \end{bmatrix} \\
+&amp;= \beta_1 A_i + \beta_2 T_i + \beta_3 H_i
+\end{align*}
+\]</span></p>
+<p>we also have</p>
+<p><span class="math display">\[
+\begin{align*}
+X_i^T (Y_i - X_i \beta) &amp;= \begin{bmatrix}A_i \\ T_i \\ H_1 \end{bmatrix}(Y_i - \beta_1 A_i + \beta_2 T_i + \beta_3 H_i) \\
+&amp;= \begin{bmatrix}
+A_i (Y_i - \beta_1 A_i + \beta_2 T_i + \beta_3 H_i) \\
+T_i (Y_i - \beta_1 A_i + \beta_2 T_i + \beta_3 H_i) \\
+H_1 (Y_i - \beta_1 A_i + \beta_2 T_i + \beta_3 H_i)
+\end{bmatrix}
+\end{align*}
+\]</span></p>
+<p>Also, we can estimate the unconditional expectation of the binary outcome <span class="math inline">\(Y\)</span> as</p>
+<p><span class="math display">\[
+\hat{E}(Y) = \frac{1}{n} \sum_{i=1}^n Y_i
+\]</span></p>
+<p>which returns the proportion of participants with unsuppressed viral load after 4 months</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"whatifdat"</span>, <span class="at">package =</span> <span class="st">"fciR"</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(whatifdat<span class="sc">$</span>Y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.3212121</code></pre>
+</div>
+</div>
+<p>This is an unbiased estimator for <span class="math inline">\(E(Y)\)</span> because <span class="math inline">\(E(\hat{E}(Y)) = E(Y)\)</span></p>
+<p>Now let the saturated model for <span class="math inline">\(E(Y)\)</span> be</p>
+<p><span class="math display">\[
+E(Y) = \beta
+\]</span></p>
+<p>with the following <em>estimating equation</em></p>
+<p><span class="math display">\[
+U(\beta) = \sum_{i=1}^n (Y_i - \beta) = 0
+\]</span></p>
+<p>and simple algebra, using the estimate of <span class="math inline">\(\hat{E}(Y)\)</span> from above gives <span class="math inline">\(\beta = \hat{E}(Y)\)</span> and we use the notation <span class="math inline">\(\hat{E}(Y) = E(Y \mid X, \beta)\)</span> to show its dependency on the data and <span class="math inline">\(\beta\)</span>.</p>
+<p><span class="math display">\[
+\begin{align*}
+U(\beta) &amp;= \sum_{i=1}^n (Y_i - \beta) \\
+&amp;= \sum_{i=1}^n \left[ Y_i - E(Y \mid X, \beta) \right] \\
+&amp;= 0
+\end{align*}
+\]</span> and to do the actual calculations we use a variation of the estimating equation as follows</p>
+<p><span class="math display">\[
+\begin{align*}
+U(\beta) = \sum_{i=1}^n X_i^T \left[ Y_i - E(Y \mid X, \beta) \right] = 0
+\end{align*}
+\]</span></p>
+<p>As an example, we fit the logistic regression model with the <em>What-if</em> dataset</p>
+<p><span class="math display">\[
+E(Y \mid A,T,H) = expit(\beta_0 + \beta_A A + \beta_T T + \beta_H H)
+\]</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>whatif.mod <span class="ot">&lt;-</span> <span class="fu">glm</span>(Y <span class="sc">~</span> A <span class="sc">+</span> <span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">+</span> H, <span class="at">family =</span> <span class="st">"binomial"</span>, <span class="at">data =</span> whatifdat)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(whatif.mod)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = Y ~ A + T + H, family = "binomial", data = whatifdat)
+
+Coefficients:
+            Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)  -1.5234     0.4125  -3.693 0.000222 ***
+A            -0.5647     0.4214  -1.340 0.180248    
+T            -0.2254     0.4147  -0.543 0.586790    
+H             2.7438     0.4158   6.600 4.12e-11 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 207.17  on 164  degrees of freedom
+Residual deviance: 150.83  on 161  degrees of freedom
+AIC: 158.83
+
+Number of Fisher Scoring iterations: 4</code></pre>
+</div>
+</div>
+<p>The coefficients, <span class="math inline">\(\beta_0, \beta_A, \beta_T, \beta_H\)</span> are obtained with <code>coef()</code> which is an alias for <code>coefficient()</code>. The example in the book uses <code>lmod$coef</code> which is not a recommended coding practice. The data should be obtained with an extractor function such as <code>coef()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(whatif.mod)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept)           A           T           H 
+ -1.5233530  -0.5647068  -0.2254112   2.7438245 </code></pre>
+</div>
+</div>
+<p>and since the model is binomial then the inverse function to convert from the logit scale to the natural scale is <code>stats::plogis()</code>.</p>
+<p>Therefore the parametric estimate is</p>
+<p><span class="math display">\[
+E(Y \mid A=1, T=1, H=1) = \beta_0 + \beta_A \cdot 1 + \beta_T \cdot 1 + \beta_H \cdot 1
+\]</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>stats<span class="sc">::</span><span class="fu">plogis</span>(<span class="fu">sum</span>(<span class="fu">coef</span>(whatif.mod)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.6059581</code></pre>
+</div>
+</div>
+<p>we can also use the linear model directly, thus avoiding a call to <code>plogis</code> and making the code a little more robust. This technique is used quite often in the book, especially starting from chapter 6 on.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>whatif.newdata <span class="ot">&lt;-</span> whatifdat <span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(A <span class="sc">==</span> <span class="dv">1</span>, <span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">==</span> <span class="dv">1</span>, H <span class="sc">==</span> <span class="dv">1</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>whatif.EYT1 <span class="ot">&lt;-</span> <span class="fu">predict</span>(whatif.mod, <span class="at">newdata =</span> whatif.newdata, </span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>                            <span class="at">type =</span> <span class="st">"response"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>()</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>whatif.EYT1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.6059581</code></pre>
+</div>
+</div>
+<p>and we can validate the result directly using the dataset</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>whatifdat.est <span class="ot">&lt;-</span> whatifdat <span class="sc">|&gt;</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(A <span class="sc">==</span> <span class="dv">1</span>, <span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">==</span> <span class="dv">1</span>, H <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(Y) <span class="sc">|&gt;</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>()</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>whatifdat.est</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.5909091</code></pre>
+</div>
+</div>
+<p>which is close to the parametric estimate.</p>
+</section>
+<section id="sampling-distributions-and-the-bootstrap" class="level2" data-number="2.4">
+<h2 data-number="2.4" class="anchored" data-anchor-id="sampling-distributions-and-the-bootstrap"><span class="header-section-number">2.4</span> Sampling Distributions and the Bootstrap</h2>
+<p>The previous section prived and estimate. But how variable is this estimator? One way would be to report the standard error <span class="math inline">\(\sigma_{\hat{x}} = \frac{\sigma}{\sqrt{n}}\)</span>. Therefore, since <span class="math inline">\(\sigma^2 = p(1-p)\)</span> for a binomial distribution</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># the sample size</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>whatifdat.n <span class="ot">&lt;-</span> <span class="fu">sum</span>(whatifdat<span class="sc">$</span>A <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> whatifdat<span class="sc">$</span><span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> whatifdat<span class="sc">$</span>H <span class="sc">==</span> <span class="dv">1</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co"># whatifdat.n</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co"># the standard deviation</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>whatifdat.sd <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(whatifdat.est <span class="sc">*</span> (<span class="dv">1</span><span class="sc">-</span> whatifdat.est))</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co"># whatifdat.sd</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="co"># the standard error</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>whatifdat.se <span class="ot">&lt;-</span> whatifdat.sd <span class="sc">/</span> <span class="fu">sqrt</span>(whatifdat.n)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>whatifdat.se</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1048236</code></pre>
+</div>
+</div>
+<p>Note that the formula used by B. Brumback is using the standard deviation of the population <span class="math inline">\(p(1-p)\)</span> which, maybe, is not entirely the right way since the standard error of the mean is defined using the <em>standard deviation of the sample</em>.</p>
+<p>That is Brumback uses</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> whatifdat<span class="sc">$</span>Y[whatifdat<span class="sc">$</span>A <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> whatifdat<span class="sc">$</span><span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> whatifdat<span class="sc">$</span>H <span class="sc">==</span><span class="dv">1</span>]</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">length</span>(x)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(x) <span class="sc">*</span> <span class="fu">sqrt</span>(n<span class="dv">-1</span>) <span class="sc">/</span> n</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1048236</code></pre>
+</div>
+</div>
+<p>when the correct definition is</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> whatifdat<span class="sc">$</span>Y[whatifdat<span class="sc">$</span>A <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> whatifdat<span class="sc">$</span><span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> whatifdat<span class="sc">$</span>H <span class="sc">==</span><span class="dv">1</span>]</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(x) <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="fu">length</span>(x))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1072903</code></pre>
+</div>
+</div>
+<blockquote class="blockquote">
+<p>Another way would be by reporting the <em>sampling distribution</em> of our estimator.</p>
+</blockquote>
+<blockquote class="blockquote">
+<p>the sampling distribution is centered at the true value of our estimand and it has a standard deviation equal to the true standard error of our estimator.</p>
+</blockquote>
+<p>The section 2.4 will not be repeated here, yet it is very instructive and cover a topic that we end to forget. We will just repeat the calculations below. They</p>
+<p>The <code>sim()</code> function in section 2.4, p.&nbsp;31 is coded in <code>fciR::sim_intervals()</code> and its alias <code>fciR::sim()</code>.</p>
+<p>Run and verify with author’s results on p.&nbsp;32</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">sim_intervals</span>(<span class="at">nsim =</span> <span class="dv">500</span>, <span class="at">n =</span> <span class="dv">500</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(d<span class="sc">$</span>bad <span class="sc">-</span> <span class="fl">0.8374</span>) <span class="sc">&lt;</span> <span class="fl">0.03</span>, <span class="fu">abs</span>(d<span class="sc">$</span>good <span class="sc">-</span> <span class="fl">0.948</span>) <span class="sc">&lt;</span> <span class="fl">0.03</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>d</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$bad
+[1] 0.842
+
+$good
+[1] 0.948</code></pre>
+</div>
+</div>
+<section id="bootstrapping" class="level3" data-number="2.4.1">
+<h3 data-number="2.4.1" class="anchored" data-anchor-id="bootstrapping"><span class="header-section-number">2.4.1</span> Bootstrapping</h3>
+<blockquote class="blockquote">
+<p>As we have seen, replacing <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span> with estimates leads to some problems, but we can still form an interpretable 95% confidence interval. In many situations, we do not have a good estimate of <span class="math inline">\(\sigma\)</span>. In those cases, we often can turn to <em>bootstrap</em>.</p>
+</blockquote>
+<p>Bootstrapping in base R is done with the <code>boot</code> from the <code>boot</code> package. Another option is the <code>rsample</code> package which isthe tidyverse way of doing it. Both methods will be used in this project. In the package <code>fciR</code>, the functions <code>boot_run</code> and <code>boot_est</code> use the classic R package <code>boot</code>. The functions <code>bootidy_run</code> and <code>bootidy_est</code> are similar but use the <code>rsample</code> package.</p>
+<section id="boot-package" class="level4" data-number="2.4.1.1">
+<h4 data-number="2.4.1.1" class="anchored" data-anchor-id="boot-package"><span class="header-section-number">2.4.1.1</span> <code>boot</code> package</h4>
+<p>We use <code>boot::boot()</code> for boostrapping and <code>boot::boot.ci()</code> to compute the confidence interval of the estimand using the logistic model as done by the <code>lmodboot</code> function in section 2.4. We only run 100 boot samples since it is only an example. The default value is 1000.</p>
+<p>The first 3 arguments <code>data</code>, <code>statistic</code> and <code>R</code> are specific to <code>boot</code>, the <code>...</code> is for extra arguments used by <code>lmodboot</code>. The details of <code>lmdboots</code> can be found in the package <code>fciR</code> or in its alias <code>fciR::prob_lmod</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prob_lmod</span>(whatifdat, <span class="at">formula =</span> Y <span class="sc">~</span> <span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">+</span> A <span class="sc">+</span> H)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    term  estimate std.err
+1 logitP 0.4303535      NA</code></pre>
+</div>
+</div>
+<p>and we show the details on how to do the bootstrapping with the <code>boot</code> package as follows.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># define the function used by boot</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>whatifdat.fnc <span class="ot">&lt;-</span> <span class="cf">function</span>(data, ids, ...) {</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  dat <span class="ot">&lt;-</span> data[ids, ]</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">prob_lmod</span>(<span class="at">data =</span> dat, ...)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># create the named vector</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">c</span>(df<span class="sc">$</span>estimate)</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>(out) <span class="ot">&lt;-</span> df<span class="sc">$</span>term</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  out</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="co"># run the bootstrapping</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>whatifdat.boot <span class="ot">&lt;-</span> boot<span class="sc">::</span><span class="fu">boot</span>(<span class="at">data =</span> whatifdat, <span class="at">statistic =</span> whatifdat.fnc, </span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>                             <span class="at">R =</span> <span class="dv">100</span>, <span class="at">formula =</span> Y <span class="sc">~</span> <span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">+</span> A <span class="sc">+</span> H)</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a><span class="co"># get the confidence interval for every term in the bootstrap object</span></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>whatifdat.out <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="at">X =</span> <span class="fu">seq_along</span>(whatifdat.boot<span class="sc">$</span>t0), <span class="at">FUN =</span> <span class="cf">function</span>(i, <span class="at">alpha =</span> <span class="fl">0.05</span>) {</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>  est <span class="ot">&lt;-</span> whatifdat.boot<span class="sc">$</span>t0[i]</span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># the method used to find the interval</span></span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>  the_method <span class="ot">&lt;-</span> <span class="st">"norm"</span></span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># extract the interval from the boot object</span></span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>  ci <span class="ot">&lt;-</span> boot<span class="sc">::</span><span class="fu">boot.ci</span>(whatifdat.boot, <span class="at">conf =</span> <span class="dv">1</span> <span class="sc">-</span> alpha, <span class="at">type =</span> the_method, </span>
+<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>                      <span class="at">index =</span> i)<span class="sc">$</span>normal</span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># the dataframe of results, follow the format from rsample package</span></span>
+<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="st">"term"</span> <span class="ot">=</span> <span class="fu">names</span>(est),</span>
+<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>    <span class="st">".lower"</span> <span class="ot">=</span> <span class="fu">plogis</span>(ci[<span class="dv">2</span>]),</span>
+<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>    <span class="st">".estimate"</span> <span class="ot">=</span> <span class="fu">plogis</span>(<span class="fu">unname</span>(est)),</span>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">".upper"</span> <span class="ot">=</span> <span class="fu">plogis</span>(ci[<span class="dv">3</span>]),</span>
+<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">".alpha"</span> <span class="ot">=</span> alpha,</span>
+<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">".method"</span> <span class="ot">=</span> the_method)</span>
+<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a><span class="co"># bind the data.frame in one.</span></span>
+<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a><span class="co"># In this case it makes no difference as there is only one.</span></span>
+<span id="cb27-31"><a href="#cb27-31" aria-hidden="true" tabindex="-1"></a><span class="co"># and we just want to show how it works in case of several items</span></span>
+<span id="cb27-32"><a href="#cb27-32" aria-hidden="true" tabindex="-1"></a>whatifdat.out <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, whatifdat.out)</span>
+<span id="cb27-33"><a href="#cb27-33" aria-hidden="true" tabindex="-1"></a>whatifdat.out</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    term    .lower .estimate    .upper .alpha .method
+1 logitP 0.4353464 0.6059581 0.7443154   0.05    norm</code></pre>
+</div>
+</div>
+</section>
+<section id="rsample-package" class="level4" data-number="2.4.1.2">
+<h4 data-number="2.4.1.2" class="anchored" data-anchor-id="rsample-package"><span class="header-section-number">2.4.1.2</span> <code>rsample</code> package</h4>
+<p>Another way package that could be used for boostrapping is <code>rsample::bootstrap</code> which uses the tidyverse way of R programming.</p>
+<p>To be fully tidyverse-like we recode the <code>prob_lmod</code> function from above and call it <code>prob_lmod_td</code> where the <code>td</code> suffix stands for <code>tidyverse</code>. Note the use of a formula as an argument to the function and the <code>rlang</code> package which is a great tool to learn for quality code in R.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>prob_lmod_td <span class="ot">&lt;-</span> <span class="cf">function</span>(data, <span class="at">formula =</span> Y <span class="sc">~</span> <span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">+</span> A <span class="sc">+</span> H,</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">condition.names =</span> <span class="cn">NULL</span>) {</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># independent variables from the formula</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  f_vars <span class="ot">&lt;-</span> <span class="fu">all.vars</span>(rlang<span class="sc">::</span><span class="fu">f_rhs</span>(formula))</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># if condition.names is NULL then use all independent variables</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># which is the same as saying there is no condition</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(condition.names)) condition.names <span class="ot">&lt;-</span> f_vars</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(<span class="fu">all</span>(condition.names <span class="sc">%in%</span> f_vars))</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># add intercept to conditions</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>  x0 <span class="ot">&lt;-</span> <span class="st">"(Intercept)"</span>  <span class="co"># name of intercept used by lm, glm, etc.</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>  condition.names <span class="ot">&lt;-</span> <span class="fu">c</span>(x0, condition.names)</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">glm</span>(<span class="at">formula =</span> formula, <span class="at">family =</span> <span class="st">"binomial"</span>, <span class="at">data =</span> data) <span class="sc">|&gt;</span></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tidy</span>()</span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>  fit <span class="sc">|&gt;</span></span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">%in%</span> condition.names) <span class="sc">|&gt;</span></span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarize</span>(<span class="at">term =</span> <span class="st">"logitP"</span>,</span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>              <span class="at">estimate =</span> <span class="fu">sum</span>(estimate),</span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>              <span class="co"># don't know the std.err so no t-intervals</span></span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>              <span class="at">std.err =</span> <span class="cn">NA_real_</span>)</span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>t <span class="ot">&lt;-</span> <span class="fu">prob_lmod_td</span>(whatifdat, <span class="at">formula =</span> Y <span class="sc">~</span> <span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">+</span> A <span class="sc">+</span> H)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>t</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  term   estimate std.err
+  &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;
+1 logitP    0.430      NA</code></pre>
+</div>
+</div>
+<p>The following function is inspired from <a href="https://rsample.tidymodels.org/articles/Applications/Intervals.html">rsample bootstrap</a>.</p>
+<p>We obtain the confidence interval using <code>rsample::int_pctl</code> which uses a percentile interval instead of assuming a normal distribution as Ms Brumback does. The result are not materially different in the current case.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>whatifdat <span class="sc">|&gt;</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  rsample<span class="sc">::</span><span class="fu">bootstraps</span>(<span class="at">times =</span> <span class="dv">100</span>, <span class="at">apparent =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">results =</span> <span class="fu">map</span>(splits, <span class="cf">function</span>(x) {</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    dat <span class="ot">&lt;-</span> <span class="fu">analysis</span>(x)</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">prob_lmod_td</span>(dat, <span class="at">formula =</span> Y <span class="sc">~</span> <span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">+</span> A <span class="sc">+</span> H)})</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>  rsample<span class="sc">::</span><span class="fu">int_pctl</span>(<span class="at">statistics =</span> results, <span class="at">alpha =</span> <span class="fl">0.05</span>) <span class="sc">|&gt;</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">term =</span> <span class="st">"P"</span>,</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">.lower =</span> <span class="fu">plogis</span>(.lower),</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">.estimate =</span> <span class="fu">plogis</span>(.estimate),</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">.upper =</span> <span class="fu">plogis</span>(.upper))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Recommend at least 1000 non-missing bootstrap resamples for term
+`logitP`.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 6
+  term  .lower .estimate .upper .alpha .method   
+  &lt;chr&gt;  &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;     
+1 P      0.455     0.613  0.785   0.05 percentile</code></pre>
+</div>
+</div>
+<p>and <code>lmodboot()</code> is <code>fciR::boot_lmod()</code> with the alias <code>fciR::lmodboot()</code></p>
+<p>Finally we run <code>fciR::boot_lmod()</code> and verify against the author’s results on p.34</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"whatifdat"</span>, <span class="at">package =</span> <span class="st">"fciR"</span>)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> xfun<span class="sc">::</span><span class="fu">cache_rds</span>({</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  fciR<span class="sc">::</span><span class="fu">boot_est</span>(whatifdat, <span class="at">func =</span> fciR<span class="sc">::</span>prob_lmod, <span class="at">times =</span> <span class="dv">500</span>,</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">alpha =</span> <span class="fl">0.05</span>, <span class="at">seed =</span> <span class="dv">123</span>, <span class="at">transf =</span> <span class="st">"expit"</span>, <span class="at">terms =</span> <span class="cn">NULL</span>,</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>                 <span class="at">formula =</span> Y <span class="sc">~</span> <span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">+</span> A <span class="sc">+</span> H)</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  }, <span class="at">file =</span> <span class="st">"ch02_lmodboot"</span>, <span class="at">rerun =</span> is_rerun)</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>out</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 6
+  term  .lower .estimate .upper .alpha .method   
+  &lt;chr&gt;  &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;     
+1 P      0.427     0.608  0.750   0.05 percentile</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># check results with book</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(out[<span class="st">".estimate"</span>] <span class="sc">-</span> <span class="fl">0.60596</span>) <span class="sc">&lt;</span> <span class="fl">0.02</span>,</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>          <span class="fu">abs</span>(out[<span class="st">".lower"</span>] <span class="sc">-</span> <span class="fl">0.41638</span>) <span class="sc">&lt;</span> <span class="fl">0.02</span>,</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>          <span class="fu">abs</span>(out[<span class="st">".upper"</span>] <span class="sc">-</span> <span class="fl">0.76823</span>) <span class="sc">&lt;</span> <span class="fl">0.02</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="exercises" class="level2" data-number="2.5">
+<h2 data-number="2.5" class="anchored" data-anchor-id="exercises"><span class="header-section-number">2.5</span> Exercises</h2>
+<p>The exercises are located in a separate project.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./ch01_intro.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./references.html" class="pagination-link">
+        <span class="nav-page-text">References</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>

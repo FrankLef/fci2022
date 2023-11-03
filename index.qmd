@@ -8,7 +8,8 @@ This is a study project of the book *Fundamentals of Causal Inference With R* by
 
 -   The companion package for this project is `fciR` and can be found at [fciR](https://github.com/FrankLef/fciR).
 
--   The exercises can be found at [FCI exercises](https://github.com/FrankLef/fci2020). This repo could be set as a **private** to avoid frustrating the publisher.
+-   The exercises can be found at [FCI exercises](https://github.com/FrankLef/fci2020). 
+This repo could be set as a **private** to avoid frustrating the publisher.
 
 ## Acknowledgements
 
@@ -19,7 +20,7 @@ Many thanks to Babette A. Brumback for a book full of amazing observations, tric
 For data processing and analysis the following packages are used
 
 | Package                                                               | Comment                                     |
-|-----------------------------------------------------------------------|---------------------------------------------|
+|--------------------------------------------|----------------------------|
 | [fciR](https://github.com/FrankLef/fciR)                              | This companion R package for this book      |
 | [conflicted](https://conflicted.r-lib.org)                            | Manage conflict resolution amongst packages |
 | [tidyverse](https://www.tidyverse.org)                                | Tidyverse is the favored coding way         |
@@ -33,7 +34,7 @@ For data processing and analysis the following packages are used
 For plotting, graphs and tables these packages are used
 
 | Package                                           | Comment                                          |
-|---------------------------------------------------|--------------------------------------------------|
+|------------------------------------|------------------------------------|
 | [ggplot](https://ggplot2.tidyverse.org)           | Create graphics based on the grammar of graphics |
 | [ggdag](https://github.com/r-causal/ggdag)        | Causal directed acyclic graphs                   |
 | [tidygraph](https://tidygraph.data-imaginist.com) | Graphs and networks manipulation                 |

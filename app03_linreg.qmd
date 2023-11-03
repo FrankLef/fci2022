@@ -37,8 +37,7 @@ df |>
 
 ### `fitted()`
 
-`fitted()` returns the expected values of the response *after* the link function 
-is applied, i.e. $E(Y_I)$. Also `fitted()` uses only the original data.
+`fitted()` returns the expected values of the response *after* the link function is applied, i.e. $E(Y_I)$. Also `fitted()` uses only the original data.
 
 For example
 
@@ -57,8 +56,7 @@ fitted.out <- fitted(fit)
 fitted.out
 ```
 
-and if you try to fit with new data, nothing will happen. It doesn't use the 
-new data and returns the same output, *no warning is given about the fact that `newdata` is not used*.
+and if you try to fit with new data, nothing will happen. It doesn't use the new data and returns the same output, *no warning is given about the fact that `newdata` is not used*.
 
 ```{r}
 newdf <- df
@@ -68,8 +66,7 @@ fitted(fit, newdata = newdf)
 
 ### `predict()`
 
-On the other hand `predict` gives the result *before* the link function is 
-applied *and* uses `newdata`
+On the other hand `predict` gives the result *before* the link function is applied *and* uses `newdata`
 
 First lets use `predict()` with the existing data
 
@@ -84,8 +81,7 @@ which is *before* the link function is applied and so
 exp(predict.out) == fitted.out
 ```
 
-and there is an option, `type = "response"` that tells predict to applied the 
-link function so you don't have to do it
+and there is an option, `type = "response"` that tells predict to applied the link function so you don't have to do it
 
 ```{r}
 predict(fit, type = "response")
@@ -93,9 +89,7 @@ predict(fit, type = "response")
 
 ### Conclusion
 
-In the context of @shanninbrumback2021 we use `fitted()` when we use the 
-original data to get $E(E(Y_i))= \hat{Y}$ and `predict()..., type = "response`) 
-when we ave a counterfactual in the data, that is $E(E(Y_i \mid T = t))= \hat{Y} \mid T=t$
+In the context of @shanninbrumback2021 we use `fitted()` when we use the original data to get $E(E(Y_i))= \hat{Y}$ and `predict()..., type = "response`) when we ave a counterfactual in the data, that is $E(E(Y_i \mid T = t))= \hat{Y} \mid T=t$
 
 ```{r}
 mean(fitted.out)

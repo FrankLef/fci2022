@@ -1,6 +1,7 @@
 # Conditional Probability and Expectation {#probability}
 
 ```{r }
+library(conflicted)
 library(xfun, quietly = TRUE)
 library(tidyr, quietly = TRUE)
 library(dplyr, quietly = TRUE)
@@ -8,9 +9,11 @@ library(purrr, quietly = TRUE)
 library(rsample, quietly = TRUE)
 library(fciR, quietly = TRUE)
 options(dplyr.summarise.inform = FALSE)
+conflicts_prefer(dplyr::filter)
 ```
 
-```{r include=FALSE}
+```{r}
+#| include: false
 # TRUE = rerun the cache
 is_rerun <- FALSE
 # directory of data files
@@ -54,16 +57,18 @@ $$
 E(Y \mid T) = \sum_y y P(Y=y \mid T)
 $$
 
-and one way that helps me usually understand it well is that conditioning is the same as *filtering* the data.
+and one way that helps me usually understand it well is that conditioning 
+is the same as *filtering* the data.
 
-For example the conditional expectation of mortality of US resident at the beginning of 2019 $E(Y \mid T = 1) = 0.0088$
+For example the conditional expectation of mortality of US resident at the 
+beginning of 2019 $E(Y \mid T = 1) = 0.0088$
 
 ```{r}
 data("mortality_long", package = "fciR")
-mortality_long |>
+fciR::mortality_long |>
   # condition on T = 1
   filter(`T` == 1) |>
-  # compute probabilties
+  # compute probabilities
   mutate(prob = n / sum(n)) |>
   # compute expectation for each possible value of Y
   group_by(Y) |>
@@ -84,7 +89,9 @@ $$
 E(Y \mid T) &= E_{H \mid T}(E(Y \mid H, T)) \\
 &= \sum_h \left[ \sum_y y P(Y=y \mid H=h, T) \right] P(H=h \mid T)
 \end{align*}
-$$ Also the following equivalence is used very often in this book.
+$$ 
+
+Also the following equivalence is used very often in this book.
 
 $$
 \begin{align*}
@@ -176,13 +183,13 @@ So for the What-if study
 
 $$
 X_i = \begin{bmatrix}A_i & T_i & H_1 \end{bmatrix}
-$$ 
+$$
 
 and $\beta$ is a **vertical** vector.
 
 $$
 \beta = \begin{bmatrix}\beta_1 \\ \beta_2 \\ \beta_3 \end{bmatrix}
-$$ 
+$$
 
 therefore
 
@@ -204,13 +211,13 @@ T_i (Y_i - \beta_1 A_i + \beta_2 T_i + \beta_3 H_i) \\
 H_1 (Y_i - \beta_1 A_i + \beta_2 T_i + \beta_3 H_i) 
 \end{bmatrix}
 \end{align*}
-$$ 
+$$
 
 Also, we can estimate the unconditional expectation of the binary outcome $Y$ as
 
 $$
 \hat{E}(Y) = \frac{1}{n} \sum_{i=1}^n Y_i
-$$ 
+$$
 
 which returns the proportion of participants with unsuppressed viral load after 4 months
 
@@ -231,8 +238,7 @@ with the following *estimating equation*
 
 $$
 U(\beta) = \sum_{i=1}^n (Y_i - \beta) = 0
-$$ 
-
+$$
 
 and simple algebra, using the estimate of $\hat{E}(Y)$ from above gives $\beta = \hat{E}(Y)$ and we use the notation $\hat{E}(Y) = E(Y \mid X, \beta)$ to show its dependency on the data and $\beta$.
 
@@ -248,8 +254,7 @@ $$
 \begin{align*}
 U(\beta) = \sum_{i=1}^n X_i^T \left[ Y_i - E(Y \mid X, \beta) \right] = 0
 \end{align*}
-$$ 
-
+$$
 
 As an example, we fit the logistic regression model with the *What-if* dataset
 
@@ -262,13 +267,17 @@ whatif.mod <- glm(Y ~ A + `T` + H, family = "binomial", data = whatifdat)
 summary(whatif.mod)
 ```
 
-The coefficients, $\beta_0, \beta_A, \beta_T, \beta_H$ are obtained with `coef()` which is an alias for `coefficient()`. The example in the book uses `lmod$coef` which is not a recommended coding practice. The data should be obtained with an extractor function such as `coef()`.
+The coefficients, $\beta_0, \beta_A, \beta_T, \beta_H$ are obtained with 
+`coef()` which is an alias for `coefficient()`. The example in the book uses 
+`lmod$coef` which is not a recommended coding practice. The data should be 
+obtained with an extractor function such as `coef()`.
 
 ```{r}
 coef(whatif.mod)
 ```
 
-and since the model is binomial then the inverse function to convert from the logit scale to the natural scale is `stats::plogis()`.
+and since the model is binomial then the inverse function to convert from the 
+logit scale to the natural scale is `stats::plogis()`.
 
 Therefore the parametric estimate is
 
@@ -280,7 +289,9 @@ $$
 stats::plogis(sum(coef(whatif.mod)))
 ```
 
-we can also use the linear model directly, thus avoiding a call to `plogis` and making the code a little more robust. This technique is used quite often in the book, especially starting from chapter 6 on.
+we can also use the linear model directly, thus avoiding a call to `plogis` 
+and making the code a little more robust. This technique is used quite often 
+in the book, especially starting from chapter 6 on.
 
 ```{r}
 whatif.newdata <- whatifdat |>
@@ -305,7 +316,9 @@ which is close to the parametric estimate.
 
 ## Sampling Distributions and the Bootstrap
 
-The previous section prived and estimate. But how variable is this estimator? One way would be to report the standard error $\sigma_{\hat{x}} = \frac{\sigma}{\sqrt{n}}$. Therefore, since $\sigma^2 = p(1-p)$ for a binomial distribution
+The previous section prived and estimate. But how variable is this estimator? 
+One way would be to report the standard error $\sigma_{\hat{x}} = \frac{\sigma}{\sqrt{n}}$. 
+Therefore, since $\sigma^2 = p(1-p)$ for a binomial distribution
 
 ```{r}
 # the sample size
@@ -321,7 +334,9 @@ whatifdat.se <- whatifdat.sd / sqrt(whatifdat.n)
 whatifdat.se
 ```
 
-Note that the formula used by B. Brumback is using the standard deviation of the population $p(1-p)$ which is not entirely the right way since the standard error of the mean is defined using the *standard deviation of the sample*.
+Note that the formula used by B. Brumback is using the standard deviation of the 
+population $p(1-p)$ which, maybe, is not entirely the right way since the 
+standard error of the mean is defined using the *standard deviation of the sample*.
 
 That is Brumback uses
 
@@ -344,7 +359,8 @@ sd(x) / sqrt(length(x))
 
 The section 2.4 will not be repeated here, yet it is very instructive and cover a topic that we end to forget. We will just repeat the calculations below. They
 
-The `sim()` function in section 2.4, p. 31 is coded in `fciR::sim_intervals()` and its alias `fciR::sim()`.
+The `sim()` function in section 2.4, p. 31 is coded in `fciR::sim_intervals()` 
+and its alias `fciR::sim()`.
 
 Run and verify with author's results on p. 32
 
@@ -410,7 +426,8 @@ whatifdat.out
 
 #### `rsample` package
 
-Another way package that could be used for boostrapping is `rsample::bootstrap` which uses the tidyverse way of R programming.
+Another way package that could be used for boostrapping is `rsample::bootstrap` 
+which uses the tidyverse way of R programming.
 
 To be fully tidyverse-like we recode the `prob_lmod` function from above and call it `prob_lmod_td` where the `td` suffix stands for `tidyverse`. Note the use of a formula as an argument to the function and the `rlang` package which is a great tool to learn for quality code in R.
 
@@ -454,11 +471,11 @@ The result are not materially different in the current case.
 ```{r}
 whatifdat |>
   rsample::bootstraps(times = 100, apparent = FALSE) |>
-  mutate(results = map_dfr(splits, function(x) {
+  mutate(results = map(splits, function(x) {
     dat <- analysis(x)
     prob_lmod_td(dat, formula = Y ~ `T` + A + H)})
     ) |>
-  rsample::int_pctl(results, alpha = 0.05) |>
+  rsample::int_pctl(statistics = results, alpha = 0.05) |>
   mutate(term = "P",
          .lower = plogis(.lower),
          .estimate = plogis(.estimate),
@@ -485,4 +502,4 @@ stopifnot(abs(out[".estimate"] - 0.60596) < 0.02,
 
 ## Exercises
 
-The exercises are located in a separate project.
+{{< include _warn_ex.qmd >}}

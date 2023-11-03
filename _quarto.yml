@@ -13,6 +13,7 @@ book:
     - part: part01.qmd
       chapters:
         - ch01_intro.qmd
+        - ch02_probability.qmd
     - references.qmd
   appendices: 
     - app01_errata.qmd
