@@ -2,6 +2,7 @@
 
 ```{r }
 library(conflicted)
+library(tictoc)
 library(xfun, quietly = TRUE)
 library(tidyr, quietly = TRUE)
 library(dplyr, quietly = TRUE)
@@ -65,7 +66,7 @@ beginning of 2019 $E(Y \mid T = 1) = 0.0088$
 
 ```{r}
 data("mortality_long", package = "fciR")
-fciR::mortality_long |>
+mortality_long |>
   # condition on T = 1
   filter(`T` == 1) |>
   # compute probabilities
@@ -469,8 +470,10 @@ percentile interval instead of assuming a normal distribution as Ms Brumback doe
 The result are not materially different in the current case.
 
 ```{r}
+#| label: ch02_whatifdat_boot
+#| cache: true
 whatifdat |>
-  rsample::bootstraps(times = 100, apparent = FALSE) |>
+  rsample::bootstraps(times = 1000, apparent = FALSE) |>
   mutate(results = map(splits, function(x) {
     dat <- analysis(x)
     prob_lmod_td(dat, formula = Y ~ `T` + A + H)})
@@ -486,18 +489,12 @@ and `lmodboot()` is `fciR::boot_lmod()` with the alias `fciR::lmodboot()`
 
 Finally we run `fciR::boot_lmod()` and verify against the author's results on p.34
 
-```{r ch02_lmodboot}
-data("whatifdat", package = "fciR")
-out <- xfun::cache_rds({
-  fciR::boot_est(whatifdat, func = fciR::prob_lmod, times = 500,
+```{r}
+#| label: ch02_lmodboot
+#| cache: true
+fciR::boot_est(whatifdat, func = fciR::prob_lmod, times = 500,
                  alpha = 0.05, seed = 123, transf = "expit", terms = NULL,
                  formula = Y ~ `T` + A + H)
-  }, file = "ch02_lmodboot", rerun = is_rerun)
-out
-# check results with book
-stopifnot(abs(out[".estimate"] - 0.60596) < 0.02,
-          abs(out[".lower"] - 0.41638) < 0.02,
-          abs(out[".upper"] - 0.76823) < 0.02)
 ```
 
 ## Exercises

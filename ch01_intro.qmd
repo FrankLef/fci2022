@@ -26,7 +26,7 @@ dir_lib <- file.path(getwd(), "lib")
 This dataset is available with `fciR::doublewhatifsim`.
 
 ```{r}
-#| file: "lib\\fci_01-A_mortability.R"
+#| file: "lib\\fci_01-A_mortality.R"
 ```
 
 and the summary table is
