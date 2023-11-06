@@ -12,16 +12,16 @@ conflicts_prefer(dplyr::filter)
 ```{r }
 #| include: false
 # directory of data files
-dir_data <- file.path(getwd(), "data")
+# dir_data <- file.path(getwd(), "data")
 # directory for functions
-dir_lib <- file.path(getwd(), "lib")
+# dir_lib <- file.path(getwd(), "lib")
 ```
 
 ## A Brief History
 
 ## Data Examples
 
-### Mortality Rates by Country
+### Mortability Rates by Country
 
 This dataset is available with `fciR::doublewhatifsim`.
 
@@ -128,19 +128,28 @@ scm <- within(scm, {
   coords = coords,
   labels = the_nodes)
   
+  # this is the only technique known to have a subscript in a DAG
+  # IMPORTANT: the expression must be exactly in alphabetical order
+  the_text_labels <- c(
+    expression(bold(A)), expression(bold(AD[0])),expression(bold(AD[1])),
+    expression(bold(T)), expression(bold(U)), expression(bold(VL[0])), 
+    expression(bold(VL[1])))
+  
   # status' colors
   colrs <- c("latent" = "palevioletred", "exposure" = "mediumspringgreen", 
              "outcome" = "cornflowerblue")
   # plot the DAG
-  plot <- dag %>% 
-    tidy_dagitty() %>%
-    ggdag_status(color = status, text = TRUE,  node_size = 10, text_size = 3, 
-                 text_col = "black") +
+  plot <- dag |> 
+    tidy_dagitty() |>
+    ggdag_status(color = status, text = FALSE) +
+    geom_dag_text(size = 5, color = "white", fontface = "bold",
+      parse = TRUE, label = the_text_labels) +
     scale_color_manual(values = colrs, na.value = "honeydew3") +
     scale_fill_manual(values = colrs, na.value = "honeydew3") +
     ggdag::theme_dag_blank(panel.background = 
                              element_rect(fill="snow", color="snow")) +
-    theme(legend.position = "bottom",
+    theme(title = element_text(color = "darkblue"),
+          legend.position = "bottom",
           legend.title = element_blank()) +
     labs(title = "The Double What-If? Study")
 })
