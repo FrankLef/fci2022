@@ -15,6 +15,7 @@ book:
         - ch01_intro.qmd
         - ch02_probability.qmd
         - ch03_outcomes.qmd
+        - ch04_measures.qmd
     - references.qmd
   appendices: 
     - app01_errata.qmd

@@ -1,0 +1,433 @@
+# Effect-Measure Modification and Causal Interaction {#measures}
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(fciR, quietly = TRUE)
+library(tidyr, quietly = TRUE)
+library(ggvenn, quietly = TRUE)
+```
+
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+dir_lib <- file.path(getwd(), "lib")
+source(file = file.path(dir_lib, "ggp_venn_sim.R"),
+       local = knitr::knit_global())
+source(file = file.path(dir_lib, "ggp_betasim.R"),
+       local = knitr::knit_global())
+```
+
+## Effect-Measure Modification and Statistical Interaction
+
+### RECOVERY trial
+
+Get the data.frame for *RECOVERY* trial
+
+```{r echo=TRUE}
+data("recovery", package = "fciR")
+```
+
+run `fciR::boot()`, alias `meas_effect_modif()` with the RECOVERY data set
+
+```{r}
+#| label: ch04_recovery.out
+the_terms <- c(
+  "EYT0.M0", "EYT0.M1", "EYT0.diff", "EYT1.M0", "EYT1.M1", "EYT1.diff", 
+  "RD.M0", "RD.M1", "RD.diff", "RR.M0", "RR.M1", "RR.diff",
+  "RR*.M0", "RR*.M1", "RR*.diff", "OR.diff", "OR.M0", "OR.M1")
+recovery.out <- fciR::boot_est(data = recovery, func = meas_effect_modif,
+                         times = 100, alpha = 0.05, 
+                         terms = the_terms, transf = "exp",
+                         formula = Y ~ `T` + M, exposure.name = "T",
+                         modifier.name = "M")
+recovery.out
+```
+
+verify the results with the author's on p. 65.
+
+```{r}
+bb <- data.frame(
+  term = c("EYT0", "EYT0", "EYT1", "EYT1", "RD", "RD",
+           "EYT0", "EYT1", "RD", "RR", "RR", "RR",
+           "RR*", "RR*", "RR*", "OR", "OR", "OR"),
+  group = c("M0", "M1", "M0", "M1", "M0", "M1",
+           "diff", "diff", "diff", "M0", "M1", "diff",
+           "M0", "M1", "diff", "M0", "M1", "diff"),
+  estimate = c(0.784, 0.593, 0.793, 0.735, 0.01, 0.142,
+          -0.191, -0.059, 0.132, 1.012, 1.239, 1.224,
+          1.046, 1.533, 1.466, 1.059, 1.9, 1.794)
+  )
+recovery.out$term
+ids <- match(paste(bb$term, bb$group, sep = "."), recovery.out$term)
+# ids
+comp <- data.frame(bb = bb,
+                   d = recovery.out$.estimate[ids])
+# comp
+comp$dev <- abs(comp$bb.estimate - comp$d)
+# comp$dev
+stopifnot(all(comp$dev < 0.1))
+```
+
+and we communicate the results in a table
+
+```{r}
+# reformat to use for table and plot
+recovery.out <- recovery.out %>%
+  separate(col = "term", into = c("term", "group"), sep = "[.]", remove = TRUE)
+fciR::gt_measures_colgrp(recovery.out, var_grp = "group",
+                   title = "Table 4.2 RECOVERY Trial",
+                   subtitle = "Effect-measure Modification")
+```
+
+plotting the results makes it easier to see the measures vary among the strata. We can clearly see here significant difference in effect measures between the 2 strata.
+
+It supports the observation in the text concerning the lack of effect of dexamethasone without intrusive mechanical ventilation (M0) vs its use with intrusive mechanical ventilation (M1) which is significant.
+
+```{r}
+fciR::ggp_measures_modif(recovery.out, title = "RECOVERY trial")
+```
+
+The `gee::gee()` function is used to find information on the coefficients and see if they are statistically significant. The same could be done withe `glm::glm()` but `gee` offers results with robust statistics which is very useful in practical terms.
+
+Luckily, the `gee()` works exactly like the `glm()` functions, with the same extractor functions `coefficients()`, `effects()`, etc. See the documentation of `lm` with `?lm` for more details.
+
+We are going through an example just below to illustrate how tthe extractor functions are used which is not shown in the textbook.
+
+```{r}
+#| label: ch04_linmod
+linmod <- gee::gee(Y ~ `T` + M + `T` * M,
+                   id = id,
+                   data = recovery,
+                   family = gaussian)
+summary(linmod)
+```
+
+To extract the coefficients from the `gee` object we use the extractor function `coefficients()` or its alias `coef()`
+
+```{r}
+coef(linmod)
+```
+
+and to extract the entire coefficient data to work with it, just use `coefficients()` with `summary()`
+
+```{r}
+coef(summary(linmod))
+```
+
+and in this case we are concerned about how significant the interaction is. Therefore the *Robust z* is extracted with `coefficients()` alias `coef()`
+
+```{r}
+coef(summary(linmod))[, "Robust z"]
+```
+
+we see that $T:M$ is 3.99 standard deviations away from zero which will give us the 2-sided p-value that is significant
+
+```{r}
+z <- coef(summary(linmod))["T:M", "Robust z"]
+2 * (1 - pnorm(z))
+```
+
+### NCES
+
+We process the `NCES` data the same way we did for the RECOVERY trial.
+
+Run the bootsrap
+
+```{r}
+#| label: ch04_nces.out
+nces.out <- fciR::boot_est(data = nces, func = meas_effect_modif,
+                     times = 100, alpha = 0.05, transf = "exp",
+                     terms = the_terms,
+                     formula = highmathsat ~ female + selective, 
+                     exposure.name = "female", modifier.name = "selective")
+```
+
+verify the results with the author's on p. 70.
+
+```{r}
+bb <- data.frame(
+  term = c("EYT0", "EYT0", "EYT1", "EYT1", "RD", "RD",
+           "EYT0", "EYT1", "RD", "RR", "RR", "RR",
+           "RR*", "RR*", "RR*", "OR", "OR", "OR"),
+  group = c("M0", "M1", "M0", "M1", "M0", "M1",
+           "diff", "diff", "diff", "M0", "M1", "diff",
+           "M0", "M1", "diff", "M0", "M1", "diff"),
+  estimate = c(0.167, 0.675, 0.081, 0.345, -0.086, -0.33,
+          0.509, 0.264, -0.244, 0.486, 0.511, 1.052,
+          0.907, 0.496, 0.547, 0.44, 0.254, 0.576)
+  )
+ids <- match(paste(bb$term, bb$group, sep = "."), nces.out$term)
+comp <- data.frame(bb = bb, d = nces.out$.estimate[ids])
+comp$dev <- abs(comp$bb.estimate - comp$d)
+# comp$dev
+stopifnot(all(comp$dev < 0.1))
+```
+
+and the table is
+
+```{r}
+# reformat to use for table and plot
+nces.out <- nces.out %>%
+  separate(col = "term", into = c("term", "group"), sep = "[.]", remove = TRUE)
+fciR::gt_measures_colgrp(nces.out, var_grp = "group",
+                   title = "Table 4.3 NCES data",
+                   subtitle = "Effect-measure Modification")
+```
+
+and we plot the results
+
+```{r}
+fciR::ggp_measures_modif(nces.out, title = "NCES data")
+```
+
+We observe that
+
+-   RD: Risk difference shows that using selection to accept more women seem to decrease the % of school with hogh math SAT
+-   OR and RRstar: Show the same results as RD
+-   RR: Indicates that selection, in relative terms *has no significant effect*
+
+## Qualitative Agreement of Effect Measures in Modification
+
+This section relies heavily on the paper from Shannin and Brumback (2021) @shanninbrumback2021. It used a Monte-Carlo simulation in java by [jake](https://github.com/gatorjake/EffectMeasures) running 1000000 times for six effect measures (the 4 in this chapter, the hazard ratio HR and the recovery ration HR\*).
+
+For the purpose of this project we only simulate the 4 effect measures discussed so far (RD, RR, RR\* and OR). We use R package `MonteCarlo` with 5000 repetitions. The distribution used for simulation is the beta distribution which is generally used for values in \[0,1\]. It is also used as a prior of binomial regression in Bayes analysis which is the subject covered a little later in this section. Regardless if the 6 effects measures from @shanninbrumback2021 or the 4 from @brumback2022 are used, the process and conclusion are the same.
+
+We point out that using the distribution $Beta(1, 1) \sim Uniform(0, 1)$ is equivalent to running a grid search. It is also equivalent to the uniform distribution used in @shanninbrumback2021.
+
+### Simulate the effect measures
+
+We run the Monte-Carlo simulation without constraint and with $Beta(1,1)$ which is equivalent to $Uniform(0,1)$ used by @shanninbrumback2021.
+
+```{r }
+#| label: ch04_gridsim
+#| cache: true
+gridsim <- fciR::mc_beta_effect_measures(shape1 = 1, shape2 = 1, nrep = 5000)
+# gridsim
+```
+
+which gives the vector of percentages
+
+```{r}
+unlist(gridsim)
+```
+
+For the following discussion, we must note the following about the vector of percentages returned by the simulation.
+
+1.  **Pairwise events**: Some measures move as *1 pair* in the same direction while all the other pairs move in different direction between each other. These are 6 possibilities named `RD_RR`,`RD_RRstar`, `RD_OR`, `RR_RRstar`, `RR_OR`, `RRstar_OR`.
+2.  **Opposite pairwise events**: Some measures move as *2 pairs* but *each of the 2 pairs does not move in the same direction*. There are 3 possibilities, called `RD_RR_vs_RRstar_OR`, `RD_RRstar_vs_RR_OR` and `RD_OR_vs_RR_RRstar`. **These are the problematic ones as they cannot be represented in the Venn diagram of section 4.2**. However we can distribute them to ensure probabilities add up to 1. For example `RD_RR_vs_RRstar_OR` will be split 50% between pairwise events `RD_RR` and 50% to pairwise event`RRstar_OR`. This enforces the very important rule that probabilities must add up to 1 without consequences on the conclusions reached.
+3.  **3-wise events**: Some 3 measures move in the same direction together There are 4 possibilities called `RD_RR_RRstar`, `RD_RR_OR`, `RD_RRstar_OR` and `RR_RRstar_OR`.
+4.  **All events**: Sometimes all measures move together. **This is the possibility of interest** discussed by Shannin and Brumback (2021). This possibility is called `ALL`.
+5.  **No event**: The possibility `NONE` concerns the event that no pair of measures move in the same direction. It is impossible and represents the empty set $\emptyset$ which is one of the 3 conditions of a $\sigma-field$.
+6.  **Validation**: The sum of the vector's elements must be one.
+
+The event definitions above ensure that the sample space is actually a $\sigma-field$. See @grimmett, section 1.2.
+
+then we compare with the author's results
+
+```{r}
+bb <- c("RD_RR" = 0.026, "RD_RRstar" = 0.026, "RD_OR" = 0, 
+        "RR_RRstar" = 0, "RR_OR" = 0.026, "RRstar_OR" = 0.026,
+        "RD_RR_vs_RRstar_OR" = 0,
+        "RD_RRstar_vs_RR_OR" = 0,
+        "RD_OR_vs_RR_RRstar" = 0,
+        "RD_RR_RRstar" = 0, "RD_RR_OR" = 0.057, 
+        "RD_RRstar_OR" = 0.057, "RR_RRstar_OR" = 0,
+        "RD_RR_RRstar_OR" = 0.833, "NONE" = 0)
+comp <- data.frame(bb = round(bb, 4), sim = round(unlist(gridsim), 4))
+comp
+```
+
+The results from the Monte Carlo simulation above confirm the main conclusion from @shanninbrumback2021 that all effect measures move together 84% of the time.
+
+```{r}
+c("simulation" = unname(unlist(gridsim["RD_RR_RRstar_OR"])), 
+  "author's" = unname(bb["RD_RR_RRstar_OR"]))
+```
+
+We note that the sim adds up correctly to 1 but not the author's which adds up to 1.051. This is explained on p. 72 as a bit of arbitrary allocations. The @shanninbrumback2021 paper (caption figure 1) mentions that they do not add to 1 because they include events that *are not mutually exclusive*.
+
+```{r}
+c("simulation" = sum(unlist(gridsim)), "author's" = sum(bb))
+```
+
+Actually, this is caused by the **Opposite pairwise events** which cannot be represented in the 4-set Venn diagram. For the purpose of this books we will simply split them between the events that makes them up without consequence on the conclusion.
+
+The **Opposite pairwise events** are the following
+
+```{r}
+# The events that pair of measures move together but in opposite
+# direction of another pair who also move together
+unlist(gridsim[c("RD_RR_vs_RRstar_OR", "RD_RRstar_vs_RR_OR", "RD_OR_vs_RR_RRstar")])
+```
+
+and when we split them between their 2 sub-events we can generate the Venn diagram as follows
+
+```{r}
+ggp_venn_sim(gridsim, n = 1000, 
+         fill_colr = c("blue", "yellow", "green", "red"),
+         title = "Venn diagram of effect measure modifications")
+```
+
+now for **constrained data**
+
+```{r }
+#| label: ch04_gridsim_const
+#| cache: true
+gridsim_const <- fciR::mc_beta_effect_measures(shape1 = 1, shape2 = 1, nrep = 5000,
+                                constrained = TRUE)
+```
+
+which gives the vector of percentages
+
+```{r}
+unlist(gridsim_const)
+```
+
+and comparing to the author's results
+
+```{r}
+bb_const <- c("RD_RR" = 0.053, "RD_RRstar" = 0.053, "RD_OR" = 0.053, 
+        "RR_RRstar" = 0, "RR_OR" = 0.053, "RRstar_OR" = 0.0,
+        "RD_RR_vs_RRstar_OR" = 0,
+        "RD_RRstar_vs_RR_OR" = 0,
+        "RD_OR_vs_RR_RRstar" = 0,
+        "RD_RR_RRstar" = 0, "RD_RR_OR" = 0.114, 
+        "RD_RRstar_OR" = 0.114, "RR_RRstar_OR" = 0,
+        "RD_RR_RRstar_OR" = 0.667, "NONE" = 0)
+sum(bb_const)
+comp <- data.frame(bb = round(bb_const, 4), 
+                   sim = round(unlist(gridsim_const), 4))
+comp
+```
+
+The results from the Monte Carlo simulation with the constrained data agree the author's result.
+
+```{r}
+c("simulation" = unname(unlist(gridsim_const["RD_RR_RRstar_OR"])),
+  "author's" = unname(bb_const["RD_RR_RRstar_OR"]))
+```
+
+Again the **Opposite pairwise events** cannot be represented in the 4-set Venn diagram.
+
+```{r}
+# The events that pair of measures move together but in opposite
+# direction of another pair who also move together
+unlist(gridsim_const[c("RD_RR_vs_RRstar_OR", "RD_RRstar_vs_RR_OR", "RD_OR_vs_RR_RRstar")])
+```
+
+but if we do it as mentioned above then we can show a Venn diagram as follows
+
+```{r}
+# This is a custom function using the venn package
+ggp_venn_sim(gridsim_const,
+         fill_colr = c("cyan", "gold", "springgreen", "hotpink"),
+         title = "Venn diagram for constrained data")
+```
+
+### Applications
+
+#### Simulation of distribution of effect measures
+
+We use a parametric Monte Carlo simulation using the beta distribution to evaluate the effect of the distribution assumption on the effect-measure modifications.
+
+We run the Monte-Carlo simulation with 5000 repetitions, a grid of `shape1` and `shape2` parameters for the Beta distribution and no constraint. Namely `mc_beta_effect_measures(shape1 = c(0.5, 1, 3, 5, 7), shape2 = c(0.5, 1, 3, 5, 7), nrep = 5000)`
+
+```{r }
+#| label: ch04_priorsim
+#| cache: true
+priorsim <- fciR::mc_beta_effect_measures(shape1 = c(0.5, 1, 3, 5, 7),
+                                  shape2 = c(0.5, 1, 3, 5, 7),
+                                  nrep = 5000)
+```
+
+and we look at the matrix for the event `RD_RR_RRstar_OR` which represents the event that all effect measures move in the same direction.
+
+The matrix elements correspond to the percentage frequency of the event given the beta distribution with shape parameters `shape1 = s1` with `s1` indicated as column names, and `shape2 = s1` parameter with `s2` indicated in the row names.
+
+The beta distribution with `shape1 = 1` and `shape2 = 1` is similar to the uniform distribution on $[0, 1]$. Therefore this element is the one simulated by Shannon and Brumback, see @shanninbrumback2021 and, in fact, with 5000 repetitions `nrep = 5000`the measure is almost always very close to what is mentioned in @shanninbrumback2021.
+
+Also note that for large $shape1 = shape2 = \text{large number}$ the beta distribution is similar to the normal distribution with a mean of $shape1 / (shape1 + shape2)$. The simulation shows that in that case the percentage of measures moving in the same directions is nearing 100%. See for example when $shape1 = shape2 = 7$ in the matrix of results from the sim.
+
+here is the matrix of percentage of times that all measures move in the same direction, i.e. the event `RD_RR_RRstar_OR`
+
+```{r}
+round(priorsim[["RD_RR_RRstar_OR"]], 2)
+```
+
+and to show as a heatmap
+
+```{r}
+ggp_betasim(priorsim, var = "RD_RR_RRstar_OR", 
+             colr = list("low" = "deepskyblue1", "high" = "deepskyblue4"))
+```
+
+and comparing with the author
+
+```{r}
+round(c("simulation" = priorsim[["RD_RR_RRstar_OR"]]["s2=1", "s1=1"], 
+  "author's" = unname(bb["RD_RR_RRstar_OR"])), 3)
+```
+
+We can see that the range is wide and should be considered.
+
+```{r}
+range(priorsim[["RD_RR_RRstar_OR"]])
+```
+
+Now we do it with constrained data
+
+```{r}
+#| label: ch04_priorsim_const
+#| cache: true
+priorsim_const <- fciR::mc_beta_effect_measures(shape1 = c(0.5, 1, 3, 5, 7),
+                                        shape2 = c(0.5, 1, 3, 5, 7),
+                                        nrep = 5000, constrained = TRUE)
+```
+
+```{r}
+ggp_betasim(priorsim_const, var = "RD_RR_RRstar_OR",
+             colr = list("low" = "lightsalmon1", "high" = "lightsalmon4"),
+             title = "Monte Carlo simulation. Constrained data.")
+```
+
+and comparing with the author
+
+```{r}
+round(c("simulation" = priorsim_const[["RD_RR_RRstar_OR"]]["s2=1", "s1=1"], 
+  "author's" = unname(bb_const["RD_RR_RRstar_OR"])), 3)
+```
+
+and the range is even larger and therefore more significant.
+
+```{r}
+range(priorsim_const[["RD_RR_RRstar_OR"]])
+```
+
+#### Application: Data pre-processing (data cleaning)
+
+Unless the $p_0, p_1$ obtained are uniformly distributed (not the most common scenario for sure) it seems from the results above that the likelihood of *not* having all effect measures moving in the same direction is low. Thus, it could be a good hint to uncover hidden processes in a data pre-processing routine.
+
+We note the important rule mentioned at the beginning of section 4.2
+
+> when relative risk $RR$ and other relative risk $RR^*$ both change in the same direction \[...\] then so must the difference the risk difference and odds ratio.
+
+Another rule from section 4.2 can help in data cleaning
+
+> When $RR_0$ and $RR_1$ are on opposite side of 1, that is, when in one stratum the treatment is helpful and in the other it is harmful, then all measures will automatically change together.
+
+Thus a quick, easy way to clean up potential data problems and obtain relevant details on outliers and **hidden processes** might be
+
+1.  Exclude cases when $RR$ and $RR^*$ change in the same direction to reduce the data load.
+2.  Exclude cases when $RR_0$ and $RR_1$ are on opposite side of 1
+3.  Investigate the remining cases asthey are good candidates for *hidden processes*
+
+#### Application: Bayesian prior in Beta-binomial model
+
+If we use information from the population, or from expert knowledge, that effect measures should move in the same direction then a beta distribution with $shape1 > 1, shape2 > 1$ would make sense and provide a better prior for the Beta-binomial model.
+
+On the contrary, if we wish that the model look into the unlikely events that effect measure do not move in the same directions, then a beta distribution with $shape1 \leq 1, shape2 \leq 1$ could be supported by the results from above.
+
+## Causal Interaction
+
+## Exercises
+
+The exercises are located in a separate project.

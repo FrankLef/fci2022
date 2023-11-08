@@ -2,9 +2,9 @@
 
 ```{r }
 library(conflicted)
-library(dplyr)
-library(ggplot2)
-library(ggdag)
+library(dplyr, quietly = TRUE)
+library(ggplot2, quietly = TRUE)
+library(ggdag, quietly = TRUE)
 options(dplyr.summarise.inform = FALSE)
 conflicts_prefer(dplyr::filter)
 ```

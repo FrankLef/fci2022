@@ -1,0 +1,2652 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Fundamentals of Causal Inference 2022 - Study Project - 4&nbsp; Effect-Measure Modification and Causal Interaction</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./references.html" rel="next">
+<link href="./ch03_outcomes.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./part01.html">Part I Basics</a></li><li class="breadcrumb-item"><a href="./ch04_measures.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Effect-Measure Modification and Causal Interaction</span></a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Fundamentals of Causal Inference 2022 - Study Project</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./part01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Part I Basics</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch01_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch02_probability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Conditional Probability and Expectation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_outcomes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Potential Outcomes and the Fundamental Problem of Causal Inference</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_measures.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Effect-Measure Modification and Causal Interaction</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./app01_errata.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Errata</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./app02_notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Notes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./app03_linreg.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Linear Regression with R</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./app04_simdr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">Doubly Robust Simulation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#effect-measure-modification-and-statistical-interaction" id="toc-effect-measure-modification-and-statistical-interaction" class="nav-link active" data-scroll-target="#effect-measure-modification-and-statistical-interaction"><span class="header-section-number">4.1</span> Effect-Measure Modification and Statistical Interaction</a>
+  <ul class="collapse">
+  <li><a href="#recovery-trial" id="toc-recovery-trial" class="nav-link" data-scroll-target="#recovery-trial"><span class="header-section-number">4.1.1</span> RECOVERY trial</a></li>
+  <li><a href="#nces" id="toc-nces" class="nav-link" data-scroll-target="#nces"><span class="header-section-number">4.1.2</span> NCES</a></li>
+  </ul></li>
+  <li><a href="#qualitative-agreement-of-effect-measures-in-modification" id="toc-qualitative-agreement-of-effect-measures-in-modification" class="nav-link" data-scroll-target="#qualitative-agreement-of-effect-measures-in-modification"><span class="header-section-number">4.2</span> Qualitative Agreement of Effect Measures in Modification</a>
+  <ul class="collapse">
+  <li><a href="#simulate-the-effect-measures" id="toc-simulate-the-effect-measures" class="nav-link" data-scroll-target="#simulate-the-effect-measures"><span class="header-section-number">4.2.1</span> Simulate the effect measures</a></li>
+  <li><a href="#applications" id="toc-applications" class="nav-link" data-scroll-target="#applications"><span class="header-section-number">4.2.2</span> Applications</a></li>
+  </ul></li>
+  <li><a href="#causal-interaction" id="toc-causal-interaction" class="nav-link" data-scroll-target="#causal-interaction"><span class="header-section-number">4.3</span> Causal Interaction</a></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">4.4</span> Exercises</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span id="measures" class="quarto-section-identifier"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Effect-Measure Modification and Causal Interaction</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fciR, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggvenn, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="effect-measure-modification-and-statistical-interaction" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="effect-measure-modification-and-statistical-interaction"><span class="header-section-number">4.1</span> Effect-Measure Modification and Statistical Interaction</h2>
+<section id="recovery-trial" class="level3" data-number="4.1.1">
+<h3 data-number="4.1.1" class="anchored" data-anchor-id="recovery-trial"><span class="header-section-number">4.1.1</span> RECOVERY trial</h3>
+<p>Get the data.frame for <em>RECOVERY</em> trial</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"recovery"</span>, <span class="at">package =</span> <span class="st">"fciR"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>run <code>fciR::boot()</code>, alias <code>meas_effect_modif()</code> with the RECOVERY data set</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>the_terms <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"EYT0.M0"</span>, <span class="st">"EYT0.M1"</span>, <span class="st">"EYT0.diff"</span>, <span class="st">"EYT1.M0"</span>, <span class="st">"EYT1.M1"</span>, <span class="st">"EYT1.diff"</span>, </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"RD.M0"</span>, <span class="st">"RD.M1"</span>, <span class="st">"RD.diff"</span>, <span class="st">"RR.M0"</span>, <span class="st">"RR.M1"</span>, <span class="st">"RR.diff"</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"RR*.M0"</span>, <span class="st">"RR*.M1"</span>, <span class="st">"RR*.diff"</span>, <span class="st">"OR.diff"</span>, <span class="st">"OR.M0"</span>, <span class="st">"OR.M1"</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>recovery.out <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">boot_est</span>(<span class="at">data =</span> recovery, <span class="at">func =</span> meas_effect_modif,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>                         <span class="at">times =</span> <span class="dv">100</span>, <span class="at">alpha =</span> <span class="fl">0.05</span>, </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>                         <span class="at">terms =</span> the_terms, <span class="at">transf =</span> <span class="st">"exp"</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>                         <span class="at">formula =</span> Y <span class="sc">~</span> <span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">+</span> M, <span class="at">exposure.name =</span> <span class="st">"T"</span>,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>                         <span class="at">modifier.name =</span> <span class="st">"M"</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>recovery.out</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 18 × 6
+   term       .lower .estimate  .upper .alpha .method   
+   &lt;chr&gt;       &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;     
+ 1 EYT0.M0    0.767    0.784    0.797    0.05 percentile
+ 2 EYT0.M1    0.554    0.590    0.628    0.05 percentile
+ 3 EYT0.diff -0.231   -0.194   -0.149    0.05 percentile
+ 4 EYT1.M0    0.774    0.793    0.809    0.05 percentile
+ 5 EYT1.M1    0.691    0.735    0.777    0.05 percentile
+ 6 EYT1.diff -0.102   -0.0588  -0.0135   0.05 percentile
+ 7 RD.M0     -0.0159   0.00947  0.0314   0.05 percentile
+ 8 RD.M1      0.0978   0.144    0.197    0.05 percentile
+ 9 RD.diff    0.0854   0.135    0.186    0.05 percentile
+10 RR.M0      0.980    1.01     1.04     0.05 percentile
+11 RR.M1      1.16     1.24     1.35     0.05 percentile
+12 RR.diff    1.14     1.23     1.33     0.05 percentile
+13 RR*.M0     0.930    1.05     1.16     0.05 percentile
+14 RR*.M1     1.33     1.55     1.86     0.05 percentile
+15 RR*.diff   1.26     1.48     1.77     0.05 percentile
+16 OR.diff    1.45     1.82     2.35     0.05 percentile
+17 OR.M0      0.911    1.06     1.21     0.05 percentile
+18 OR.M1      1.55     1.93     2.49     0.05 percentile</code></pre>
+</div>
+</div>
+<p>verify the results with the author’s on p.&nbsp;65.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>bb <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">term =</span> <span class="fu">c</span>(<span class="st">"EYT0"</span>, <span class="st">"EYT0"</span>, <span class="st">"EYT1"</span>, <span class="st">"EYT1"</span>, <span class="st">"RD"</span>, <span class="st">"RD"</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>           <span class="st">"EYT0"</span>, <span class="st">"EYT1"</span>, <span class="st">"RD"</span>, <span class="st">"RR"</span>, <span class="st">"RR"</span>, <span class="st">"RR"</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>           <span class="st">"RR*"</span>, <span class="st">"RR*"</span>, <span class="st">"RR*"</span>, <span class="st">"OR"</span>, <span class="st">"OR"</span>, <span class="st">"OR"</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">group =</span> <span class="fu">c</span>(<span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>           <span class="st">"diff"</span>, <span class="st">"diff"</span>, <span class="st">"diff"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"diff"</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>           <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"diff"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"diff"</span>),</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> <span class="fu">c</span>(<span class="fl">0.784</span>, <span class="fl">0.593</span>, <span class="fl">0.793</span>, <span class="fl">0.735</span>, <span class="fl">0.01</span>, <span class="fl">0.142</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>          <span class="sc">-</span><span class="fl">0.191</span>, <span class="sc">-</span><span class="fl">0.059</span>, <span class="fl">0.132</span>, <span class="fl">1.012</span>, <span class="fl">1.239</span>, <span class="fl">1.224</span>,</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>          <span class="fl">1.046</span>, <span class="fl">1.533</span>, <span class="fl">1.466</span>, <span class="fl">1.059</span>, <span class="fl">1.9</span>, <span class="fl">1.794</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>recovery.out<span class="sc">$</span>term</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "EYT0.M0"   "EYT0.M1"   "EYT0.diff" "EYT1.M0"   "EYT1.M1"   "EYT1.diff"
+ [7] "RD.M0"     "RD.M1"     "RD.diff"   "RR.M0"     "RR.M1"     "RR.diff"  
+[13] "RR*.M0"    "RR*.M1"    "RR*.diff"  "OR.diff"   "OR.M0"     "OR.M1"    </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>ids <span class="ot">&lt;-</span> <span class="fu">match</span>(<span class="fu">paste</span>(bb<span class="sc">$</span>term, bb<span class="sc">$</span>group, <span class="at">sep =</span> <span class="st">"."</span>), recovery.out<span class="sc">$</span>term)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ids</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>comp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">bb =</span> bb,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">d =</span> recovery.out<span class="sc">$</span>.estimate[ids])</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># comp</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>comp<span class="sc">$</span>dev <span class="ot">&lt;-</span> <span class="fu">abs</span>(comp<span class="sc">$</span>bb.estimate <span class="sc">-</span> comp<span class="sc">$</span>d)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># comp$dev</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(comp<span class="sc">$</span>dev <span class="sc">&lt;</span> <span class="fl">0.1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>and we communicate the results in a table</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># reformat to use for table and plot</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>recovery.out <span class="ot">&lt;-</span> recovery.out <span class="sc">%&gt;%</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(<span class="at">col =</span> <span class="st">"term"</span>, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"term"</span>, <span class="st">"group"</span>), <span class="at">sep =</span> <span class="st">"[.]"</span>, <span class="at">remove =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>fciR<span class="sc">::</span><span class="fu">gt_measures_colgrp</span>(recovery.out, <span class="at">var_grp =</span> <span class="st">"group"</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">title =</span> <span class="st">"Table 4.2 RECOVERY Trial"</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">subtitle =</span> <span class="st">"Effect-measure Modification"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div id="leswoqbsmb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#leswoqbsmb table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#leswoqbsmb thead, #leswoqbsmb tbody, #leswoqbsmb tfoot, #leswoqbsmb tr, #leswoqbsmb td, #leswoqbsmb th {
+  border-style: none;
+}
+
+#leswoqbsmb p {
+  margin: 0;
+  padding: 0;
+}
+
+#leswoqbsmb .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#leswoqbsmb .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#leswoqbsmb .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: bold;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#leswoqbsmb .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: bold;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#leswoqbsmb .gt_heading {
+  background-color: #DCDCDC;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#leswoqbsmb .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#leswoqbsmb .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#leswoqbsmb .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: bold;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#leswoqbsmb .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: bold;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#leswoqbsmb .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#leswoqbsmb .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#leswoqbsmb .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#leswoqbsmb .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#leswoqbsmb .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#leswoqbsmb .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#leswoqbsmb .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#leswoqbsmb .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#leswoqbsmb .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#leswoqbsmb .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#leswoqbsmb .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#leswoqbsmb .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#leswoqbsmb .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#leswoqbsmb .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#leswoqbsmb .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#leswoqbsmb .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#leswoqbsmb .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#leswoqbsmb .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#leswoqbsmb .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#leswoqbsmb .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#leswoqbsmb .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#leswoqbsmb .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#leswoqbsmb .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#leswoqbsmb .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#leswoqbsmb .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#leswoqbsmb .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#leswoqbsmb .gt_left {
+  text-align: left;
+}
+
+#leswoqbsmb .gt_center {
+  text-align: center;
+}
+
+#leswoqbsmb .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#leswoqbsmb .gt_font_normal {
+  font-weight: normal;
+}
+
+#leswoqbsmb .gt_font_bold {
+  font-weight: bold;
+}
+
+#leswoqbsmb .gt_font_italic {
+  font-style: italic;
+}
+
+#leswoqbsmb .gt_super {
+  font-size: 65%;
+}
+
+#leswoqbsmb .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#leswoqbsmb .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#leswoqbsmb .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#leswoqbsmb .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#leswoqbsmb .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#leswoqbsmb .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#leswoqbsmb .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_heading">
+      <td colspan="7" class="gt_heading gt_title gt_font_normal" style="color: #191970;"><strong>Table 4.2 RECOVERY Trial</strong></td>
+    </tr>
+    <tr class="gt_heading">
+      <td colspan="7" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="color: #191970;"><strong>Effect-measure Modification</strong></td>
+    </tr>
+    <tr class="gt_col_headings gt_spanner_row">
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="2" colspan="1" scope="col" id="Estimator">Estimator</th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="M0">
+        <span class="gt_column_spanner">M0</span>
+      </th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="M1">
+        <span class="gt_column_spanner">M1</span>
+      </th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="diff">
+        <span class="gt_column_spanner">diff</span>
+      </th>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;" scope="col" id="Estimate">Estimate</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="CI<span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;><sup>1</sup></span>">CI<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;" scope="col" id="Estimate">Estimate</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="CI<span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;><sup>1</sup></span>">CI<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;" scope="col" id="Estimate">Estimate</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="CI<span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;><sup>1</sup></span>">CI<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="Estimator" class="gt_row gt_center">EYT0</td>
+<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.784</td>
+<td headers="M0_CI" class="gt_row gt_center">(0.767, 0.797)</td>
+<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.590</td>
+<td headers="M1_CI" class="gt_row gt_center">(0.554, 0.628)</td>
+<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.194</td>
+<td headers="diff_CI" class="gt_row gt_center">(-0.231, -0.149)</td></tr>
+    <tr><td headers="Estimator" class="gt_row gt_center gt_striped">EYT1</td>
+<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.793</td>
+<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.774, 0.809)</td>
+<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.735</td>
+<td headers="M1_CI" class="gt_row gt_center gt_striped">(0.691, 0.777)</td>
+<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.059</td>
+<td headers="diff_CI" class="gt_row gt_center gt_striped">(-0.102, -0.013)</td></tr>
+    <tr><td headers="Estimator" class="gt_row gt_center">RD</td>
+<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.009</td>
+<td headers="M0_CI" class="gt_row gt_center">(-0.016, 0.031)</td>
+<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.144</td>
+<td headers="M1_CI" class="gt_row gt_center">(0.098, 0.197)</td>
+<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.135</td>
+<td headers="diff_CI" class="gt_row gt_center">(0.085, 0.186)</td></tr>
+    <tr><td headers="Estimator" class="gt_row gt_center gt_striped">RR</td>
+<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.012</td>
+<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.980, 1.040)</td>
+<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.245</td>
+<td headers="M1_CI" class="gt_row gt_center gt_striped">(1.159, 1.347)</td>
+<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.230</td>
+<td headers="diff_CI" class="gt_row gt_center gt_striped">(1.138, 1.330)</td></tr>
+    <tr><td headers="Estimator" class="gt_row gt_center">RR*</td>
+<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.046</td>
+<td headers="M0_CI" class="gt_row gt_center">(0.930, 1.158)</td>
+<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.547</td>
+<td headers="M1_CI" class="gt_row gt_center">(1.330, 1.862)</td>
+<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.479</td>
+<td headers="diff_CI" class="gt_row gt_center">(1.262, 1.775)</td></tr>
+    <tr><td headers="Estimator" class="gt_row gt_center gt_striped">OR</td>
+<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.059</td>
+<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.911, 1.205)</td>
+<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.926</td>
+<td headers="M1_CI" class="gt_row gt_center gt_striped">(1.545, 2.492)</td>
+<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.819</td>
+<td headers="diff_CI" class="gt_row gt_center gt_striped">(1.452, 2.350)</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="7">Fundamentals of Causal Inference, Babette A. Brumback, 2022</td>
+    </tr>
+  </tfoot>
+  <tfoot class="gt_footnotes">
+    <tr>
+      <td class="gt_footnote" colspan="7"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span> 95% confidence interval</td>
+    </tr>
+  </tfoot>
+</table>
+</div>
+</div>
+</div>
+<p>plotting the results makes it easier to see the measures vary among the strata. We can clearly see here significant difference in effect measures between the 2 strata.</p>
+<p>It supports the observation in the text concerning the lack of effect of dexamethasone without intrusive mechanical ventilation (M0) vs its use with intrusive mechanical ventilation (M1) which is significant.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fciR<span class="sc">::</span><span class="fu">ggp_measures_modif</span>(recovery.out, <span class="at">title =</span> <span class="st">"RECOVERY trial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="ch04_measures_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The <code>gee::gee()</code> function is used to find information on the coefficients and see if they are statistically significant. The same could be done withe <code>glm::glm()</code> but <code>gee</code> offers results with robust statistics which is very useful in practical terms.</p>
+<p>Luckily, the <code>gee()</code> works exactly like the <code>glm()</code> functions, with the same extractor functions <code>coefficients()</code>, <code>effects()</code>, etc. See the documentation of <code>lm</code> with <code>?lm</code> for more details.</p>
+<p>We are going through an example just below to illustrate how tthe extractor functions are used which is not shown in the textbook.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>linmod <span class="ot">&lt;-</span> gee<span class="sc">::</span><span class="fu">gee</span>(Y <span class="sc">~</span> <span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">+</span> M <span class="sc">+</span> <span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">*</span> M,</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">id =</span> id,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> recovery,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">family =</span> gaussian)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Beginning Cgee S-function, @(#) geeformula.q 4.13 98/01/27</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>running glm to get initial regression estimate</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept)           T           M         T:M 
+ 0.78367235  0.00958608 -0.19070017  0.13200964 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(linmod)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ GEE:  GENERALIZED LINEAR MODELS FOR DEPENDENT DATA
+ gee S-function, version 4.13 modified 98/01/27 (1998) 
+
+Model:
+ Link:                      Identity 
+ Variance to Mean Relation: Gaussian 
+ Correlation Structure:     Independent 
+
+Call:
+gee::gee(formula = Y ~ T + M + T * M, id = id, data = recovery, 
+    family = gaussian)
+
+Summary of Residuals:
+       Min         1Q     Median         3Q        Max 
+-0.7932584  0.2067416  0.2163277  0.2163277  0.4070278 
+
+
+Coefficients:
+               Estimate  Naive S.E.     Naive z Robust S.E.    Robust z
+(Intercept)  0.78367235 0.006975704 112.3431253 0.006826403 114.8001855
+T            0.00958608 0.012170195   0.7876686 0.011778554   0.8138588
+M           -0.19070017 0.017545664 -10.8687918 0.019999408  -9.5352906
+T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327
+
+Estimated Scale Parameter:  0.1770267
+Number of Iterations:  1
+
+Working Correlation
+     [,1]
+[1,]    1</code></pre>
+</div>
+</div>
+<p>To extract the coefficients from the <code>gee</code> object we use the extractor function <code>coefficients()</code> or its alias <code>coef()</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(linmod)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept)           T           M         T:M 
+ 0.78367235  0.00958608 -0.19070017  0.13200964 </code></pre>
+</div>
+</div>
+<p>and to extract the entire coefficient data to work with it, just use <code>coefficients()</code> with <code>summary()</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(<span class="fu">summary</span>(linmod))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               Estimate  Naive S.E.     Naive z Robust S.E.    Robust z
+(Intercept)  0.78367235 0.006975704 112.3431253 0.006826403 114.8001855
+T            0.00958608 0.012170195   0.7876686 0.011778554   0.8138588
+M           -0.19070017 0.017545664 -10.8687918 0.019999408  -9.5352906
+T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></pre>
+</div>
+</div>
+<p>and in this case we are concerned about how significant the interaction is. Therefore the <em>Robust z</em> is extracted with <code>coefficients()</code> alias <code>coef()</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(<span class="fu">summary</span>(linmod))[, <span class="st">"Robust z"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept)           T           M         T:M 
+114.8001855   0.8138588  -9.5352906   3.9913327 </code></pre>
+</div>
+</div>
+<p>we see that <span class="math inline">\(T:M\)</span> is 3.99 standard deviations away from zero which will give us the 2-sided p-value that is significant</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>z <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">summary</span>(linmod))[<span class="st">"T:M"</span>, <span class="st">"Robust z"</span>]</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span> <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">pnorm</span>(z))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 6.570304e-05</code></pre>
+</div>
+</div>
+</section>
+<section id="nces" class="level3" data-number="4.1.2">
+<h3 data-number="4.1.2" class="anchored" data-anchor-id="nces"><span class="header-section-number">4.1.2</span> NCES</h3>
+<p>We process the <code>NCES</code> data the same way we did for the RECOVERY trial.</p>
+<p>Run the bootsrap</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>nces.out <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">boot_est</span>(<span class="at">data =</span> nces, <span class="at">func =</span> meas_effect_modif,</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">times =</span> <span class="dv">100</span>, <span class="at">alpha =</span> <span class="fl">0.05</span>, <span class="at">transf =</span> <span class="st">"exp"</span>,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">terms =</span> the_terms,</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">formula =</span> highmathsat <span class="sc">~</span> female <span class="sc">+</span> selective, </span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>                     <span class="at">exposure.name =</span> <span class="st">"female"</span>, <span class="at">modifier.name =</span> <span class="st">"selective"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>verify the results with the author’s on p.&nbsp;70.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>bb <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">term =</span> <span class="fu">c</span>(<span class="st">"EYT0"</span>, <span class="st">"EYT0"</span>, <span class="st">"EYT1"</span>, <span class="st">"EYT1"</span>, <span class="st">"RD"</span>, <span class="st">"RD"</span>,</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>           <span class="st">"EYT0"</span>, <span class="st">"EYT1"</span>, <span class="st">"RD"</span>, <span class="st">"RR"</span>, <span class="st">"RR"</span>, <span class="st">"RR"</span>,</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>           <span class="st">"RR*"</span>, <span class="st">"RR*"</span>, <span class="st">"RR*"</span>, <span class="st">"OR"</span>, <span class="st">"OR"</span>, <span class="st">"OR"</span>),</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">group =</span> <span class="fu">c</span>(<span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>,</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>           <span class="st">"diff"</span>, <span class="st">"diff"</span>, <span class="st">"diff"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"diff"</span>,</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>           <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"diff"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"diff"</span>),</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> <span class="fu">c</span>(<span class="fl">0.167</span>, <span class="fl">0.675</span>, <span class="fl">0.081</span>, <span class="fl">0.345</span>, <span class="sc">-</span><span class="fl">0.086</span>, <span class="sc">-</span><span class="fl">0.33</span>,</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>          <span class="fl">0.509</span>, <span class="fl">0.264</span>, <span class="sc">-</span><span class="fl">0.244</span>, <span class="fl">0.486</span>, <span class="fl">0.511</span>, <span class="fl">1.052</span>,</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>          <span class="fl">0.907</span>, <span class="fl">0.496</span>, <span class="fl">0.547</span>, <span class="fl">0.44</span>, <span class="fl">0.254</span>, <span class="fl">0.576</span>)</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>ids <span class="ot">&lt;-</span> <span class="fu">match</span>(<span class="fu">paste</span>(bb<span class="sc">$</span>term, bb<span class="sc">$</span>group, <span class="at">sep =</span> <span class="st">"."</span>), nces.out<span class="sc">$</span>term)</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>comp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">bb =</span> bb, <span class="at">d =</span> nces.out<span class="sc">$</span>.estimate[ids])</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>comp<span class="sc">$</span>dev <span class="ot">&lt;-</span> <span class="fu">abs</span>(comp<span class="sc">$</span>bb.estimate <span class="sc">-</span> comp<span class="sc">$</span>d)</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a><span class="co"># comp$dev</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(comp<span class="sc">$</span>dev <span class="sc">&lt;</span> <span class="fl">0.1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>and the table is</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># reformat to use for table and plot</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>nces.out <span class="ot">&lt;-</span> nces.out <span class="sc">%&gt;%</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(<span class="at">col =</span> <span class="st">"term"</span>, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"term"</span>, <span class="st">"group"</span>), <span class="at">sep =</span> <span class="st">"[.]"</span>, <span class="at">remove =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>fciR<span class="sc">::</span><span class="fu">gt_measures_colgrp</span>(nces.out, <span class="at">var_grp =</span> <span class="st">"group"</span>,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">title =</span> <span class="st">"Table 4.3 NCES data"</span>,</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">subtitle =</span> <span class="st">"Effect-measure Modification"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<div id="cblmlyipwg" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#cblmlyipwg table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#cblmlyipwg thead, #cblmlyipwg tbody, #cblmlyipwg tfoot, #cblmlyipwg tr, #cblmlyipwg td, #cblmlyipwg th {
+  border-style: none;
+}
+
+#cblmlyipwg p {
+  margin: 0;
+  padding: 0;
+}
+
+#cblmlyipwg .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#cblmlyipwg .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#cblmlyipwg .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: bold;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#cblmlyipwg .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: bold;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#cblmlyipwg .gt_heading {
+  background-color: #DCDCDC;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#cblmlyipwg .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#cblmlyipwg .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#cblmlyipwg .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: bold;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#cblmlyipwg .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: bold;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#cblmlyipwg .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#cblmlyipwg .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#cblmlyipwg .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#cblmlyipwg .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#cblmlyipwg .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#cblmlyipwg .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#cblmlyipwg .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#cblmlyipwg .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#cblmlyipwg .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#cblmlyipwg .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cblmlyipwg .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#cblmlyipwg .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#cblmlyipwg .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#cblmlyipwg .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cblmlyipwg .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#cblmlyipwg .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#cblmlyipwg .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#cblmlyipwg .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cblmlyipwg .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#cblmlyipwg .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#cblmlyipwg .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#cblmlyipwg .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#cblmlyipwg .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#cblmlyipwg .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cblmlyipwg .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#cblmlyipwg .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cblmlyipwg .gt_left {
+  text-align: left;
+}
+
+#cblmlyipwg .gt_center {
+  text-align: center;
+}
+
+#cblmlyipwg .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#cblmlyipwg .gt_font_normal {
+  font-weight: normal;
+}
+
+#cblmlyipwg .gt_font_bold {
+  font-weight: bold;
+}
+
+#cblmlyipwg .gt_font_italic {
+  font-style: italic;
+}
+
+#cblmlyipwg .gt_super {
+  font-size: 65%;
+}
+
+#cblmlyipwg .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#cblmlyipwg .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#cblmlyipwg .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#cblmlyipwg .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#cblmlyipwg .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#cblmlyipwg .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#cblmlyipwg .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_heading">
+      <td colspan="7" class="gt_heading gt_title gt_font_normal" style="color: #191970;"><strong>Table 4.3 NCES data</strong></td>
+    </tr>
+    <tr class="gt_heading">
+      <td colspan="7" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="color: #191970;"><strong>Effect-measure Modification</strong></td>
+    </tr>
+    <tr class="gt_col_headings gt_spanner_row">
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="2" colspan="1" scope="col" id="Estimator">Estimator</th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="M0">
+        <span class="gt_column_spanner">M0</span>
+      </th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="M1">
+        <span class="gt_column_spanner">M1</span>
+      </th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="2" scope="colgroup" id="diff">
+        <span class="gt_column_spanner">diff</span>
+      </th>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;" scope="col" id="Estimate">Estimate</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="CI<span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;><sup>1</sup></span>">CI<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;" scope="col" id="Estimate">Estimate</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="CI<span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;><sup>1</sup></span>">CI<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;" scope="col" id="Estimate">Estimate</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="CI<span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;><sup>1</sup></span>">CI<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="Estimator" class="gt_row gt_center">EYT0</td>
+<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.165</td>
+<td headers="M0_CI" class="gt_row gt_center">(0.136, 0.199)</td>
+<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.678</td>
+<td headers="M1_CI" class="gt_row gt_center">(0.611, 0.749)</td>
+<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.513</td>
+<td headers="diff_CI" class="gt_row gt_center">(0.443, 0.588)</td></tr>
+    <tr><td headers="Estimator" class="gt_row gt_center gt_striped">EYT1</td>
+<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.082</td>
+<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.054, 0.103)</td>
+<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.337</td>
+<td headers="M1_CI" class="gt_row gt_center gt_striped">(0.245, 0.433)</td>
+<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.256</td>
+<td headers="diff_CI" class="gt_row gt_center gt_striped">(0.163, 0.357)</td></tr>
+    <tr><td headers="Estimator" class="gt_row gt_center">RD</td>
+<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.083</td>
+<td headers="M0_CI" class="gt_row gt_center">(-0.134, -0.044)</td>
+<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.340</td>
+<td headers="M1_CI" class="gt_row gt_center">(-0.460, -0.227)</td>
+<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.257</td>
+<td headers="diff_CI" class="gt_row gt_center">(-0.382, -0.135)</td></tr>
+    <tr><td headers="Estimator" class="gt_row gt_center gt_striped">RR</td>
+<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.491</td>
+<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.299, 0.677)</td>
+<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.493</td>
+<td headers="M1_CI" class="gt_row gt_center gt_striped">(0.361, 0.655)</td>
+<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.005</td>
+<td headers="diff_CI" class="gt_row gt_center gt_striped">(0.654, 1.726)</td></tr>
+    <tr><td headers="Estimator" class="gt_row gt_center">RR*</td>
+<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.909</td>
+<td headers="M0_CI" class="gt_row gt_center">(0.859, 0.951)</td>
+<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.484</td>
+<td headers="M1_CI" class="gt_row gt_center">(0.367, 0.616)</td>
+<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.533</td>
+<td headers="diff_CI" class="gt_row gt_center">(0.404, 0.677)</td></tr>
+    <tr><td headers="Estimator" class="gt_row gt_center gt_striped">OR</td>
+<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.446</td>
+<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.259, 0.644)</td>
+<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.239</td>
+<td headers="M1_CI" class="gt_row gt_center gt_striped">(0.136, 0.396)</td>
+<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.536</td>
+<td headers="diff_CI" class="gt_row gt_center gt_striped">(0.280, 1.037)</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="7">Fundamentals of Causal Inference, Babette A. Brumback, 2022</td>
+    </tr>
+  </tfoot>
+  <tfoot class="gt_footnotes">
+    <tr>
+      <td class="gt_footnote" colspan="7"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span> 95% confidence interval</td>
+    </tr>
+  </tfoot>
+</table>
+</div>
+</div>
+</div>
+<p>and we plot the results</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>fciR<span class="sc">::</span><span class="fu">ggp_measures_modif</span>(nces.out, <span class="at">title =</span> <span class="st">"NCES data"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="ch04_measures_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We observe that</p>
+<ul>
+<li>RD: Risk difference shows that using selection to accept more women seem to decrease the % of school with hogh math SAT</li>
+<li>OR and RRstar: Show the same results as RD</li>
+<li>RR: Indicates that selection, in relative terms <em>has no significant effect</em></li>
+</ul>
+</section>
+</section>
+<section id="qualitative-agreement-of-effect-measures-in-modification" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="qualitative-agreement-of-effect-measures-in-modification"><span class="header-section-number">4.2</span> Qualitative Agreement of Effect Measures in Modification</h2>
+<p>This section relies heavily on the paper from Shannin and Brumback (2021) <span class="citation" data-cites="shanninbrumback2021">Jake Shannin (<a href="references.html#ref-shanninbrumback2021" role="doc-biblioref">2021</a>)</span>. It used a Monte-Carlo simulation in java by <a href="https://github.com/gatorjake/EffectMeasures">jake</a> running 1000000 times for six effect measures (the 4 in this chapter, the hazard ratio HR and the recovery ration HR*).</p>
+<p>For the purpose of this project we only simulate the 4 effect measures discussed so far (RD, RR, RR* and OR). We use R package <code>MonteCarlo</code> with 5000 repetitions. The distribution used for simulation is the beta distribution which is generally used for values in [0,1]. It is also used as a prior of binomial regression in Bayes analysis which is the subject covered a little later in this section. Regardless if the 6 effects measures from <span class="citation" data-cites="shanninbrumback2021">Jake Shannin (<a href="references.html#ref-shanninbrumback2021" role="doc-biblioref">2021</a>)</span> or the 4 from <span class="citation" data-cites="brumback2022">Brumback (<a href="references.html#ref-brumback2022" role="doc-biblioref">2022</a>)</span> are used, the process and conclusion are the same.</p>
+<p>We point out that using the distribution <span class="math inline">\(Beta(1, 1) \sim Uniform(0, 1)\)</span> is equivalent to running a grid search. It is also equivalent to the uniform distribution used in <span class="citation" data-cites="shanninbrumback2021">Jake Shannin (<a href="references.html#ref-shanninbrumback2021" role="doc-biblioref">2021</a>)</span>.</p>
+<section id="simulate-the-effect-measures" class="level3" data-number="4.2.1">
+<h3 data-number="4.2.1" class="anchored" data-anchor-id="simulate-the-effect-measures"><span class="header-section-number">4.2.1</span> Simulate the effect measures</h3>
+<p>We run the Monte-Carlo simulation without constraint and with <span class="math inline">\(Beta(1,1)\)</span> which is equivalent to <span class="math inline">\(Uniform(0,1)\)</span> used by <span class="citation" data-cites="shanninbrumback2021">Jake Shannin (<a href="references.html#ref-shanninbrumback2021" role="doc-biblioref">2021</a>)</span>.</p>
+<div class="cell" data-hash="ch04_measures_cache/html/ch04_gridsim_c8a0319bef1c444d75adc21102f22cbe">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>gridsim <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">mc_beta_effect_measures</span>(<span class="at">shape1 =</span> <span class="dv">1</span>, <span class="at">shape2 =</span> <span class="dv">1</span>, <span class="at">nrep =</span> <span class="dv">5000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Grid of  1  parameter constellations to be evaluated. 
+ 
+Progress: 
+ 
+
+  |                                                                            
+  |                                                                      |   0%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |======================================================================| 100%
+ </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># gridsim</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>which gives the vector of percentages</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unlist</span>(gridsim)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             RD_RR          RD_RRstar              RD_OR          RR_RRstar 
+            0.0000             0.0000             0.0000             0.0000 
+             RR_OR          RRstar_OR RD_RR_vs_RRstar_OR RD_RRstar_vs_RR_OR 
+            0.0000             0.0000             0.0258             0.0246 
+RD_OR_vs_RR_RRstar       RD_RR_RRstar           RD_RR_OR       RD_RRstar_OR 
+            0.0000             0.0000             0.0534             0.0518 
+      RR_RRstar_OR    RD_RR_RRstar_OR               NONE 
+            0.0000             0.8444             0.0000 </code></pre>
+</div>
+</div>
+<p>For the following discussion, we must note the following about the vector of percentages returned by the simulation.</p>
+<ol type="1">
+<li><strong>Pairwise events</strong>: Some measures move as <em>1 pair</em> in the same direction while all the other pairs move in different direction between each other. These are 6 possibilities named <code>RD_RR</code>,<code>RD_RRstar</code>, <code>RD_OR</code>, <code>RR_RRstar</code>, <code>RR_OR</code>, <code>RRstar_OR</code>.</li>
+<li><strong>Opposite pairwise events</strong>: Some measures move as <em>2 pairs</em> but <em>each of the 2 pairs does not move in the same direction</em>. There are 3 possibilities, called <code>RD_RR_vs_RRstar_OR</code>, <code>RD_RRstar_vs_RR_OR</code> and <code>RD_OR_vs_RR_RRstar</code>. <strong>These are the problematic ones as they cannot be represented in the Venn diagram of section 4.2</strong>. However we can distribute them to ensure probabilities add up to 1. For example <code>RD_RR_vs_RRstar_OR</code> will be split 50% between pairwise events <code>RD_RR</code> and 50% to pairwise event<code>RRstar_OR</code>. This enforces the very important rule that probabilities must add up to 1 without consequences on the conclusions reached.</li>
+<li><strong>3-wise events</strong>: Some 3 measures move in the same direction together There are 4 possibilities called <code>RD_RR_RRstar</code>, <code>RD_RR_OR</code>, <code>RD_RRstar_OR</code> and <code>RR_RRstar_OR</code>.</li>
+<li><strong>All events</strong>: Sometimes all measures move together. <strong>This is the possibility of interest</strong> discussed by Shannin and Brumback (2021). This possibility is called <code>ALL</code>.</li>
+<li><strong>No event</strong>: The possibility <code>NONE</code> concerns the event that no pair of measures move in the same direction. It is impossible and represents the empty set <span class="math inline">\(\emptyset\)</span> which is one of the 3 conditions of a <span class="math inline">\(\sigma-field\)</span>.</li>
+<li><strong>Validation</strong>: The sum of the vector’s elements must be one.</li>
+</ol>
+<p>The event definitions above ensure that the sample space is actually a <span class="math inline">\(\sigma-field\)</span>. See <span class="citation" data-cites="grimmett">Geoffrey R. Grimmet (<a href="references.html#ref-grimmett" role="doc-biblioref">2001</a>)</span>, section 1.2.</p>
+<p>then we compare with the author’s results</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>bb <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"RD_RR"</span> <span class="ot">=</span> <span class="fl">0.026</span>, <span class="st">"RD_RRstar"</span> <span class="ot">=</span> <span class="fl">0.026</span>, <span class="st">"RD_OR"</span> <span class="ot">=</span> <span class="dv">0</span>, </span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RR_RRstar"</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">"RR_OR"</span> <span class="ot">=</span> <span class="fl">0.026</span>, <span class="st">"RRstar_OR"</span> <span class="ot">=</span> <span class="fl">0.026</span>,</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RR_vs_RRstar_OR"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RRstar_vs_RR_OR"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_OR_vs_RR_RRstar"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RR_RRstar"</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">"RD_RR_OR"</span> <span class="ot">=</span> <span class="fl">0.057</span>, </span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RRstar_OR"</span> <span class="ot">=</span> <span class="fl">0.057</span>, <span class="st">"RR_RRstar_OR"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RR_RRstar_OR"</span> <span class="ot">=</span> <span class="fl">0.833</span>, <span class="st">"NONE"</span> <span class="ot">=</span> <span class="dv">0</span>)</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>comp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">bb =</span> <span class="fu">round</span>(bb, <span class="dv">4</span>), <span class="at">sim =</span> <span class="fu">round</span>(<span class="fu">unlist</span>(gridsim), <span class="dv">4</span>))</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>comp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                      bb    sim
+RD_RR              0.026 0.0000
+RD_RRstar          0.026 0.0000
+RD_OR              0.000 0.0000
+RR_RRstar          0.000 0.0000
+RR_OR              0.026 0.0000
+RRstar_OR          0.026 0.0000
+RD_RR_vs_RRstar_OR 0.000 0.0258
+RD_RRstar_vs_RR_OR 0.000 0.0246
+RD_OR_vs_RR_RRstar 0.000 0.0000
+RD_RR_RRstar       0.000 0.0000
+RD_RR_OR           0.057 0.0534
+RD_RRstar_OR       0.057 0.0518
+RR_RRstar_OR       0.000 0.0000
+RD_RR_RRstar_OR    0.833 0.8444
+NONE               0.000 0.0000</code></pre>
+</div>
+</div>
+<p>The results from the Monte Carlo simulation above confirm the main conclusion from <span class="citation" data-cites="shanninbrumback2021">Jake Shannin (<a href="references.html#ref-shanninbrumback2021" role="doc-biblioref">2021</a>)</span> that all effect measures move together 84% of the time.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="st">"simulation"</span> <span class="ot">=</span> <span class="fu">unname</span>(<span class="fu">unlist</span>(gridsim[<span class="st">"RD_RR_RRstar_OR"</span>])), </span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"author's"</span> <span class="ot">=</span> <span class="fu">unname</span>(bb[<span class="st">"RD_RR_RRstar_OR"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>simulation   author's 
+    0.8444     0.8330 </code></pre>
+</div>
+</div>
+<p>We note that the sim adds up correctly to 1 but not the author’s which adds up to 1.051. This is explained on p.&nbsp;72 as a bit of arbitrary allocations. The <span class="citation" data-cites="shanninbrumback2021">Jake Shannin (<a href="references.html#ref-shanninbrumback2021" role="doc-biblioref">2021</a>)</span> paper (caption figure 1) mentions that they do not add to 1 because they include events that <em>are not mutually exclusive</em>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="st">"simulation"</span> <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">unlist</span>(gridsim)), <span class="st">"author's"</span> <span class="ot">=</span> <span class="fu">sum</span>(bb))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>simulation   author's 
+     1.000      1.051 </code></pre>
+</div>
+</div>
+<p>Actually, this is caused by the <strong>Opposite pairwise events</strong> which cannot be represented in the 4-set Venn diagram. For the purpose of this books we will simply split them between the events that makes them up without consequence on the conclusion.</p>
+<p>The <strong>Opposite pairwise events</strong> are the following</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The events that pair of measures move together but in opposite</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="co"># direction of another pair who also move together</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="fu">unlist</span>(gridsim[<span class="fu">c</span>(<span class="st">"RD_RR_vs_RRstar_OR"</span>, <span class="st">"RD_RRstar_vs_RR_OR"</span>, <span class="st">"RD_OR_vs_RR_RRstar"</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>RD_RR_vs_RRstar_OR RD_RRstar_vs_RR_OR RD_OR_vs_RR_RRstar 
+            0.0258             0.0246             0.0000 </code></pre>
+</div>
+</div>
+<p>and when we split them between their 2 sub-events we can generate the Venn diagram as follows</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggp_venn_sim</span>(gridsim, <span class="at">n =</span> <span class="dv">1000</span>, </span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">fill_colr =</span> <span class="fu">c</span>(<span class="st">"blue"</span>, <span class="st">"yellow"</span>, <span class="st">"green"</span>, <span class="st">"red"</span>),</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">title =</span> <span class="st">"Venn diagram of effect measure modifications"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="ch04_measures_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>now for <strong>constrained data</strong></p>
+<div class="cell" data-hash="ch04_measures_cache/html/ch04_gridsim_const_c3c366e4409e46f660758d5705b02b01">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>gridsim_const <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">mc_beta_effect_measures</span>(<span class="at">shape1 =</span> <span class="dv">1</span>, <span class="at">shape2 =</span> <span class="dv">1</span>, <span class="at">nrep =</span> <span class="dv">5000</span>,</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>                                <span class="at">constrained =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Grid of  1  parameter constellations to be evaluated. 
+ 
+Progress: 
+ 
+
+  |                                                                            
+  |                                                                      |   0%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |======================================================================| 100%
+ </code></pre>
+</div>
+</div>
+<p>which gives the vector of percentages</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unlist</span>(gridsim_const)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             RD_RR          RD_RRstar              RD_OR          RR_RRstar 
+        0.00000000         0.00000000         0.00000000         0.00000000 
+             RR_OR          RRstar_OR RD_RR_vs_RRstar_OR RD_RRstar_vs_RR_OR 
+        0.00000000         0.00000000         0.05117790         0.05199025 
+RD_OR_vs_RR_RRstar       RD_RR_RRstar           RD_RR_OR       RD_RRstar_OR 
+        0.00000000         0.00000000         0.11291633         0.11129163 
+      RR_RRstar_OR    RD_RR_RRstar_OR               NONE 
+        0.00000000         0.67262388         0.00000000 </code></pre>
+</div>
+</div>
+<p>and comparing to the author’s results</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>bb_const <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"RD_RR"</span> <span class="ot">=</span> <span class="fl">0.053</span>, <span class="st">"RD_RRstar"</span> <span class="ot">=</span> <span class="fl">0.053</span>, <span class="st">"RD_OR"</span> <span class="ot">=</span> <span class="fl">0.053</span>, </span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RR_RRstar"</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">"RR_OR"</span> <span class="ot">=</span> <span class="fl">0.053</span>, <span class="st">"RRstar_OR"</span> <span class="ot">=</span> <span class="fl">0.0</span>,</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RR_vs_RRstar_OR"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RRstar_vs_RR_OR"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_OR_vs_RR_RRstar"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RR_RRstar"</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">"RD_RR_OR"</span> <span class="ot">=</span> <span class="fl">0.114</span>, </span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RRstar_OR"</span> <span class="ot">=</span> <span class="fl">0.114</span>, <span class="st">"RR_RRstar_OR"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RR_RRstar_OR"</span> <span class="ot">=</span> <span class="fl">0.667</span>, <span class="st">"NONE"</span> <span class="ot">=</span> <span class="dv">0</span>)</span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(bb_const)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.107</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>comp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">bb =</span> <span class="fu">round</span>(bb_const, <span class="dv">4</span>), </span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">sim =</span> <span class="fu">round</span>(<span class="fu">unlist</span>(gridsim_const), <span class="dv">4</span>))</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>comp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                      bb    sim
+RD_RR              0.053 0.0000
+RD_RRstar          0.053 0.0000
+RD_OR              0.053 0.0000
+RR_RRstar          0.000 0.0000
+RR_OR              0.053 0.0000
+RRstar_OR          0.000 0.0000
+RD_RR_vs_RRstar_OR 0.000 0.0512
+RD_RRstar_vs_RR_OR 0.000 0.0520
+RD_OR_vs_RR_RRstar 0.000 0.0000
+RD_RR_RRstar       0.000 0.0000
+RD_RR_OR           0.114 0.1129
+RD_RRstar_OR       0.114 0.1113
+RR_RRstar_OR       0.000 0.0000
+RD_RR_RRstar_OR    0.667 0.6726
+NONE               0.000 0.0000</code></pre>
+</div>
+</div>
+<p>The results from the Monte Carlo simulation with the constrained data agree the author’s result.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="st">"simulation"</span> <span class="ot">=</span> <span class="fu">unname</span>(<span class="fu">unlist</span>(gridsim_const[<span class="st">"RD_RR_RRstar_OR"</span>])),</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"author's"</span> <span class="ot">=</span> <span class="fu">unname</span>(bb_const[<span class="st">"RD_RR_RRstar_OR"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>simulation   author's 
+ 0.6726239  0.6670000 </code></pre>
+</div>
+</div>
+<p>Again the <strong>Opposite pairwise events</strong> cannot be represented in the 4-set Venn diagram.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The events that pair of measures move together but in opposite</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="co"># direction of another pair who also move together</span></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a><span class="fu">unlist</span>(gridsim_const[<span class="fu">c</span>(<span class="st">"RD_RR_vs_RRstar_OR"</span>, <span class="st">"RD_RRstar_vs_RR_OR"</span>, <span class="st">"RD_OR_vs_RR_RRstar"</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>RD_RR_vs_RRstar_OR RD_RRstar_vs_RR_OR RD_OR_vs_RR_RRstar 
+        0.05117790         0.05199025         0.00000000 </code></pre>
+</div>
+</div>
+<p>but if we do it as mentioned above then we can show a Venn diagram as follows</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="co"># This is a custom function using the venn package</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggp_venn_sim</span>(gridsim_const,</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">fill_colr =</span> <span class="fu">c</span>(<span class="st">"cyan"</span>, <span class="st">"gold"</span>, <span class="st">"springgreen"</span>, <span class="st">"hotpink"</span>),</span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">title =</span> <span class="st">"Venn diagram for constrained data"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="ch04_measures_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="applications" class="level3" data-number="4.2.2">
+<h3 data-number="4.2.2" class="anchored" data-anchor-id="applications"><span class="header-section-number">4.2.2</span> Applications</h3>
+<section id="simulation-of-distribution-of-effect-measures" class="level4" data-number="4.2.2.1">
+<h4 data-number="4.2.2.1" class="anchored" data-anchor-id="simulation-of-distribution-of-effect-measures"><span class="header-section-number">4.2.2.1</span> Simulation of distribution of effect measures</h4>
+<p>We use a parametric Monte Carlo simulation using the beta distribution to evaluate the effect of the distribution assumption on the effect-measure modifications.</p>
+<p>We run the Monte-Carlo simulation with 5000 repetitions, a grid of <code>shape1</code> and <code>shape2</code> parameters for the Beta distribution and no constraint. Namely <code>mc_beta_effect_measures(shape1 = c(0.5, 1, 3, 5, 7), shape2 = c(0.5, 1, 3, 5, 7), nrep = 5000)</code></p>
+<div class="cell" data-hash="ch04_measures_cache/html/ch04_priorsim_7509fb050ca7e2f481ae701e06979054">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>priorsim <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">mc_beta_effect_measures</span>(<span class="at">shape1 =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>),</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">shape2 =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>),</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">nrep =</span> <span class="dv">5000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Grid of  25  parameter constellations to be evaluated. 
+ 
+Progress: 
+ 
+
+  |                                                                            
+  |                                                                      |   0%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |===                                                                   |   4%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |======                                                                |   8%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |========                                                              |  12%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |===========                                                           |  16%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |==============                                                        |  20%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |=================                                                     |  24%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |====================                                                  |  28%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |======================                                                |  32%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |=========================                                             |  36%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |============================                                          |  40%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |===============================                                       |  44%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |==================================                                    |  48%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |====================================                                  |  52%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |=======================================                               |  56%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |==========================================                            |  60%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |=============================================                         |  64%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |================================================                      |  68%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |==================================================                    |  72%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |=====================================================                 |  76%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |========================================================              |  80%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |===========================================================           |  84%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |==============================================================        |  88%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |================================================================      |  92%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |===================================================================   |  96%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |======================================================================| 100%
+ </code></pre>
+</div>
+</div>
+<p>and we look at the matrix for the event <code>RD_RR_RRstar_OR</code> which represents the event that all effect measures move in the same direction.</p>
+<p>The matrix elements correspond to the percentage frequency of the event given the beta distribution with shape parameters <code>shape1 = s1</code> with <code>s1</code> indicated as column names, and <code>shape2 = s1</code> parameter with <code>s2</code> indicated in the row names.</p>
+<p>The beta distribution with <code>shape1 = 1</code> and <code>shape2 = 1</code> is similar to the uniform distribution on <span class="math inline">\([0, 1]\)</span>. Therefore this element is the one simulated by Shannon and Brumback, see <span class="citation" data-cites="shanninbrumback2021">Jake Shannin (<a href="references.html#ref-shanninbrumback2021" role="doc-biblioref">2021</a>)</span> and, in fact, with 5000 repetitions <code>nrep = 5000</code>the measure is almost always very close to what is mentioned in <span class="citation" data-cites="shanninbrumback2021">Jake Shannin (<a href="references.html#ref-shanninbrumback2021" role="doc-biblioref">2021</a>)</span>.</p>
+<p>Also note that for large <span class="math inline">\(shape1 = shape2 = \text{large number}\)</span> the beta distribution is similar to the normal distribution with a mean of <span class="math inline">\(shape1 / (shape1 + shape2)\)</span>. The simulation shows that in that case the percentage of measures moving in the same directions is nearing 100%. See for example when <span class="math inline">\(shape1 = shape2 = 7\)</span> in the matrix of results from the sim.</p>
+<p>here is the matrix of percentage of times that all measures move in the same direction, i.e.&nbsp;the event <code>RD_RR_RRstar_OR</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(priorsim[[<span class="st">"RD_RR_RRstar_OR"</span>]], <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       s1=0.5 s1=1 s1=3 s1=5 s1=7
+s2=0.5   0.78 0.81 0.83 0.83 0.83
+s2=1     0.80 0.84 0.85 0.87 0.87
+s2=3     0.82 0.86 0.90 0.91 0.92
+s2=5     0.83 0.87 0.92 0.92 0.93
+s2=7     0.83 0.86 0.91 0.93 0.93</code></pre>
+</div>
+</div>
+<p>and to show as a heatmap</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb113"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggp_betasim</span>(priorsim, <span class="at">var =</span> <span class="st">"RD_RR_RRstar_OR"</span>, </span>
+<span id="cb113-2"><a href="#cb113-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">colr =</span> <span class="fu">list</span>(<span class="st">"low"</span> <span class="ot">=</span> <span class="st">"deepskyblue1"</span>, <span class="st">"high"</span> <span class="ot">=</span> <span class="st">"deepskyblue4"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="ch04_measures_files/figure-html/unnamed-chunk-32-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>and comparing with the author</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="st">"simulation"</span> <span class="ot">=</span> priorsim[[<span class="st">"RD_RR_RRstar_OR"</span>]][<span class="st">"s2=1"</span>, <span class="st">"s1=1"</span>], </span>
+<span id="cb114-2"><a href="#cb114-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"author's"</span> <span class="ot">=</span> <span class="fu">unname</span>(bb[<span class="st">"RD_RR_RRstar_OR"</span>])), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>simulation   author's 
+     0.837      0.833 </code></pre>
+</div>
+</div>
+<p>We can see that the range is wide and should be considered.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a><span class="fu">range</span>(priorsim[[<span class="st">"RD_RR_RRstar_OR"</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.7848 0.9302</code></pre>
+</div>
+</div>
+<p>Now we do it with constrained data</p>
+<div class="cell" data-hash="ch04_measures_cache/html/ch04_priorsim_const_54a3c43846ff9c5682c043f48beb1be9">
+<div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a>priorsim_const <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">mc_beta_effect_measures</span>(<span class="at">shape1 =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>),</span>
+<span id="cb118-2"><a href="#cb118-2" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">shape2 =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>),</span>
+<span id="cb118-3"><a href="#cb118-3" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">nrep =</span> <span class="dv">5000</span>, <span class="at">constrained =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Grid of  25  parameter constellations to be evaluated. 
+ 
+Progress: 
+ 
+
+  |                                                                            
+  |                                                                      |   0%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |===                                                                   |   4%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |======                                                                |   8%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |========                                                              |  12%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |===========                                                           |  16%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |==============                                                        |  20%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |=================                                                     |  24%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |====================                                                  |  28%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |======================                                                |  32%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |=========================                                             |  36%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |============================                                          |  40%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |===============================                                       |  44%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |==================================                                    |  48%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |====================================                                  |  52%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |=======================================                               |  56%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |==========================================                            |  60%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |=============================================                         |  64%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |================================================                      |  68%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |==================================================                    |  72%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |=====================================================                 |  76%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |========================================================              |  80%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |===========================================================           |  84%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |==============================================================        |  88%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |================================================================      |  92%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |===================================================================   |  96%</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in searchCommandline(parallel, cpus = cpus, type = type, socketHosts =
+socketHosts, : Unknown option on commandline: --file</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  |                                                                            
+  |======================================================================| 100%
+ </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb170"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb170-1"><a href="#cb170-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggp_betasim</span>(priorsim_const, <span class="at">var =</span> <span class="st">"RD_RR_RRstar_OR"</span>,</span>
+<span id="cb170-2"><a href="#cb170-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">colr =</span> <span class="fu">list</span>(<span class="st">"low"</span> <span class="ot">=</span> <span class="st">"lightsalmon1"</span>, <span class="st">"high"</span> <span class="ot">=</span> <span class="st">"lightsalmon4"</span>),</span>
+<span id="cb170-3"><a href="#cb170-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">title =</span> <span class="st">"Monte Carlo simulation. Constrained data."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="ch04_measures_files/figure-html/unnamed-chunk-36-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>and comparing with the author</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb171"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb171-1"><a href="#cb171-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="st">"simulation"</span> <span class="ot">=</span> priorsim_const[[<span class="st">"RD_RR_RRstar_OR"</span>]][<span class="st">"s2=1"</span>, <span class="st">"s1=1"</span>], </span>
+<span id="cb171-2"><a href="#cb171-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"author's"</span> <span class="ot">=</span> <span class="fu">unname</span>(bb_const[<span class="st">"RD_RR_RRstar_OR"</span>])), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>simulation   author's 
+     0.670      0.667 </code></pre>
+</div>
+</div>
+<p>and the range is even larger and therefore more significant.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb173"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb173-1"><a href="#cb173-1" aria-hidden="true" tabindex="-1"></a><span class="fu">range</span>(priorsim_const[[<span class="st">"RD_RR_RRstar_OR"</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.5811623 0.8613429</code></pre>
+</div>
+</div>
+</section>
+<section id="application-data-pre-processing-data-cleaning" class="level4" data-number="4.2.2.2">
+<h4 data-number="4.2.2.2" class="anchored" data-anchor-id="application-data-pre-processing-data-cleaning"><span class="header-section-number">4.2.2.2</span> Application: Data pre-processing (data cleaning)</h4>
+<p>Unless the <span class="math inline">\(p_0, p_1\)</span> obtained are uniformly distributed (not the most common scenario for sure) it seems from the results above that the likelihood of <em>not</em> having all effect measures moving in the same direction is low. Thus, it could be a good hint to uncover hidden processes in a data pre-processing routine.</p>
+<p>We note the important rule mentioned at the beginning of section 4.2</p>
+<blockquote class="blockquote">
+<p>when relative risk <span class="math inline">\(RR\)</span> and other relative risk <span class="math inline">\(RR^*\)</span> both change in the same direction […] then so must the difference the risk difference and odds ratio.</p>
+</blockquote>
+<p>Another rule from section 4.2 can help in data cleaning</p>
+<blockquote class="blockquote">
+<p>When <span class="math inline">\(RR_0\)</span> and <span class="math inline">\(RR_1\)</span> are on opposite side of 1, that is, when in one stratum the treatment is helpful and in the other it is harmful, then all measures will automatically change together.</p>
+</blockquote>
+<p>Thus a quick, easy way to clean up potential data problems and obtain relevant details on outliers and <strong>hidden processes</strong> might be</p>
+<ol type="1">
+<li>Exclude cases when <span class="math inline">\(RR\)</span> and <span class="math inline">\(RR^*\)</span> change in the same direction to reduce the data load.</li>
+<li>Exclude cases when <span class="math inline">\(RR_0\)</span> and <span class="math inline">\(RR_1\)</span> are on opposite side of 1</li>
+<li>Investigate the remining cases asthey are good candidates for <em>hidden processes</em></li>
+</ol>
+</section>
+<section id="application-bayesian-prior-in-beta-binomial-model" class="level4" data-number="4.2.2.3">
+<h4 data-number="4.2.2.3" class="anchored" data-anchor-id="application-bayesian-prior-in-beta-binomial-model"><span class="header-section-number">4.2.2.3</span> Application: Bayesian prior in Beta-binomial model</h4>
+<p>If we use information from the population, or from expert knowledge, that effect measures should move in the same direction then a beta distribution with <span class="math inline">\(shape1 &gt; 1, shape2 &gt; 1\)</span> would make sense and provide a better prior for the Beta-binomial model.</p>
+<p>On the contrary, if we wish that the model look into the unlikely events that effect measure do not move in the same directions, then a beta distribution with <span class="math inline">\(shape1 \leq 1, shape2 \leq 1\)</span> could be supported by the results from above.</p>
+</section>
+</section>
+</section>
+<section id="causal-interaction" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="causal-interaction"><span class="header-section-number">4.3</span> Causal Interaction</h2>
+</section>
+<section id="exercises" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="exercises"><span class="header-section-number">4.4</span> Exercises</h2>
+<p>The exercises are located in a separate project.</p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="list" style="display: none">
+<div id="ref-brumback2022" class="csl-entry" role="listitem">
+Brumback, Babette A. 2022. <em>Fundamentals of Causal Inference with r</em>. Boca Raton, Florida: Chapman; Hall/CRC. <a href="https://www.crcpress.com">https://www.crcpress.com</a>.
+</div>
+<div id="ref-grimmett" class="csl-entry" role="listitem">
+Geoffrey R. Grimmet, David R. Stirzacker. 2001. <em>Probability and Random Processes</em>. 3rd ed. Great Clarendon Street, oxford OX2 6DP: Oxford University Press.
+</div>
+<div id="ref-shanninbrumback2021" class="csl-entry" role="listitem">
+Jake Shannin, Babette A. Brumback. 2021. <em>Disagreement Concerning Effect-Measures Modification</em>. <a href="https://arxiv.org/abs/2105.07285v1">https://arxiv.org/abs/2105.07285v1</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./ch03_outcomes.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Potential Outcomes and the Fundamental Problem of Causal Inference</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./references.html" class="pagination-link">
+        <span class="nav-page-text">References</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>

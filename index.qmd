@@ -8,8 +8,7 @@ This is a study project of the book *Fundamentals of Causal Inference With R* by
 
 -   The companion package for this project is `fciR` and can be found at [fciR](https://github.com/FrankLef/fciR).
 
--   The exercises can be found at [FCI exercises](https://github.com/FrankLef/fci2020). 
-This repo could be set as a **private** to avoid frustrating the publisher.
+-   The exercises can be found at [FCI exercises](https://github.com/FrankLef/fci2020). This repo could be set as a **private** to avoid frustrating the publisher.
 
 ## Acknowledgements
 
@@ -38,4 +37,5 @@ For plotting, graphs and tables these packages are used
 | [ggplot](https://ggplot2.tidyverse.org)           | Create graphics based on the grammar of graphics |
 | [ggdag](https://github.com/r-causal/ggdag)        | Causal directed acyclic graphs                   |
 | [tidygraph](https://tidygraph.data-imaginist.com) | Graphs and networks manipulation                 |
+| [ggvenn](https://cran.r-project.org/web/packages/ggvenn/index.html) | Venn diagrams by ggplot2. Used in chap. 4|
 | [gt](https://gt.rstudio.com)                      | Nice-looking tables                              |
