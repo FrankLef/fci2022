@@ -1,0 +1,1118 @@
+# Backdoor Method via Standardization {#backdoor}
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(patchwork)
+library(fciR)
+options(dplyr.summarise.inform = FALSE)
+```
+
+```{r include=FALSE}
+# TRUE = rerun the cache
+# is_rerun <- FALSE
+# directory of data files
+# dir_data <- file.path(getwd(), "data")
+# directory for functions
+# dir_lib <- file.path(getwd(), "lib")
+```
+
+::: {.center data-latex=""}
+::: {.minipage data-latex="{.5\\linewidth}"}
+Important note on the notation used. When the author uses $E(Y=t) \mid T=t, H=h)$ it means that we condition the data on $H=h$ and we intervene on the $T$ column and set it to $T=t$.
+
+For example for equation (6.2) we have
+
+$$
+\begin{align*}
+E(Y(t)) &= E_H(E(Y(t) \mid H)) \\
+&= E_H(E(Y(t) \mid T = t, H))
+\end{align*}
+$$
+
+which indicates that $T=t$ means that we set $T=t$, i.e. *it is not a condition* that doesn't involve a filter on the data. We know that because we have the $E(Y(t))$ which tells us that.
+
+But then we continue with proof (6.2) by adding the thrd line
+
+$$
+\begin{align*}
+E(Y(t)) &= E_H(E(Y(t) \mid H)) \\
+&= E_H(E(Y(t) \mid T = t, H)) \\
+&= E_H(E(Y \mid T = t, H))
+\end{align*}
+$$
+
+and, for the unwary beginner, $E(Y \mid T = t, H)$ could mean that we are *conditioning* on $T=t$, that is, we filter the $T$ variable in the data. This is confusing.
+
+To facilitate the reading and learning experience in this study project, whenever such confusion happens, the notation fro Pearl, using the $do()$ operator will be used.
+
+For example, the proof (6.2) becomes
+
+$$
+\begin{align*}
+E(Y(t)) &= E_H(E(Y(t) \mid H)) \\
+&= E_H(E(Y(t) \mid T = t, H)) \\
+&\text{and we use the do() operator to make it clear} \\
+&\text{that T=t is not a condition, it is an intervention} \\
+&\text{whereas H is a condition} \\
+&= E_H(E(Y \mid do(T = t), H))
+\end{align*}
+$$
+:::
+:::
+
+## Standardization via Outome Modeling
+
+> Standardization vis via outcome modelingis one way to estimate $E(Y(t))$
+
+$$
+\begin{align*}
+&\text{by double expectation theorem} \\
+&E(Y(t)) = E_H E(Y(t) \mid H) \\
+&\text{by independence of T given H, (6.1)} \\
+&= E_HE(Y(t) \mid T=t, H) \\
+&\text{by consistency assumption} \\
+&= E_HE(Y \mid do(T=t), H)
+\end{align*}
+$$
+
+and with a binary data set we can write
+
+$$
+\begin{align*}
+E_H E(Y \mid do(T=t), H) = E(Y \mid do(T=t), H = 0) P(H = 0) + E(Y \mid do(T=t), H = 1) P(H = 1)
+\end{align*}
+$$
+
+and using the example on p. 100 with the mortality data we first load the data set
+
+```{r}
+data("mortality_long", package = "fciR")
+mortality <- mortality_long
+```
+
+and we begin by calculating $\hat{E}(Y \mid T=0, H=0)$
+
+```{r}
+mortality %>%
+  filter(`T` == 0, H == 0) %>%
+  summarize(EY = weighted.mean(Y, n))
+```
+
+and for all permutations of $T$ and $H$ we have
+
+```{r}
+EYcondTH <- mortality %>%
+  group_by(`T`, H) %>%
+  summarize(EYcond = weighted.mean(Y, n))
+EYcondTH
+```
+
+and then we multiply the conditional expectations by the probabilities of $H$.
+
+```{r}
+PH <- mortality %>%
+  group_by(H) %>%
+  summarize(prob = sum(p))
+PH
+```
+
+and the multiplication
+
+```{r}
+EYH <- dplyr::inner_join(EYcondTH, PH, by = c("H")) %>%
+  mutate(EYH = EYcond * prob)
+EYH
+```
+
+and the final results are
+
+```{r}
+EYout <- EYH %>%
+  group_by(`T`) %>%
+  summarize(EYout = sum(EYH))
+EYout
+```
+
+Now, lets do it with raw data. For that we convert the mortality data to have 1 line per 10000 observations.
+
+```{r}
+mort <- mortality %>%
+  select(H, `T`, Y, n) |>
+  mutate(n = as.integer(n / 10000)) |>
+  tidyr::uncount(n)
+```
+
+and the function used to automate the process described above is as follows
+
+```{r}
+func_out_np <- function(data, formula, exposure.name, confound.names) {
+  # the name of the outcome variable
+  outcome.name <- all.vars(rlang::f_lhs(formula))
+  
+  # compute the frequencies, this table is then used for all computations
+  summ <- data |>
+    count(.data[[outcome.name]], .data[[exposure.name]], .data[[confound.names]]) |>
+    mutate(freq = n / sum(n))
+  stopifnot(abs(sum(summ$freq) - 1) < .Machine$double.eps^0.5)
+  
+  # the expected value of the outcome given the exposure and confounds
+  # i.e. the outcome conditional mean
+  out_cond_mean <- summ |>
+    group_by(.data[[exposure.name]], .data[[confound.names]]) |>
+    summarize(EY = weighted.mean(.data[[outcome.name]], w = n)) |>
+    # add and id column to be able to join the confounds variables later
+    unite(col = "id", .data[[confound.names]], remove = FALSE)
+  
+  # the confounds' distribution
+  confound_dist <- summ %>%
+    group_by(.data[[confound.names]]) |>
+    summarize(prob = sum(freq)) |>
+    # add and id column to be able to join the confounds variables later
+    unite(col = "id", .data[[confound.names]], remove = FALSE)
+  
+  # multiply the conditional expectation by the confound probabilities
+  EY <- dplyr::inner_join(out_cond_mean, confound_dist, by = "id") |>
+    group_by(.data[[exposure.name]]) |>
+    summarize(EY = sum(EY * prob)) |>
+    # create the output vector
+    arrange(.data[[exposure.name]]) |>
+    pull(EY) |>
+    setNames(c("EY0", "EY1"))
+  EY
+}
+```
+
+```{r}
+mort.out.est <- func_out_np(mort, formula = Y ~ `T` + H, exposure.name = "T", 
+                           confound.names = "H")
+mort.out.est
+```
+
+and we can see it gives the same results with the `fciR` package with `fciR::backdr_out_np`)
+
+```{r }
+#| label: ch06_mort_out_np
+#| cache: true 
+mort.out.np <- fciR::boot_est(
+    mort,
+    func = fciR::backdr_out_np, times = 500, alpha = 0.05, transf = "exp",
+    terms = c("EY0", "EY1", "RD", "RR", "RR*", "OR"),
+    formula = Y ~ `T` + H, exposure.name = "T", confound.names = "H")
+# mort.out.np
+```
+
+```{r echo=FALSE}
+fciR::gt_measures(mort.out.np,  digits = 6,
+            title = "Mortality", 
+            subtitle = paste("Standardized Estimates via Outcome Modeling",
+                              "Non Parametric Without Regression",
+                             sep = "<br>"))
+```
+
+Section 6.1, p. 101, also give the function `stand.r` to standardize via outcome modeling. This function uses regression with a saturated model, also called non- parametric, see last paragraph of section 2.2 on p. 25 regarding the saturated model.
+
+The `stand.r` is called `fciR::backdr_out_sat`, the suffix `sat` means it is with a saturated regression model. Here we show it using the tidyverse way.
+
+```{r}
+func_out_sat <- function(data, formula, exposure.name, confound.names) {
+  # this function works when there is only one confound
+  stopifnot(length(confound.names) == 1)
+  
+  x0 <- "(Intercept)"  # name of intercept used by lm, glm, etc.
+  
+  # marginal expected value of the outcome
+  mean_confound <- mean(data[, confound.names])
+  
+  # fit the outcome model
+  fit <- glm(formula = formula, data = data) |>
+    broom::tidy()
+  
+  # add distribution marginal expected potential outcomes
+  # marginal computaiton only for terms including the confound
+  fit <- fit |>
+    mutate(
+      # find the terms that includes the confound
+      marg_exp = grepl(pattern = confound.names, x = term),
+      # multiply the terms inlcuding the confound
+      marg_exp = ifelse(marg_exp, estimate * mean_confound, estimate)
+    )
+  
+  # E(Y(0))
+  EY0 <- fit |>
+    filter(term %in% c(x0, confound.names)) |>
+    summarize(EY = sum(marg_exp)) |>
+    pull()
+  # E(Y(1))
+  EY1 <- fit |>
+    summarize(EY = sum(marg_exp)) |>
+    pull()
+  
+  c("EY0" = EY0, "EY1" = EY1)
+}
+```
+
+Here we use it again with the `mort` dataset. It is important to note that the formula *inlcudes all interactions* since the model is saturated
+
+```{r}
+mort.out <- func_out_sat(mort, formula = Y ~ `T` * H, 
+                        exposure.name = "T",  confound.names = "H")
+mort.out
+```
+
+and we now do it with the function `fciR::backdr_out_npr`. That function works exactly as the function `standr` in the book.
+
+```{r }
+#| label: ch06_mort_out_sat
+#| cache: true
+mort.out.sat <- fciR::boot_est(
+    mort,
+    func = fciR::backdr_out_sat, times = 500, alpha = 0.05,
+    terms = c("EY0", "EY1", "RD", "RR", "RR*", "OR"),
+    formula = Y ~ `T` + H, exposure.name = "T", confound.names = "H")
+```
+
+```{r echo=FALSE, out.width="100%"}
+df <- mort.out.sat
+tbl <- fciR::gt_measures(df,  digits = 6,
+            title = "Mortality", 
+            subtitle = paste("Standardized Estimates",
+                              "Saturated Model With Regression",
+                              sep = "<br>"))
+p <- fciR::ggp_measures(df,
+                   title = NULL,
+                   subtitle = NULL)
+tbl <- fciR::gt2ggp(tbl)
+# a_file <- tempfile(fileext = "png")
+# a_file
+# gtExtras::gtsave_extra(tbl, filename = a_file)
+p + tbl + plot_annotation(title = "Mortality Data Effect Measures",
+                          subtitle = "Standardized Estimates, 95% confidence interval") &
+  theme(title = element_text(color = "midnightblue", size = rel(0.9)))
+```
+
+and the results are the same again. In conclusion pretty much any of the function. The function `fciR::backdr_out_npr` seems faster. The function `fciR::backdr_out_np` is actually useful as a double check and it actually uses a "pure" application of probabilities.
+
+### Examples {.unnumbered}
+
+#### What-if? Study {.unnumbered}
+
+```{r}
+data("whatifdat", package = "fciR")
+```
+
+##### Saturated model with `backdr_out_sat` {.unnumbered}
+
+```{r }
+#| label: ch06_whatif_out_sat
+#| cache: true
+whatif.out.sat <- fciR::boot_est(
+    whatifdat, fciR::backdr_out_sat, times = 500, alpha = 0.05,
+    terms = c("EY0", "EY1", "RD", "RR", "RR*", "OR"),
+    formula = Y ~ A * H, exposure.name = "A", confound.names = "H")
+whatif.out.sat
+```
+
+and we compare with the author's
+
+```{r}
+comp <- data.frame(
+  term = c("EY0", "EY1", "RD", "RR"),
+  .estimate.auth = c(0.375, 0.289, -0.086, 0.77),
+  .estimate = whatif.out.sat$.estimate[whatif.out.sat$term %in% 
+                                         c("EY0", "EY1", "RD", "RR")])
+# stopifnot(sum(abs(comp$.estimate.auth - comp$.estimate)) < 0.02)
+```
+
+and the results are presented in table 6.1
+
+```{r tbl_06_01, echo=FALSE, fig.align='center', fig.cap="Table 6.1", out.width="100%"}
+df <- whatif.out.sat
+tbl <- fciR::gt_measures(df, 
+            title = paste("Table 6.1", "What-If Study"), 
+            subtitle = paste("Standardized Estimates",
+                             "Saturated Model With Regression",
+                             sep = "<br>"))
+p <- fciR::ggp_measures(df,
+                   title = NULL,
+                   subtitle = NULL)
+tbl <- fciR::gt2ggp(tbl)
+p + tbl + plot_annotation(title = "What-If Study",
+                          subtitle = "Standardized Estimates, 95% confidence interval") &
+  theme(title = element_text(color = "midnightblue", size = rel(0.9)))
+```
+
+where we observe a reduction of the viral load but the difference is not statistically significant.
+
+##### Non-parametric With `backdr_out_np` {.unnumbered}
+
+```{r }
+#| label: ch06_whatif_out_np
+#| cache: true
+whatif.out.np <- fciR::boot_est(
+    whatifdat, fciR::backdr_out_np, times = 500, alpha = 0.05, transf = "exp",
+    terms = c("EY0", "EY1", "RD", "RR", "RR*", "OR"),
+    formula = Y ~ A + H, exposure.name = "A", confound.names = "H")
+whatif.out.np
+```
+
+```{r echo=FALSE, out.width="100%"}
+df <- whatif.out.np
+tbl <- fciR::gt_measures(df, 
+            title = paste("Table 6.1", "What-If Study"), 
+            subtitle = paste("Standardized Estimates",
+                              "Non Parametric",
+                             sep = "<br>"))
+p <- fciR::ggp_measures(df,
+                   title = NULL,
+                   subtitle = NULL)
+tbl <- fciR::gt2ggp(tbl)
+p + tbl + plot_annotation(title = "What-If Study",
+                          subtitle = "Standardized Estimates, 95% confidence interval") &
+  theme(title = element_text(color = "midnightblue", size = rel(0.9)))
+```
+
+and the results are the same with both non-parametric and with the saturated model.
+
+#### Double What-if? Study {.unnumbered}
+
+```{r}
+data("doublewhatifdat", package = "fciR")
+```
+
+##### Saturated model with `backdr_out_sat` {.unnumbered}
+
+```{r }
+#| lebel: ch06_doublewhatif_out_sat
+#| cache: true
+doublewhatif.out.sat <- fciR::boot_est(
+    doublewhatifdat, fciR::backdr_out_sat, times = 500, alpha = 0.05,
+    terms = c("EY0", "EY1", "RD", "RR", "RR*", "OR"),
+    formula = VL1 ~ A * AD0, exposure.name = "A", confound.names = "AD0")
+```
+
+```{r tbl_06_02, echo=FALSE, fig.align='center', fig.cap="Table 6.2", out.width="100%"}
+df <- doublewhatif.out.sat
+tbl <- fciR::gt_measures(df, 
+            title = paste("Table 6.2", "Double What-If Study"), 
+            subtitle = paste("Standardized Estimates with <em>H = AD0</em>",
+                             "Saturated Model With regression",
+                             sep = "<br>"))
+p <- fciR::ggp_measures(df,
+                   title = NULL,
+                   subtitle = NULL)
+tbl <- fciR::gt2ggp(tbl)
+p + tbl + plot_annotation(title = "Double What-If Study",
+                          subtitle = "Standardized Estimates, 95% confidence interval") &
+  theme(title = element_text(color = "midnightblue", size = rel(0.9)))
+```
+
+##### Non-parametric With `backdr_out_np` {.unnumbered}
+
+```{r }
+#| label: ch06_doublewhatif_out_np
+#| cache: true
+doublewhatif.out.np <- fciR::boot_est(
+    doublewhatifdat, fciR::backdr_out_np,
+    times = 500, alpha = 0.05, transf = "exp",
+    terms = c("EY0", "EY1", "RD", "RR", "RR*", "OR"),
+    formula = VL1 ~ A + AD0, exposure.name = "A", confound.names = "AD0")
+```
+
+```{r echo=FALSE, out.width="100%"}
+df <- doublewhatif.out.np
+tbl <- fciR::gt_measures(df, 
+            title = paste("Table 6.1", "Double What-If Study"), 
+            subtitle = paste("Standardized Estimates",
+                              "Non Parametric",
+                             sep = "<br>"))
+p <- fciR::ggp_measures(df,
+                   title = NULL,
+                   subtitle = NULL)
+tbl <- fciR::gt2ggp(tbl)
+p + tbl + plot_annotation(title = "Double What-If Study",
+                          subtitle = "Standardized Estimates, 95% confidence interval") &
+  theme(title = element_text(color = "midnightblue", size = rel(0.9)))
+```
+
+and the results are the same wether one uses non-parametric or a fully saturated regression model.
+
+> For comparisons, we repeat the standardization with $H = VL_0$
+
+```{r }
+#| label: ch06_whatif_vl0_out_sat
+#| cache: true
+doublewhatif.vl0.out <- fciR::boot_est(
+    doublewhatifdat, fciR::backdr_out_sat, times = 500, alpha = 0.05,
+    terms = c("EY0", "EY1", "RD", "RR", "RR*", "OR"),
+    formula = VL1 ~ A * VL0, exposure.name = "A", confound.names = "VL0")
+```
+
+```{r tbl_06_03, echo=FALSE, fig.align='center', fig.cap="Table 6.3", out.width="100%"}
+df <- doublewhatif.vl0.out
+tbl <- fciR::gt_measures(df, 
+            title = paste("Table 6.3", "Double What-If Study"), 
+            subtitle = paste("Standardized Estimates with <em>H = VL0</em>",
+                             "Saturated Model With Regression",
+                             sep = "<br>"))
+p <- fciR::ggp_measures(df,
+                   title = NULL,
+                   subtitle = NULL)
+tbl <- fciR::gt2ggp(tbl)
+p + tbl + plot_annotation(title = "Double What-If Study",
+                          subtitle = "Standardized Estimates, 95% confidence interval") &
+  theme(title = element_text(color = "midnightblue", size = rel(0.9)))
+```
+
+### Average Effect of Treatment on the Treated
+
+The function `bootstandatt` described in section 6.1.1 is not really necessary in the sense that the change is so little that we can simply set the argument `att = TRUE` in `backdr_out_sat`. The less coding we do, the better off we are!
+
+#### What-if? Study {.unnumbered}
+
+See the argument `att = TRUE` for `fciR::backdr_out_sat`.
+
+```{r }
+#| label: ch06_whatif_out_att_sat
+#| cache: true
+whatif.out.att.sat <- fciR::boot_est(
+    whatifdat, fciR::backdr_out_sat, times = 500, alpha = 0.05,
+    terms = c("EY0", "EY1", "RD", "RR", "RR*", "OR"),
+    formula = Y ~ A * H, exposure.name = "A", confound.names = "H", att = TRUE)
+```
+
+and we compare with the author's
+
+```{r}
+comp <- data.frame(
+  term = c("EY0", "EY1", "RD", "RR"),
+  .estimate.auth = c(0.361, 0.276, -0.085, 0.765),
+  .estimate = whatif.out.att.sat$.estimate[whatif.out.att.sat$term %in% c("EY0", "EY1", "RD", "RR")]
+)
+# sum(abs(comp$.estimate.auth - comp$.estimate))
+# stopifnot(sum(abs(comp$.estimate.auth - comp$.estimate)) < 0.02)
+```
+
+and the results are presented in table 6.1
+
+```{r tbl_06_04, echo=FALSE, fig.align='center', fig.cap="Table 6.4", out.width="100%"}
+df <- whatif.out.att.sat
+tbl <- fciR::gt_measures(df, 
+            title = paste("Table 6.4", "What-If Study"), 
+            subtitle = paste("Standardized ATT estimates",
+                             "Saturated model With Regression",
+                             sep = "<br>"))
+p <- fciR::ggp_measures(df,
+                   title = NULL,
+                   subtitle = NULL)
+tbl <- fciR::gt2ggp(tbl)
+p + tbl + plot_annotation(title = "What-If Study",
+                          subtitle = "Standardized ATT Estimates, 95% confidence interval") &
+  theme(title = element_text(color = "midnightblue", size = rel(0.9)))
+```
+
+It can also be done using a non-parametric method without regression. That is following pure probabilities from the data.
+
+```{r }
+#| label: ch06_whatif_out_att_np
+#| cache: true
+whatif.out.att.np <- fciR::boot_est(
+    whatifdat, fciR::backdr_out_np,
+    times = 250, alpha = 0.05, transf = "exp",
+    terms = c("EY0", "EY1", "RD", "RR", "RR*", "OR"),
+    formula = Y ~ A + H, exposure.name = "A", confound.names = "H", att = TRUE)
+```
+
+```{r echo=FALSE, out.width="100%"}
+df <- whatif.out.att.np
+tbl <- fciR::gt_measures(df, 
+            title = paste("Table 6.4", "What-If Study"), 
+            subtitle = paste("Standardized ATT Estimates",
+                              "Non Parametric",
+                             sep = "<br>"))
+p <- fciR::ggp_measures(df,
+                   title = NULL,
+                   subtitle = NULL)
+tbl <- fciR::gt2ggp(tbl)
+p + tbl + plot_annotation(title = "What-If Study",
+                          subtitle = "Standardized ATT Estimates, 95% confidence interval") &
+  theme(title = element_text(color = "midnightblue", size = rel(0.9)))
+```
+
+and again both saturated and non-parametric methods give the same results.
+
+#### Double What-if? Study {.unnumbered}
+
+```{r }
+#| label: ch06_doublewhatif_out_att_sat
+#| cache: true
+doublewhatif.out.att.sat <- fciR::boot_est(
+    doublewhatifdat, fciR::backdr_out_sat, times = 500, alpha = 0.05,
+    terms = c("EY0", "EY1", "RD", "RR", "RR*", "OR"),
+    formula = VL1 ~ A * AD0, exposure.name = "A", confound.names = "AD0", att = TRUE)
+```
+
+```{r tbl_06_05, echo=FALSE, fig.align='center', fig.cap="Table 6.5", out.width="100%"}
+df <- doublewhatif.out.att.sat
+tbl <- fciR::gt_measures(df, 
+            title = paste("Table 6.5", "Double What-If Study"), 
+            subtitle = paste("Standardized ATT Estimates with <em>H = AD0</em>",
+                             "Saturated Model With Regression",
+                             sep = "<br>"))
+p <- fciR::ggp_measures(df,
+                   title = NULL,
+                   subtitle = NULL)
+tbl <- fciR::gt2ggp(tbl)
+p + tbl + plot_annotation(title = "Double What-If Study",
+                          subtitle = "Standardized ATT Estimates, 95% confidence interval") &
+  theme(title = element_text(color = "midnightblue", size = rel(0.9)))
+```
+
+```{r }
+#| label: ch06_doublewhatif_out_att_np
+#| cache: true
+doublewhatif.out.att.np <- fciR::boot_est(
+    doublewhatifdat, fciR::backdr_out_np,
+    times = 500, alpha = 0.05, transf = "exp",
+    terms = c("EY0", "EY1", "RD", "RR", "RR*", "OR"),
+    formula = VL1 ~ A * VL0, exposure.name = "A", confound.names = "VL0", att = TRUE)
+```
+
+```{r tbl_06_06, echo=FALSE, fig.align='center', fig.cap="Table 6.6", out.width="100%"}
+df <- doublewhatif.out.att.np
+tbl <- fciR::gt_measures(df, 
+            title = paste("Table 6.6", "Double What-If Study"), 
+            subtitle = paste("Standardized ATT Estimates with <em>H = VL0</em>",
+                             "Non Parametric",
+                             sep = "<br>"))
+p <- fciR::ggp_measures(df,
+                   title = NULL,
+                   subtitle = NULL)
+tbl <- fciR::gt2ggp(tbl)
+p + tbl + plot_annotation(title = "Double What-If Study",
+                          subtitle = "Standardized ATT Estimates, 95% confidence interval") &
+  theme(title = element_text(color = "midnightblue", size = rel(0.9)))
+```
+
+### Standardization with a Parametric Outcome Model
+
+For a the parametric outcome model `fciR::backdr_out()` is used
+
+#### What-if? Study {.unnumbered}
+
+```{r}
+data("whatif2dat", package = "fciR")
+```
+
+
+```{r }
+#| label: ch06_whatif2_out
+#| cache: true
+whatif2.out <- fciR::boot_est(
+    whatif2dat, fciR::backdr_out,
+    times = 100, alpha = 0.05, transf = "exp",
+    terms = c("EY0", "EY1", "RD", "RR", "RR*", "OR"),
+    formula = vl4 ~ A + lvlcont0, exposure.name = "A", confound.names = "lvlcont0")
+```
+
+and we compare with the author's
+
+```{r}
+comp <- data.frame(
+  term = c("EY0", "EY1", "RD", "RR"),
+  .estimate.auth = c(0.360, 0.300, -0.061, 0.831),
+  .estimate = whatif2.out$.estimate[whatif2.out$term %in% c("EY0", "EY1", "RD", "RR")]
+)
+# comp
+# stopifnot(sum(abs(comp$.estimate.auth - comp$.estimate)) < 0.01)
+```
+
+and the results are presented in table 6.1
+
+```{r tbl_06_07, echo=FALSE, fig.align='center', fig.cap="Table 6.7", out.width="100%"}
+df <- whatif2.out
+tbl <- fciR::gt_measures(df, 
+            title = paste("Table 6.7", "What-If Study"),
+            subtitle = paste("Outcome-model Standardization with <em>H = lvlcont0</ems>",
+                             sep = "<br>"))
+p <- fciR::ggp_measures(df,
+                   title = NULL,
+                   subtitle = NULL)
+tbl <- fciR::gt2ggp(tbl)
+p + tbl + plot_annotation(title = "What-If Study",
+                          subtitle = "Outcome-model Standardization, 95% confidence interval") &
+  theme(title = element_text(color = "midnightblue", size = rel(0.9)))
+```
+
+#### General Social Survey {.unnumbered}
+
+```{r}
+data("gss", package = "fciR")
+gssrcc <- gss[, c("trump", "gthsedu", "magthsedu", "white", "female", "gt65")]
+gssrcc <- gssrcc[complete.cases(gssrcc), ]
+```
+
+```{r}
+#| label: ch06_gssrcc_out
+#| cache: true
+a_formula <- trump ~ gthsedu + magthsedu + white + female + gt65
+gssrcc.out <- boot_est(data = gssrcc, func = fciR::backdr_out,
+           times = 100, alpha = 0.05, transf = "exp",
+           terms = c("EY0", "EY1", "RD", "RR", "RR*", "OR"),
+           formula = a_formula, exposure.name = "gthsedu", 
+           confound.names = c("magthsedu", "white", "female", "gt65"))
+# gssrcc.out
+```
+
+and we compare with the author's
+
+```{r}
+comp <- data.frame(
+  term = c("EY0", "EY1", "RD", "RR"),
+  .estimate.auth = c(0.233, 0.271, 0.038, 1.164),
+  .estimate = gssrcc.out$.estimate[gssrcc.out$term %in% c("EY0", "EY1", "RD", "RR")]
+)
+stopifnot(sum(abs(comp$.estimate.auth - comp$.estimate)) < 0.02)
+```
+
+and the results are presented in table 6.8
+
+```{r tbl_06_08, echo=FALSE, fig.align='center', fig.cap="Table 6.8", out.width="100%"}
+df <- gssrcc.out
+tbl <- fciR::gt_measures(df, 
+            title = paste("Table 6.8", "General Social Survey"), 
+            subtitle = paste("Outcome-model Standardization",
+            "Effect of <em>More than High School Education</em> on <em>
+            Voting for Trump</em>",
+            sep = "<br>"))
+p <- fciR::ggp_measures(df,
+                   title = NULL,
+                   subtitle = NULL)
+tbl <- fciR::gt2ggp(tbl)
+p + tbl + plot_annotation(title = "General Social Survey",
+                          subtitle = "Outcome-model Standardization, 95% confidence interval") &
+  theme(title = element_text(color = "midnightblue", size = rel(0.9)))
+```
+
+## Standardization via Exposure Modeling
+
+> The exposure model is also known as the *propensity score*, denoted $e(H)$, as it is a function of $H$.
+
+$$
+\begin{align*}
+e(H) = (T \mid H) = expit(\alpha_0 + \alpha_1 H_1 + \ldots + \alpha_k H_k)
+\end{align*}
+$$
+
+the proof of
+
+$$
+E(Y(1)) = E \left( \frac{TY}{e(H)} \right)
+$$ is
+
+$$
+\begin{align*}
+&\text{by definition of expectation} \\
+E \left( \frac{t \cdot y}{e(H)} \right) &= \sum_{y,t,h} \frac{TY}{e(H)} P(Y=y,T=t,H=h) \\
+&\text{by multiplication rule} \\
+&= \sum_{y,t,h} \frac{t \cdot y}{e(H)} P(Y=y \mid T=t,H=h) P(T=t \mid H=h) P(H=h) \\
+&\text{because } T \text{ is binary, and by definition of } e(H) \text{ then } e(H) = P(T \mid H) \\ &= \sum_{y,t,h} \frac{t \cdot y}{e(H)} P(Y=y \mid T=t,H=h) e(H) P(H=h) \\
+&\text{and when } T=0 \text{ the summand is zero, therefore we are left with } T=1 \\
+&= \sum_{y,h} \frac{y}{e(H)} P(Y=y \mid T=1,H=h) e(H) P(H=h) \\
+&\text{we cancel the } e(H) \text{ in numerator and denominator} \\
+&= \sum_{y,h} y P(Y=y \mid T=1,H=h) P(H=h) \\
+&\text{by definition of conditional expectation} \\
+&= E_H (E(Y \mid T=1, H)) \\
+&\text{and by (6.2) which implies (6.1)} \\
+&= E(Y(1))
+\end{align*}
+$$
+
+### Examples {.unnumbered}
+
+#### Mortality Rates by Country {.unnumbered}
+
+```{r}
+data("mortality_long", package = "fciR")
+mortdat <- as.data.frame(mortality_long)
+```
+
+Compute the standardized estimates using exposure modeling with `fciR::backdr_exp_np` which uses the algorithm defined in `mk.mortdat` at the beginning of section 6.2. You can see the code by pressing `F2` on `fciR::backdr_exp_np`.
+
+```{r }
+#| label: ch06_mortdat_exp_np
+#| cache: true
+message("this takes 25 sec., use cache")
+mortdat.exp.np <- boot_est(data = mort, func = backdr_exp_np,
+           times = 100, alpha = 0.05, transf = "exp",
+           terms = c("EY0", "EY1", "RD", "RR", "RR*", "OR"),
+           formula = Y ~ `T` + H, exposure.name = "T", confound.names = "H")
+```
+
+```{r}
+mort.EY0 <- mortdat.exp.np$.estimate[mortdat.exp.np$term == "EY0"]
+mort.EY1 <- mortdat.exp.np$.estimate[mortdat.exp.np$term == "EY1"]
+# verify with the author's
+# stopifnot(abs(mort.EY0 - 0.0078399) < 1e-4,
+#           abs(mort.EY1 - 0.0069952) < 1e-4)
+```
+
+### Average Effect of Treatment on the Treated
+
+It can be proven that
+
+$$
+E(Y(0) \mid T=1) = E \left( \frac{Y(1 - T) e(H)}{e_0(1 - e(H))}  \right), \, e_0 = P(T=1) \\
+$$
+
+as follows
+
+$$
+\begin{align*}
+&\text{by the rule of double expectation} \\
+E(Y(0) \mid T=1) &= E_{H \mid T=1} E(Y \mid T=0, H) \\
+&\text{by definition of expectation} \\
+&= E_{H \mid T=1} \left[ \sum_{y} y P(Y=y \mid T=0, H) \right] \\
+&\text{by definition of conditional expectation} \\
+&= \sum_h \left[ \sum_{y} y P(Y=y \mid T=0, H) \right] P(H=h \mid T=1) \\
+&\text{by definition of conditional expectation we have that} \\ 
+&P(H=h \mid T=1) = \frac{P(T=1 \mid H=h) P(H=h)}{P(T=1)} \\
+&\text{therefore} \\
+E(Y(0) \mid T=1) &= \sum_{y,h} y P(Y=y \mid T=0, H=h) \frac{P(T=1 \mid H=h) P(H=h)}{P(T=1)} \\
+&\text{rearranging terms} \\
+&= \sum_{y,h} y \frac{P(T=1 \mid H=h)}{P(T=1)} \left[ P(Y=y \mid T=0, H=h)P(H=h)  \right] \\
+&\text{and multiply by } 1 = \frac{P(T=0 \mid H=h)}{P(T=0 \mid H=h)} \\
+&= \sum_{y,h} y \frac{P(T=1 \mid H=h)}{P(T=1)} \left[ \frac{P(Y=y \mid T=0, H=h)P(T=0 \mid H=h)P(H=h)}{P(T=0 \mid H=h)}  \right] \\
+&\text{rearranging the terms again} \\
+&= \sum_{y,h} y \frac{P(T=1 \mid H=h)}{P(T=1)P(T=0 \mid H=h)} \left[ P(Y=y \mid T=0, H=h)P(T=0 \mid H=h)P(H=h)  \right] \\
+&\text{using the multiplication rule} \\
+&= \sum_{y,h} y \frac{P(T=1 \mid H=h)}{P(T=1)P(T=0 \mid H=h)} P(Y=y, T=0, H=h) \\
+&\text{ and since } e(h) = P(T=1 \mid H=h) \text{ and } e_0 = P(T=1) \\
+&= \sum_{y,h} y \cdot \frac{e(h)}{e_0 (1 - e(h))} \cdot P(Y=y, T=0, H=h) \\
+&\text{ and since } \sum_t (1-t) P(Y=y, T=t, H=h) = P(Y=y, T=0, H=h) \\
+&= \sum_{y,h} y \cdot \frac{e(h)}{e_0 (1 - e(h))} \cdot \sum_t (1-t) P(Y=y, T=t, H=h) \\
+&= \sum_{y,h, t} y \cdot (1-t) \cdot \frac{e(h)}{e_0 (1 - e(h))} \cdot P(Y=y, T=t, H=h) \\
+&\text{and by definition of expectation} \\
+&= E \left[ Y \cdot (1-T) \cdot \frac{e(H)}{e_0 (1 - e(H))} \right]
+\end{align*}
+$$
+
+To to the calculation with ATT we use `backdr_exp_np` but, this time, with the argument `att = TRUE`. When `att = TRUE`, `backdr_exp_np` gives the estimate for ATT as `attsem.r` on p. 116 of section 6.2.1.
+
+```{r }
+#| label: ch06_mortdat_exp_np_att
+#| cache: true
+mortdat.exp.np.att <- boot_est(data = mort, func = backdr_exp_np,
+           times = 100, alpha = 0.05, transf = "exp",
+           terms = c("EY0", "EY1", "RD", "RR", "RR*", "OR"),
+           formula = Y ~ `T` + H, exposure.name = "T", confound.names = "H", 
+           att = TRUE)
+```
+
+See previous section for calculation with mortality data for the function with the flag `is_att = TRUE`
+
+```{r}
+mort.att.EY0 <- mortdat.exp.np.att$.estimate[mortdat.exp.np.att$term == "EY0"]
+mort.att.EY1 <- mortdat.exp.np.att$.estimate[mortdat.exp.np.att$term == "EY1"]
+mort.att.EY0
+mort.att.EY1
+mort.EY1
+message("TODO: EY1 should not be influenced by ATT??")
+# TODO: EY1 should not be influenced by ATT??
+# stopifnot(abs(mort.att.EY0 - 0.010176) < 1e-4,
+#           abs(mort.att.EY1 - 0.0069952) < 1e-4)
+```
+
+### Standardization with a Parametric Exposure Model
+
+The function `fciR::backdr_exp()` is used to standardized with a parametric exposure model and the `glm` fit. It is the main function used in the chapter.
+
+Alternatively the standardization could be done with `geeglm` from the `geepack` package. For *those focused primarily on the risk difference*. See the explanation on section 6.2.2 on why `geeglm` is not really good for the risk ratio.
+
+The function is called `exp` in the book. We rename it `fciR::backdr_exp()` to be more informative and avoid mix up with the much-used base R function `exp.`
+
+#### What-if? Study {.unnumbered}
+
+First we do it using the `glm` fit
+
+```{r }
+#| label: ch06_whatif2_exp
+#| cache: true
+whatif2.exp <- boot_est(data = whatif2dat, func = backdr_exp,
+           times = 250, alpha = 0.05, transf = "exp",
+           terms = c("EY0", "EY1", "RD", "RR", "RR*", "OR"),
+           formula = vl4 ~ A + lvlcont0, exposure.name = "A",
+           confound.names = "lvlcont0")
+```
+
+and compare with the author's
+
+```{r}
+comp <- data.frame(
+  term = c("EY0", "EY1", "RD", "RR"),
+  .estimate.auth = c(0.36, 0.30, -0.06, 0.834),
+  .estimate = whatif2.exp$.estimate[whatif2.exp$term %in% c("EY0", "EY1", "RD", "RR")])
+stopifnot(sum(abs(comp$auth - comp$est)) < 0.01)
+```
+
+and the results are presented in table 6.9
+
+```{r tbl_06_09, echo=FALSE, fig.align='center', fig.cap="Table 6.9", out.width="100%"}
+df <- whatif2.exp
+tbl <- fciR::gt_measures(df, 
+            title = paste("Table 6.9", "What-If Study"), 
+            subtitle = paste("Exposure-model Standardization with <em>H = lvlcont0</em>",
+                             sep = "<br>"))
+p <- fciR::ggp_measures(df,
+                   title = NULL,
+                   subtitle = NULL)
+tbl <- fciR::gt2ggp(tbl)
+p + tbl + plot_annotation(title = "What-If Study",
+                          subtitle = "Exposure-model Standardization, 95% confidence interval") &
+  theme(title = element_text(color = "midnightblue", size = rel(0.9)))
+```
+
+then we use the `geeglm` from the `geepack` package fit for risk difference
+
+```{r ch06_whatif2_gee}
+#| label: ch06_whatif2_gee
+#| cache: true
+whatif2.exp.gee <- boot_est(data = whatif2dat, func = backdr_exp_gee,
+           times = 250, alpha = 0.05, transf = "exp",
+           terms = c("EY0", "EY1", "RD", "RR", "RR*", "OR"),
+           formula = vl4 ~ A + lvlcont0, exposure.name = "A", 
+           confound.names = "lvlcont0")
+```
+
+and the results are presented in table 6.9
+
+```{r echo=FALSE}
+df <- whatif2.exp.gee
+tbl <- fciR::gt_measures(df, 
+            title = paste("Table 6.9", "What-If Study"), 
+            subtitle = paste("Exposure-model Standardization using <em>geeglm</em> wtih <em>H = lvlcont0</em>",
+                             sep = "<br>"))
+tbl
+```
+
+#### General Social Survey {.unnumbered}
+
+The `gssrcc` is defined in section 6.1.2 above. It is the `gss` data with complete cases only.
+
+The `standexp` function on page 119-120 of section 6.2.2 is not needed anymore as `standexp` was created with parameters in the previous section. We just need to run it as follows
+
+```{r }
+#| label: ch06_gssrcc_exp
+#| cache: true
+a_formula <- trump ~ gthsedu + magthsedu + white + female + gt65
+gssrcc.exp <- boot_est(data = gssrcc, func = backdr_exp,
+           times = 250, alpha = 0.05, transf = "exp",
+           terms = c("EY0", "EY1", "RD", "RR", "RR*", "OR"),
+           formula = a_formula, exposure.name = "gthsedu", 
+           confound.names = c("magthsedu", "white", "female", "gt65"))
+```
+
+and compare with the author's
+
+```{r}
+comp <- data.frame(
+  term = c("EY0", "EY1", "RD", "RR"),
+  .estimate.auth = c(0.231, 0.272, 0.041, 1.176),
+  .estimate = gssrcc.exp$.estimate[gssrcc.exp$term %in% c("EY0", "EY1", "RD", "RR")])
+# stopifnot(sum(abs(comp$.estimate.auth - comp$.estimate)) < 0.015)
+```
+
+and the results are presented in table 6.10
+
+```{r tbl_06_10, echo=FALSE, fig.align='center', fig.cap="Table 6.10", out.width="100%"}
+df <- gssrcc.exp
+tbl <- fciR::gt_measures(df, 
+            title = paste("Table 6.10", "General Social Survey"), 
+            subtitle = paste(
+              "Exposure-model Standardization", 
+              "Effect of <em>More than High School Education</em> on <em>
+              Voting for Trump</em>",
+            sep = "<br>"))
+p <- fciR::ggp_measures(df,
+                   title = NULL,
+                   subtitle = NULL)
+tbl <- fciR::gt2ggp(tbl)
+p + tbl + plot_annotation(title = "General Social Survey",
+                          subtitle = "Exposure-model Standardization, 95% confidence interval") &
+  theme(title = element_text(color = "midnightblue", size = rel(0.9)))
+```
+
+## Doubly Robust Standardization
+
+The function `backdr_dr()` does a doubly robust standardization. It is not in the text but is actually used for the exercise. It is very similar to `badstanddr`.
+
+The function `badstanddr` is replaced by `backdr_dr_bad`, used for doubly robust standardization with a misspecified outcome model.
+
+and using the What-if Study we obtain
+
+```{r }
+#| label: ch06_whatif2_bad
+#| cache: true
+whatif2.bad <- boot_est(data = whatif2dat, func = fciR::backdr_dr_bad,
+           times = 100, alpha = 0.05, transf = "exp",
+           terms = c("EY0", "EY1", "RD", "RR", "RR*", "OR"),
+           formula = vl4 ~ A + lvlcont0, exposure.name = "A",
+           confound.names = "lvlcont0")
+```
+
+and compare with the author's
+
+```{r}
+comp <- data.frame(
+  term = c("EY0", "EY1", "RD", "RR"),
+  .estimate.auth = c(0.362, 0.300, -0.062, 0.830),
+  .estimate = whatif2.bad$.estimate[whatif2.bad$term %in% c("EY0", "EY1", "RD", "RR")])
+stopifnot(sum(abs(comp$.estimate.auth - comp$.estimate)) < 0.07)
+```
+
+and the results are presented in table 6.9
+
+```{r tbl_06_12, echo=FALSE, fig.align='center', fig.cap="Table 6.12", out.width="100%"}
+df <- whatif2.bad
+tbl <- fciR::gt_measures(df, 
+            title = paste("Table 6.12", "What-If Study"), 
+            subtitle = paste("Doubly Robust Standardization",
+            "Combining the Misspecified Outome Model of Table 6.11", 
+            "and the Exposure Model of Table 6.9",
+            sep = "<br>"))
+p <- fciR::ggp_measures(df,
+                   title = NULL,
+                   subtitle = NULL)
+tbl <- fciR::gt2ggp(tbl)
+p + tbl + plot_annotation(title = "What-If Study",
+                          subtitle = "Doubly Robust Standardization MISSPECIFIED, 95% confidence interval") &
+  theme(title = element_text(color = "midnightblue", size = rel(0.9)))
+```
+
+### Doubly Robust Standardization Simulation
+
+#### With `simdr`
+
+The simulation of doubly robust standardization discussed at the end of section 6.3 in p. 126 to 130 and found in `simdr` is analyzed in an appendix at [Doubly Robust Simulation](#mc_standdr).
+
+The results obtained by Brumback are close enough to what we have below. Here is a tableau of her results
+
+```{r tbl_06_13, echo=FALSE, fig.align='center', fig.cap="Table 6.13 and 14", out.width="100%"}
+data(fciR::fci_tbl_06_13)
+df <- fci_tbl_06_13
+
+df <- df %>% select(ss, estimator, description, mean, sd, pval) |>
+  mutate(ss = paste("ss", ss, sep = "=")) |>
+  pivot_longer(cols = c("mean", "sd", "pval"), names_to = "stats",
+               values_to = "value") |>
+  mutate(value = ifelse(stats == "pval", round(value, 2), round(value, 4))) |>
+  unite(col = "heading", ss, stats, sep = "_") |>
+  pivot_wider(id_cols = c("estimator", "description"), names_from = "heading",
+              values_from = "value")
+
+
+title <- "Table 6.13 and 6.14"
+subtitle <- paste("Sampling Distribution from Simulation", 
+                   "Investigating Small-Sample Robustness", 
+                   "True E(Y(0))=0.01, True E(Y(1))=0.02",
+                  sep = "<br>")
+fciR::gt_standdr(df, title = title, subtitle = subtitle)
+```
+
+#### With `mc_standdr`
+
+We perform the simulation using a Monte Carlo simulation called `mc_standdr`. The script is in the appendix at [mc_standdr](#mc_standdr).
+
+We use a sample size of only 1000 as in the book.
+
+```{r}
+nrep <- 1000
+```
+
+So here the simulation with $ss \in \{40, 100\}$
+
+```{r }
+#| label: ch06_mc_out
+#| cache: true
+mc.out <- fciR::mc_standdr(ss = c(40, 100), nrep = nrep)
+```
+
+and we compute the p-values
+
+```{r}
+mc.out <- mc.out %>%
+    mutate(`T` = ifelse(grepl(pattern = "0", estimator), 0, 1),
+         h0 = ifelse(`T` == 0, 0.01, 0.02),
+         sdp = sd / sqrt(n),
+         z = abs((mean - h0) / sdp),
+         pval = 2 * (1 - pnorm(z))) %>%
+  select(-sdp, -z)
+# mc.out
+```
+
+and show the results in a table
+
+```{r tbl_06_13_FL, echo=FALSE, fig.align='center', fig.cap="Table 6.13 and 14 by FL", out.width="100%"}
+the_estimators <- c("EYT0" = "Unadjusted", "EYT1" = "Unadjusted",
+                      "EY0exp" = "Linear Exposure", "EY1exp" = "Linear Exposure",
+                      "EY0exp2" = "Logistic Exposure", "EY1exp2" = "Logistic Exposure",
+                      "EY0out" = "Overspecified Outcome", "EY1out" = "Overspecified Outcome",
+                      "EY0dr" = "Doubly Robust", "EY1dr" = "Doubly Robust")
+dft <- mc.out %>%
+  select(ss, estimator, mean, sd, pval) |>
+  mutate(ss = paste("ss", ss, sep = "=")) |>
+  pivot_longer(cols = c("mean", "sd", "pval"), names_to = "stats", 
+               values_to = "value") |>
+  mutate(value = ifelse(stats == "pval", round(value, 2), round(value, 4))) |>
+  unite(col = "heading", ss, stats, sep = "_") |>
+  pivot_wider(id_cols = "estimator", names_from = "heading", 
+              values_from = "value") |>
+  mutate(description = the_estimators[match(estimator, names(the_estimators))]) |>
+  relocate(description, .after = estimator)
+# reorder the rows to match book's
+dft <- dft[match(names(the_estimators), dft$estimator), ]
+
+title <- "Table 6.13 and 6.14 <em>(by FL)</em>"
+subtitle <- paste("Sampling Distribution from Simulation", 
+                   "Investigating Small-Sample Robustness", 
+                   "True E(Y(0))=0.01, True E(Y(1))=0.02",
+                  sep = "<br>")
+fciR::gt_standdr(dft, title = title, subtitle = subtitle)
+```
+
+#### Plotting the Monte Carlo Simulation
+
+We will not reiterate the comments from Brumback as the results in the tableau just above confirm them.
+
+A plot can however illustrate Brumback's main points. This ones shows the estimates' mean with their 5% and 95% quantiles from the simulation.
+
+```{r echo=FALSE}
+mc.out %>%
+  select(ss, estimator, mean, lower, upper) %>%
+  mutate(ss = paste("ss", ss, sep = "=")) %>%
+  ggplot(aes(x = mean, xmin = lower, xmax = upper, y = estimator, color = ss)) +
+  geom_pointrange(position = position_dodge(width = 0.5)) +
+  geom_vline(xintercept = c(0.01, 0.02), color = c("darkgreen", "darkorange"),
+             linetype = "dashed", linewidth = 1) + 
+  ggrepel::geom_text_repel(aes(x = mean, y = estimator, label = round(mean, 2)), 
+                           size = 3) +
+  ggrepel::geom_text_repel(aes(x = lower, y = estimator, label = round(lower, 2)), 
+                           size = 3) +
+  ggrepel::geom_text_repel(aes(x = upper, y = estimator, label = round(upper, 2)), 
+                           size = 3) +
+  scale_x_continuous(breaks = seq(from = -0.1, to = 0.1, by = 0.01)) +
+  theme_minimal() +
+  theme(title = element_text(color = "midnightblue"),
+        legend.position = "bottom",
+        legend.title = element_blank()) +
+  labs(title = "Chap 6, section 6.3: Simulation of Standardization Methods",
+       subtitle =
+         sprintf("The mean with 2.5%% and 97.5%% quantiles. True E(Y(0)) = %.2f, True E(Y(1)) = %.2f.", 
+                 0.01, 0.02),
+       x = NULL, y = NULL)
+```
+
+## Exercises
+
+{{< include _warn_ex.qmd >}}

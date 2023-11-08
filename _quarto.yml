@@ -18,6 +18,8 @@ book:
         - ch04_measures.qmd
         - ch05_dag.qmd
     - part: part02.qmd
+      chapters:
+        - ch06_backdoor.qmd
     - references.qmd
   appendices: 
     - app01_errata.qmd
