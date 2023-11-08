@@ -1,0 +1,216 @@
+# Potential Outcomes and the Fundamental Problem of Causal Inference {#outcomes}
+
+```{r}
+library(conflicted)
+library(tidyr, quietly = TRUE)
+library(dplyr, quietly = TRUE)
+library(purrr, quietly = TRUE)
+library(rsample, quietly = TRUE)
+library(fciR)
+options(dplyr.summarise.inform = FALSE)
+conflicts_prefer(dplyr::filter)
+```
+
+The results from the preliminary report on June 22, 20202 (RECOVERY Collaborative Group) (2020)) are as follows
+
+```{r}
+dataRecovery <- data.frame(
+  `T` = c(0, 0, 1, 1),
+  Y = c(0, 1, 0, 1),
+  n = c(1065, 3256, 454, 2104)
+)
+```
+
+and the estimate of survival $Y=1$ with treatment is
+
+```{r}
+p1 <- dataRecovery |>
+  filter(`T` == 1) |>
+  mutate(p = n / sum(n)) |>
+  summarize(EYT1 = sum(Y * p))
+p1
+```
+
+whereas the estimate of survival with treatment is
+
+```{r}
+p0 <- dataRecovery |>
+  filter(`T` == 0) |>
+  mutate(p = n / sum(n)) |>
+  summarize(EYT0 = sum(Y * p))
+p0
+```
+
+and the chi-square test of difference can be calculated as follows
+
+```{r}
+# create the data table
+dataRecoveryChi <- data.frame(
+  Y0 = c(T0 = 1065, T1 = 454),
+  Y1 = c(T0 = 3256, T1 = 2104))
+# perform the chi-square test
+chisq <- chisq.test(dataRecoveryChi)
+chisq
+```
+
+The p-value is small enough (\<0.05) to allow us to reject the null hypothesis that the treatment $T$ and the outcome $Y$ are independent.
+
+*The author's chi-square test gives a p-value of 0.032 whereas the chi-square above gives 3.207e-11.* **Why the difference?**
+
+If we use a *t-test* to also test the difference in means
+
+```{r}
+# we don't have the raw data, so we simulate
+YT1 <- rbinom(n = 454 + 2104, size = 1, prob = 0.823)
+YT0 <- rbinom(n = 1065 + 3256, size = 1, prob = 0.754)
+ttest <- t.test(x = YT1, YT0, var.equal = FALSE)
+ttest
+```
+
+and again the p-value are quite different with the same conclusion.
+
+## Potential Outcomes and the Consistency Assumption
+
+> The utility of the potential outcome framework hinges on the validity of a *consistency assumption* that links potential outcome to obe=served outcomes.
+
+> It is worth emphasizing that the consistency assumption requires the potential outcomes to be well-defined.
+
+> A major problem for causal inference is that we can only observe *one potential outcome per participant*. This is the *Fundamental Problem of Causal Inference* (FPCI).
+
+We can therefore classify 4 causal types
+
+$$
+\text{Doomed:} \: Y(0) = Y(1) = 0 \\
+\text{Responsive:} \: Y(0) = 0,  Y(1) = 1 \\
+\text{Harmed:} \: Y(0) = 1,  Y(1) = 0 \\
+\text{Immune:} \: Y(0) = Y(1) = 1 \\
+$$
+
+If we consider that the treatment cannot be harmful, in that case a patient with $Y=0$ must be doomed and an untreated patient with $Y=0$ must be immune.
+
+$$
+\text{Assuming the treatment cannot be harmful} \\ \\
+\text{Doomed:} \: Y(0) = Y(1) = 0 \\
+\text{Responsive:} \: Y(0) = 0,  Y(1) = 1 \\
+\text{Immune:} \: Y(0) = 1 \\
+$$
+
+## Circumventing the Fundamental Problem of Causal Inference
+
+There are 2 solutions to the FPCI
+
+-   Scientific solution: We use scientific theory to measure both potential outcomes. For example by using 2 different participants that are considered identical for the purpose of the scientific study.
+
+-   Statistical solution: The treatment is randomized independently of any existing data. As a result we obtain mean independence and the mean can be used to draw inference. This approach has some issues
+
+    -   The difference between the outcome with or without treatment can still be caused by chance.
+    -   The study populaiton may not be relevant anymore.
+    -   Extrapolating an average result to an individdual might be problematic.
+
+## Effect Measures
+
+To estimate the association measures we use the parametric method with the `glm` function.
+
+> We certainly do not believe that our binary outcomes the distributional assumtptions for the gaussian and poisson models, but we are only using the `glm` function to solve estimating equations.
+
+```{r}
+data("gss", package = "fciR")
+gssrcc <- gss[, c("trump", "gthsedu", "magthsedu", "white", "female", "gt65")]
+gssrcc <- gss[complete.cases(gssrcc), ]
+stopifnot(nrow(gssrcc) == 2348 - 180)  # see comment on p. 46
+```
+
+```{r}
+#| label: ch03_bootu
+#| cache: true
+uncond <- fciR::boot_est(gssrcc, func = fciR::meas_effect_uncond, times = 500,
+                 alpha = 0.05, transf = "exp",
+                 terms = c("P0", "P1", "RD", "RR", "RR*", "OR"), 
+                 formula = trump ~ gthsedu)
+```
+
+```{r}
+gt_measures(uncond, 
+            title = "Table 3.2", 
+            subtitle = paste("4 Association Measures Relating", 
+            "<em>More than High School Education</em> to <em>Voting for Trump</em>", 
+            sep = "<br>"))
+```
+
+verify with author's results, p. 48-49
+
+```{r}
+bb <- data.frame(
+  term = c("P0", "P1", "RD", "RR", "RR*", "OR"),
+  .estimate = c(0.23338, 0.27117, 0.037782, 1.1619, 1.0518, 1.221),
+  .lower = c(0.21030, 0.24095, 0.00078085, 1.0047, 1.0006, 1.0056),
+  .upper = c(0.25647, 0.30139, 0.07478354, 1.3437, 1.1057, 1.4853))
+stopifnot(
+  all((uncond$.estimate - bb$.estimate) < 0.01),
+  all((uncond$.lower - bb$.lower) < 0.1),
+  all((uncond$.upper - bb$.upper) < 0.1))
+```
+
+Now we estimate the four effect measures using *conditional* association measures.
+
+To use the function with conditioning on variables, i.e. filtering on variables, we note that
+
+$$
+\begin{align*}
+Y &= \text{trump} \\
+T &= \text{gthsedu} \\
+H_1 &= \text{magthsedu} \\
+H_2 &= \text{white} \\
+H_3 &= \text{female} \\
+H_4 &= \text{gt65} \\
+\end{align*}
+$$
+
+Therefore
+
+$$
+\begin{align*}
+E(Y &\mid T = 0, H_1 = 1, H_2 = 1, H_3 = 1, H_4 = 1) \\
+&\therefore \text{because T = 0} \\
+Y &\sim H_1 + H_2 + H_3 + H_4 \\
+\text{trump} &\sim \text{magthsedu} + \text{white} + \text{female} + \text{gt65} \\
+\end{align*}
+$$
+
+```{r }
+#| label: ch03_bootc
+#| cache: true
+a_formula <- trump ~ gthsedu + magthsedu + white + female + gt65
+condit <- fciR::boot_est(gssrcc, func = fciR::meas_effect_cond,
+                 times = 500, alpha = 0.05, seed = 1234, transf = "exp",
+                 terms = c("P0", "P1", "RD", "RR", "RR*", "OR"),
+                 formula = a_formula, exposure.name = "gthsedu",
+                 confound.names = c("magthsedu", "white", "female", "gt65"))
+
+```
+
+```{r}
+gt_measures(condit, 
+            title = "Table 3.3", 
+            subtitle = paste("4 Conditional Association or Effect Measures",
+            "Relating <em>More than High School Education</em> 
+            to <em>Voting for Trump</em>", sep = "<br>"))
+```
+
+verify with author's results, p.52
+
+```{r}
+bb <- data.frame(
+  term = c("P0", "P1", "RD", "RR", "RR*", "OR"),
+  .estimate = c(0.25458, 0.30101, 0.046438, 1.1824, 1.0664, 1.261),
+  .lower = c(0.18518, 0.22995, 0.0022706, 1.0039, 1.0018, 1.0091),
+  .upper = c(0.32397, 0.37208, 0.0906057, 1.3927, 1.1352, 1.5758))
+stopifnot(
+  all(abs(condit$.estimate - bb$.estimate) < 0.01),
+  all(abs(condit$.lower - bb$.lower) < 0.1),
+  all(abs(condit$.upper - bb$.upper) < 0.1))
+```
+
+## Exercises
+
+The exercises are located in a separate project.

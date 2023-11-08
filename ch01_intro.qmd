@@ -2,34 +2,20 @@
 
 ```{r }
 library(conflicted)
-library(simpr)
+library(dplyr)
 library(ggplot2)
 library(ggdag)
 options(dplyr.summarise.inform = FALSE)
 conflicts_prefer(dplyr::filter)
 ```
 
-```{r }
-#| include: false
-# directory of data files
-# dir_data <- file.path(getwd(), "data")
-# directory for functions
-# dir_lib <- file.path(getwd(), "lib")
-```
-
 ## A Brief History
 
 ## Data Examples
 
-### Mortability Rates by Country
+### Mortality Rates by Country
 
-This dataset is available with `fciR::doublewhatifsim`.
-
-```{r}
-#| file: "lib\\fci_01-A_mortality.R"
-```
-
-and the summary table is
+This dataset is available with `fciR::mortality`. The summary table is
 
 ```{r}
 #| label: tbl-ch01_mortality
@@ -46,6 +32,7 @@ This dataset is available with `fciR::nces`.
 The statistical summary is
 
 ```{r}
+#| label: tbl-ch01_nces_skim
 data("nces", package = "fciR")
 nces |>
   skimr::skim()
@@ -70,6 +57,7 @@ This dataset is available with `fciR::whatifdat`.
 The statistical summary is
 
 ```{r}
+#| label: ch01_whatifdat
 data("whatifdat", package = "fciR")
 whatifdat |>
   skimr::skim()
@@ -92,6 +80,7 @@ This dataset is available with `fciR::doublewhatifdat`.
 The statistical summary is
 
 ```{r}
+#| label: ch01_doublewhatifdat
 data("doublewhatifdat", package = "fciR")
 doublewhatifdat |>
   skimr::skim()
@@ -169,6 +158,7 @@ This dataset is available with `fciR::gss`.
 The statistical summary is
 
 ```{r}
+#| label: ch01_gss
 data("gss", package = "fciR")
 gss |>
   skimr::skim()
@@ -181,6 +171,7 @@ This dataset is available with `fciR::cogdat`.
 The statistical summary is
 
 ```{r}
+#| label: ch01_cogat
 data("cogdat", package = "fciR")
 cogdat |>
   skimr::skim()

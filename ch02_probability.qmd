@@ -2,8 +2,6 @@
 
 ```{r }
 library(conflicted)
-library(tictoc)
-library(xfun, quietly = TRUE)
 library(tidyr, quietly = TRUE)
 library(dplyr, quietly = TRUE)
 library(purrr, quietly = TRUE)
@@ -11,16 +9,6 @@ library(rsample, quietly = TRUE)
 library(fciR, quietly = TRUE)
 options(dplyr.summarise.inform = FALSE)
 conflicts_prefer(dplyr::filter)
-```
-
-```{r}
-#| include: false
-# TRUE = rerun the cache
-is_rerun <- FALSE
-# directory of data files
-dir_data <- file.path(getwd(), "data")
-# directory for functions
-dir_lib <- file.path(getwd(), "lib")
 ```
 
 ## Conditional Probability
@@ -65,6 +53,7 @@ For example the conditional expectation of mortality of US resident at the
 beginning of 2019 $E(Y \mid T = 1) = 0.0088$
 
 ```{r}
+#| label: ch02_mortality_long
 data("mortality_long", package = "fciR")
 mortality_long |>
   # condition on T = 1
@@ -223,6 +212,7 @@ $$
 which returns the proportion of participants with unsuppressed viral load after 4 months
 
 ```{r}
+#label: ch02_whatifdat
 data("whatifdat", package = "fciR")
 mean(whatifdat$Y)
 ```
@@ -249,7 +239,9 @@ U(\beta) &= \sum_{i=1}^n (Y_i - \beta) \\
 &= \sum_{i=1}^n \left[ Y_i - E(Y \mid X, \beta) \right] \\
 &= 0
 \end{align*}
-$$ and to do the actual calculations we use a variation of the estimating equation as follows
+$$ 
+
+and to do the actual calculations we use a variation of the estimating equation as follows
 
 $$
 \begin{align*}

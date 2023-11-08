@@ -48,9 +48,7 @@ and therefore
 
 > Now suppose the exposure, $T$, is divided more evenly: that is, we have 600 with $T=1$. This would suggest we can include 60 covariates in the exposure model.
 
-Brumback uses a linear function of $H$ to create a distribution of $T_i$ 
-that makes it dependent on $H$ and which should give $\sum T_i \approx 600$. 
-However, *the simulation with `simdr` returns* $\sum T_i \approx 540$.
+Brumback uses a linear function of $H$ to create a distribution of $T_i$ that makes it dependent on $H$ and which should give $\sum T_i \approx 600$. However, *the simulation with `simdr` returns* $\sum T_i \approx 540$.
 
 ```{r}
 # sum of T
@@ -73,7 +71,8 @@ H_j \text{ i.i.d. } \mathcal{Bernoulli}(p), \, j = 1, \ldots, J
 \end{align*}
 $$
 
-where $J$ is the same variable as $ss$ from Brumback, i.e. $J = ss = 100$. Also $H_{i, j}$ is the value of covariate $H_j$ for individual $i$.
+where $J$ is the same variable as $ss$ from Brumback, i.e. $J = ss = 100$. 
+Also $H_{i, j}$ is the value of covariate $H_j$ for individual $i$.
 
 and let $T_i$ be the treatment of individual $i$
 
