@@ -9,14 +9,7 @@ library(fciR)
 options(dplyr.summarise.inform = FALSE)
 ```
 
-```{r include=FALSE}
-# TRUE = rerun the cache
-# is_rerun <- FALSE
-# directory of data files
-# dir_data <- file.path(getwd(), "data")
-# directory for functions
-# dir_lib <- file.path(getwd(), "lib")
-```
+
 
 ::: {.center data-latex=""}
 ::: {.minipage data-latex="{.5\\linewidth}"}
@@ -88,6 +81,7 @@ $$
 and using the example on p. 100 with the mortality data we first load the data set
 
 ```{r}
+#| label: ch06_mortality_long
 data("mortality_long", package = "fciR")
 mortality <- mortality_long
 ```
@@ -95,16 +89,16 @@ mortality <- mortality_long
 and we begin by calculating $\hat{E}(Y \mid T=0, H=0)$
 
 ```{r}
-mortality %>%
-  filter(`T` == 0, H == 0) %>%
+mortality |>
+  filter(`T` == 0, H == 0) |>
   summarize(EY = weighted.mean(Y, n))
 ```
 
 and for all permutations of $T$ and $H$ we have
 
 ```{r}
-EYcondTH <- mortality %>%
-  group_by(`T`, H) %>%
+EYcondTH <- mortality |>
+  group_by(`T`, H) |>
   summarize(EYcond = weighted.mean(Y, n))
 EYcondTH
 ```
@@ -112,8 +106,8 @@ EYcondTH
 and then we multiply the conditional expectations by the probabilities of $H$.
 
 ```{r}
-PH <- mortality %>%
-  group_by(H) %>%
+PH <- mortality |>
+  group_by(H) |>
   summarize(prob = sum(p))
 PH
 ```
@@ -121,7 +115,7 @@ PH
 and the multiplication
 
 ```{r}
-EYH <- dplyr::inner_join(EYcondTH, PH, by = c("H")) %>%
+EYH <- dplyr::inner_join(EYcondTH, PH, by = c("H")) |>
   mutate(EYH = EYcond * prob)
 EYH
 ```
@@ -129,8 +123,8 @@ EYH
 and the final results are
 
 ```{r}
-EYout <- EYH %>%
-  group_by(`T`) %>%
+EYout <- EYH |>
+  group_by(`T`) |>
   summarize(EYout = sum(EYH))
 EYout
 ```
@@ -138,7 +132,7 @@ EYout
 Now, lets do it with raw data. For that we convert the mortality data to have 1 line per 10000 observations.
 
 ```{r}
-mort <- mortality %>%
+mort <- mortality |>
   select(H, `T`, Y, n) |>
   mutate(n = as.integer(n / 10000)) |>
   tidyr::uncount(n)
@@ -147,6 +141,7 @@ mort <- mortality %>%
 and the function used to automate the process described above is as follows
 
 ```{r}
+#| label: func_out_np
 func_out_np <- function(data, formula, exposure.name, confound.names) {
   # the name of the outcome variable
   outcome.name <- all.vars(rlang::f_lhs(formula))
@@ -166,7 +161,7 @@ func_out_np <- function(data, formula, exposure.name, confound.names) {
     unite(col = "id", .data[[confound.names]], remove = FALSE)
   
   # the confounds' distribution
-  confound_dist <- summ %>%
+  confound_dist <- summ |>
     group_by(.data[[confound.names]]) |>
     summarize(prob = sum(freq)) |>
     # add and id column to be able to join the confounds variables later
@@ -185,6 +180,7 @@ func_out_np <- function(data, formula, exposure.name, confound.names) {
 ```
 
 ```{r}
+#| label: ch06_mort.out.est
 mort.out.est <- func_out_np(mort, formula = Y ~ `T` + H, exposure.name = "T", 
                            confound.names = "H")
 mort.out.est
@@ -203,7 +199,9 @@ mort.out.np <- fciR::boot_est(
 # mort.out.np
 ```
 
-```{r echo=FALSE}
+```{r}
+#| label: tbl-ch06_mort.out.np
+#| tbl-cap: Standardized Estimates via Outcome Modeling. Non Parametric Without Regression.
 fciR::gt_measures(mort.out.np,  digits = 6,
             title = "Mortality", 
             subtitle = paste("Standardized Estimates via Outcome Modeling",
@@ -216,6 +214,7 @@ Section 6.1, p. 101, also give the function `stand.r` to standardize via outcome
 The `stand.r` is called `fciR::backdr_out_sat`, the suffix `sat` means it is with a saturated regression model. Here we show it using the tidyverse way.
 
 ```{r}
+#| label: func_out_sat
 func_out_sat <- function(data, formula, exposure.name, confound.names) {
   # this function works when there is only one confound
   stopifnot(length(confound.names) == 1)
@@ -256,6 +255,7 @@ func_out_sat <- function(data, formula, exposure.name, confound.names) {
 Here we use it again with the `mort` dataset. It is important to note that the formula *inlcudes all interactions* since the model is saturated
 
 ```{r}
+#| label: mort.out
 mort.out <- func_out_sat(mort, formula = Y ~ `T` * H, 
                         exposure.name = "T",  confound.names = "H")
 mort.out
@@ -273,7 +273,10 @@ mort.out.sat <- fciR::boot_est(
     formula = Y ~ `T` + H, exposure.name = "T", confound.names = "H")
 ```
 
-```{r echo=FALSE, out.width="100%"}
+```{r }
+#| label: fig-ch06_mort.out.sat
+#| fig-cap: Saturated Model With Regression
+#| out-width: "100%"
 df <- mort.out.sat
 tbl <- fciR::gt_measures(df,  digits = 6,
             title = "Mortality", 
@@ -284,9 +287,6 @@ p <- fciR::ggp_measures(df,
                    title = NULL,
                    subtitle = NULL)
 tbl <- fciR::gt2ggp(tbl)
-# a_file <- tempfile(fileext = "png")
-# a_file
-# gtExtras::gtsave_extra(tbl, filename = a_file)
 p + tbl + plot_annotation(title = "Mortality Data Effect Measures",
                           subtitle = "Standardized Estimates, 95% confidence interval") &
   theme(title = element_text(color = "midnightblue", size = rel(0.9)))
@@ -299,6 +299,7 @@ and the results are the same again. In conclusion pretty much any of the functio
 #### What-if? Study {.unnumbered}
 
 ```{r}
+#| label: ch06_whatifdat
 data("whatifdat", package = "fciR")
 ```
 
@@ -327,7 +328,9 @@ comp <- data.frame(
 
 and the results are presented in table 6.1
 
-```{r tbl_06_01, echo=FALSE, fig.align='center', fig.cap="Table 6.1", out.width="100%"}
+```{r }
+#| label: fig-ch06_01
+#| fig-cap: Table 6.1
 df <- whatif.out.sat
 tbl <- fciR::gt_measures(df, 
             title = paste("Table 6.1", "What-If Study"), 
@@ -357,7 +360,9 @@ whatif.out.np <- fciR::boot_est(
 whatif.out.np
 ```
 
-```{r echo=FALSE, out.width="100%"}
+```{r }
+#| label: fig-ch06_01_extra
+#| fig-cap: Table 6.1 extra
 df <- whatif.out.np
 tbl <- fciR::gt_measures(df, 
             title = paste("Table 6.1", "What-If Study"), 
@@ -378,13 +383,14 @@ and the results are the same with both non-parametric and with the saturated mod
 #### Double What-if? Study {.unnumbered}
 
 ```{r}
+#| label: ch06_doublewhatifdat
 data("doublewhatifdat", package = "fciR")
 ```
 
 ##### Saturated model with `backdr_out_sat` {.unnumbered}
 
 ```{r }
-#| lebel: ch06_doublewhatif_out_sat
+#| label: ch06_doublewhatif_out_sat
 #| cache: true
 doublewhatif.out.sat <- fciR::boot_est(
     doublewhatifdat, fciR::backdr_out_sat, times = 500, alpha = 0.05,
@@ -392,7 +398,9 @@ doublewhatif.out.sat <- fciR::boot_est(
     formula = VL1 ~ A * AD0, exposure.name = "A", confound.names = "AD0")
 ```
 
-```{r tbl_06_02, echo=FALSE, fig.align='center', fig.cap="Table 6.2", out.width="100%"}
+```{r}
+#| label: fig-ch06_02
+#| fig-cap: Table 6.2
 df <- doublewhatif.out.sat
 tbl <- fciR::gt_measures(df, 
             title = paste("Table 6.2", "Double What-If Study"), 
@@ -420,7 +428,9 @@ doublewhatif.out.np <- fciR::boot_est(
     formula = VL1 ~ A + AD0, exposure.name = "A", confound.names = "AD0")
 ```
 
-```{r echo=FALSE, out.width="100%"}
+```{r }
+#| label: fig-ch06_01_np
+#| fig-cap: Table 6.1 non-parametric
 df <- doublewhatif.out.np
 tbl <- fciR::gt_measures(df, 
             title = paste("Table 6.1", "Double What-If Study"), 
@@ -449,7 +459,9 @@ doublewhatif.vl0.out <- fciR::boot_est(
     formula = VL1 ~ A * VL0, exposure.name = "A", confound.names = "VL0")
 ```
 
-```{r tbl_06_03, echo=FALSE, fig.align='center', fig.cap="Table 6.3", out.width="100%"}
+```{r}
+#| label: fig-ch06_03
+#| fig-cap: Table 6.3
 df <- doublewhatif.vl0.out
 tbl <- fciR::gt_measures(df, 
             title = paste("Table 6.3", "Double What-If Study"), 
@@ -464,6 +476,7 @@ p + tbl + plot_annotation(title = "Double What-If Study",
                           subtitle = "Standardized Estimates, 95% confidence interval") &
   theme(title = element_text(color = "midnightblue", size = rel(0.9)))
 ```
+
 
 ### Average Effect of Treatment on the Treated
 
@@ -496,7 +509,9 @@ comp <- data.frame(
 
 and the results are presented in table 6.1
 
-```{r tbl_06_04, echo=FALSE, fig.align='center', fig.cap="Table 6.4", out.width="100%"}
+```{r}
+#| label: fig-ch06_04
+#| fig-cap: Table 6.4
 df <- whatif.out.att.sat
 tbl <- fciR::gt_measures(df, 
             title = paste("Table 6.4", "What-If Study"), 
@@ -525,6 +540,8 @@ whatif.out.att.np <- fciR::boot_est(
 ```
 
 ```{r echo=FALSE, out.width="100%"}
+#| label: fig-ch06_04_np
+#| fig-cap: Table 6.4 Nnon-parametric
 df <- whatif.out.att.np
 tbl <- fciR::gt_measures(df, 
             title = paste("Table 6.4", "What-If Study"), 
@@ -553,7 +570,9 @@ doublewhatif.out.att.sat <- fciR::boot_est(
     formula = VL1 ~ A * AD0, exposure.name = "A", confound.names = "AD0", att = TRUE)
 ```
 
-```{r tbl_06_05, echo=FALSE, fig.align='center', fig.cap="Table 6.5", out.width="100%"}
+```{r}
+#| label: fig-ch06_05
+#| fig-cap: Table 6.5
 df <- doublewhatif.out.att.sat
 tbl <- fciR::gt_measures(df, 
             title = paste("Table 6.5", "Double What-If Study"), 
@@ -579,7 +598,9 @@ doublewhatif.out.att.np <- fciR::boot_est(
     formula = VL1 ~ A * VL0, exposure.name = "A", confound.names = "VL0", att = TRUE)
 ```
 
-```{r tbl_06_06, echo=FALSE, fig.align='center', fig.cap="Table 6.6", out.width="100%"}
+```{r}
+#| label: fig-ch06_06
+#| fig-cap: Table 6.6
 df <- doublewhatif.out.att.np
 tbl <- fciR::gt_measures(df, 
             title = paste("Table 6.6", "Double What-If Study"), 
@@ -602,6 +623,7 @@ For a the parametric outcome model `fciR::backdr_out()` is used
 #### What-if? Study {.unnumbered}
 
 ```{r}
+#| label" ch06_whatif2dat
 data("whatif2dat", package = "fciR")
 ```
 
@@ -630,7 +652,9 @@ comp <- data.frame(
 
 and the results are presented in table 6.1
 
-```{r tbl_06_07, echo=FALSE, fig.align='center', fig.cap="Table 6.7", out.width="100%"}
+```{r}
+#| label: fig-ch06_07
+#| fig-cap: Table 6.7
 df <- whatif2.out
 tbl <- fciR::gt_measures(df, 
             title = paste("Table 6.7", "What-If Study"),
@@ -648,6 +672,7 @@ p + tbl + plot_annotation(title = "What-If Study",
 #### General Social Survey {.unnumbered}
 
 ```{r}
+#| label: ch06_gssrcc
 data("gss", package = "fciR")
 gssrcc <- gss[, c("trump", "gthsedu", "magthsedu", "white", "female", "gt65")]
 gssrcc <- gssrcc[complete.cases(gssrcc), ]
@@ -678,7 +703,9 @@ stopifnot(sum(abs(comp$.estimate.auth - comp$.estimate)) < 0.02)
 
 and the results are presented in table 6.8
 
-```{r tbl_06_08, echo=FALSE, fig.align='center', fig.cap="Table 6.8", out.width="100%"}
+```{r}
+#| label: fig-ch06_08
+#| fig-cap: Table 6.8
 df <- gssrcc.out
 tbl <- fciR::gt_measures(df, 
             title = paste("Table 6.8", "General Social Survey"), 
@@ -858,7 +885,9 @@ stopifnot(sum(abs(comp$auth - comp$est)) < 0.01)
 
 and the results are presented in table 6.9
 
-```{r tbl_06_09, echo=FALSE, fig.align='center', fig.cap="Table 6.9", out.width="100%"}
+```{r}
+#| label: fig-ch06_09
+#| fig-cap: Table 6.9
 df <- whatif2.exp
 tbl <- fciR::gt_measures(df, 
             title = paste("Table 6.9", "What-If Study"), 
@@ -887,7 +916,9 @@ whatif2.exp.gee <- boot_est(data = whatif2dat, func = backdr_exp_gee,
 
 and the results are presented in table 6.9
 
-```{r echo=FALSE}
+```{r }
+#| label: tbl-ch06_09_geelm
+#| tbl-cap: Table 6.9 using geelm
 df <- whatif2.exp.gee
 tbl <- fciR::gt_measures(df, 
             title = paste("Table 6.9", "What-If Study"), 
@@ -926,6 +957,8 @@ comp <- data.frame(
 and the results are presented in table 6.10
 
 ```{r tbl_06_10, echo=FALSE, fig.align='center', fig.cap="Table 6.10", out.width="100%"}
+#| label: fig-ch06_10
+#| fig-cap: Table 6.10
 df <- gssrcc.exp
 tbl <- fciR::gt_measures(df, 
             title = paste("Table 6.10", "General Social Survey"), 
@@ -973,7 +1006,9 @@ stopifnot(sum(abs(comp$.estimate.auth - comp$.estimate)) < 0.07)
 
 and the results are presented in table 6.9
 
-```{r tbl_06_12, echo=FALSE, fig.align='center', fig.cap="Table 6.12", out.width="100%"}
+```{r}
+#| label: fig-ch06_12
+#| fig-cap: Table 6.12
 df <- whatif2.bad
 tbl <- fciR::gt_measures(df, 
             title = paste("Table 6.12", "What-If Study"), 
@@ -998,11 +1033,13 @@ The simulation of doubly robust standardization discussed at the end of section 
 
 The results obtained by Brumback are close enough to what we have below. Here is a tableau of her results
 
-```{r tbl_06_13, echo=FALSE, fig.align='center', fig.cap="Table 6.13 and 14", out.width="100%"}
+```{r}
+#| label: tbl-ch06_13
+#| tbl-cap: Table 6.13
 data(fciR::fci_tbl_06_13)
 df <- fci_tbl_06_13
 
-df <- df %>% select(ss, estimator, description, mean, sd, pval) |>
+df <- df |> select(ss, estimator, description, mean, sd, pval) |>
   mutate(ss = paste("ss", ss, sep = "=")) |>
   pivot_longer(cols = c("mean", "sd", "pval"), names_to = "stats",
                values_to = "value") |>
@@ -1041,25 +1078,27 @@ mc.out <- fciR::mc_standdr(ss = c(40, 100), nrep = nrep)
 and we compute the p-values
 
 ```{r}
-mc.out <- mc.out %>%
+mc.out <- mc.out |>
     mutate(`T` = ifelse(grepl(pattern = "0", estimator), 0, 1),
          h0 = ifelse(`T` == 0, 0.01, 0.02),
          sdp = sd / sqrt(n),
          z = abs((mean - h0) / sdp),
-         pval = 2 * (1 - pnorm(z))) %>%
+         pval = 2 * (1 - pnorm(z))) |>
   select(-sdp, -z)
 # mc.out
 ```
 
 and show the results in a table
 
-```{r tbl_06_13_FL, echo=FALSE, fig.align='center', fig.cap="Table 6.13 and 14 by FL", out.width="100%"}
+```{r }
+#| label: tbl-ch06_13_FL
+#| tbl-cap: Table 6.13 and 14 by FL
 the_estimators <- c("EYT0" = "Unadjusted", "EYT1" = "Unadjusted",
                       "EY0exp" = "Linear Exposure", "EY1exp" = "Linear Exposure",
                       "EY0exp2" = "Logistic Exposure", "EY1exp2" = "Logistic Exposure",
                       "EY0out" = "Overspecified Outcome", "EY1out" = "Overspecified Outcome",
                       "EY0dr" = "Doubly Robust", "EY1dr" = "Doubly Robust")
-dft <- mc.out %>%
+dft <- mc.out |>
   select(ss, estimator, mean, sd, pval) |>
   mutate(ss = paste("ss", ss, sep = "=")) |>
   pivot_longer(cols = c("mean", "sd", "pval"), names_to = "stats", 
@@ -1088,9 +1127,11 @@ We will not reiterate the comments from Brumback as the results in the tableau j
 A plot can however illustrate Brumback's main points. This ones shows the estimates' mean with their 5% and 95% quantiles from the simulation.
 
 ```{r echo=FALSE}
-mc.out %>%
-  select(ss, estimator, mean, lower, upper) %>%
-  mutate(ss = paste("ss", ss, sep = "=")) %>%
+#| label: fig-ch06_13_FL
+#| fig-cap: Figures 6.13 and 14 by FL
+mc.out |>
+  select(ss, estimator, mean, lower, upper) |>
+  mutate(ss = paste("ss", ss, sep = "=")) |>
   ggplot(aes(x = mean, xmin = lower, xmax = upper, y = estimator, color = ss)) +
   geom_pointrange(position = position_dodge(width = 0.5)) +
   geom_vline(xintercept = c(0.01, 0.02), color = c("darkgreen", "darkorange"),
