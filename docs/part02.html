@@ -6,10 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="François Lefebvre">
-<meta name="dcterms.date" content="2023-10-29">
 
-<title>Fundamentals of Causal Inference 2022 - Study Project</title>
+<title>Fundamentals of Causal Inference 2022 - Study Project - Part II Causality</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -32,7 +30,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./part01.html" rel="next">
+<link href="./references.html" rel="next">
+<link href="./ch05_dag.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -75,7 +74,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Preface</a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./part02.html">Part II Causality</a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -102,7 +101,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Preface</span></a>
   </div>
 </li>
@@ -198,156 +197,31 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">Table of contents</h2>
-   
-  <ul>
-  <li><a href="#preface" id="toc-preface" class="nav-link active" data-scroll-target="#preface">Preface</a>
-  <ul class="collapse">
-  <li><a href="#where-to-find" id="toc-where-to-find" class="nav-link" data-scroll-target="#where-to-find">Where-to-find</a></li>
-  <li><a href="#acknowledgements" id="toc-acknowledgements" class="nav-link" data-scroll-target="#acknowledgements">Acknowledgements</a></li>
-  <li><a href="#packages" id="toc-packages" class="nav-link" data-scroll-target="#packages">Packages</a></li>
-  </ul></li>
-  </ul>
-</nav>
+        
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Fundamentals of Causal Inference 2022 - Study Project</h1>
+<h1 class="title">Part II Causality</h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>François Lefebvre </p>
-          </div>
-  </div>
     
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">2023-10-29</p>
-    </div>
-  </div>
   
     
   </div>
   
-<div>
-  <div class="abstract">
-    <div class="abstract-title">Abstract</div>
-    A study project of Fundamentals of Causal Inference 2022.
-  </div>
-</div>
 
 </header>
 
-<section id="preface" class="level1 unnumbered">
-<h1 class="unnumbered">Preface</h1>
-<p>This is a study project of the book <em>Fundamentals of Causal Inference With R</em> by Babette A. Brumback. Ms Brumback uses base R for all the code. This study project is coding with the tidyverse way. The motivation stems from the opinion that, in practice, the code is as important as the theory and learning better coding practice should be started as early as possible.</p>
-<section id="where-to-find" class="level2">
-<h2 class="anchored" data-anchor-id="where-to-find">Where-to-find</h2>
-<ul>
-<li><p>The online version of this document can be found at <a href="https://github.com/FrankLef/fci2020">FCI</a>.</p></li>
-<li><p>The companion package for this project is <code>fciR</code> and can be found at <a href="https://github.com/FrankLef/fciR">fciR</a>.</p></li>
-<li><p>The exercises can be found at <a href="https://github.com/FrankLef/fci2020">FCI exercises</a>. This repo could be set as a <strong>private</strong> to avoid frustrating the publisher.</p></li>
-</ul>
-</section>
-<section id="acknowledgements" class="level2">
-<h2 class="anchored" data-anchor-id="acknowledgements">Acknowledgements</h2>
-<p>Many thanks to Babette A. Brumback for a book full of amazing observations, tricks and tips.</p>
-</section>
-<section id="packages" class="level2">
-<h2 class="anchored" data-anchor-id="packages">Packages</h2>
-<p>For data processing and analysis the following packages are used</p>
-<table class="table">
-<thead>
-<tr class="header">
-<th>Package</th>
-<th>Comment</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><a href="https://github.com/FrankLef/fciR">fciR</a></td>
-<td>Companion R package for this book</td>
-</tr>
-<tr class="even">
-<td><a href="https://conflicted.r-lib.org">conflicted</a></td>
-<td>Manage conflict resolution amongst packages</td>
-</tr>
-<tr class="odd">
-<td><a href="https://www.tidyverse.org">tidyverse</a></td>
-<td>Tidyverse is the favored coding way</td>
-</tr>
-<tr class="even">
-<td><a href="https://docs.ropensci.org/skimr/">skimr</a></td>
-<td>Summary statistics</td>
-</tr>
-<tr class="odd">
-<td><a href="https://modelr.tidyverse.org">modelr</a></td>
-<td>Create elegant pipelines when modelling</td>
-</tr>
-<tr class="even">
-<td><a href="https://statisfactions.github.io/simpr/">simpr</a></td>
-<td>Generate simulated data</td>
-</tr>
-<tr class="odd">
-<td><a href="https://github.com/FunWithR/MonteCarlo">MonteCarlo</a></td>
-<td>Monte Carlo simulation</td>
-</tr>
-<tr class="even">
-<td><a href="https://cran.r-project.org/web/packages/geepack/index.html">geepack</a></td>
-<td>Generalized estimating equations solver</td>
-</tr>
-<tr class="odd">
-<td><a href="https://rsample.tidymodels.org">rsample</a></td>
-<td>Resampling and bootstraps</td>
-</tr>
-</tbody>
-</table>
-<p>For plotting, graphs and tables these packages are used</p>
-<table class="table">
-<thead>
-<tr class="header">
-<th>Package</th>
-<th>Comment</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><a href="https://ggplot2.tidyverse.org">ggplot</a></td>
-<td>Create graphics based on the grammar of graphics</td>
-</tr>
-<tr class="even">
-<td><a href="https://github.com/r-causal/ggdag">ggdag</a></td>
-<td>Causal directed acyclic graphs</td>
-</tr>
-<tr class="odd">
-<td><a href="https://tidygraph.data-imaginist.com">tidygraph</a></td>
-<td>Graphs and networks manipulation</td>
-</tr>
-<tr class="even">
-<td><a href="https://cran.r-project.org/web/packages/ggvenn/index.html">ggvenn</a></td>
-<td>Venn diagrams by ggplot2. Used in chap.&nbsp;4</td>
-</tr>
-<tr class="odd">
-<td><a href="https://gt.rstudio.com">gt</a></td>
-<td>Nice-looking tables</td>
-</tr>
-</tbody>
-</table>
+<p>This part covers the causality methods.</p>
 
 
-</section>
-</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -585,10 +459,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
+      <a href="./ch05_dag.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Causal Directed Acyclic Graphs</span></span>
+      </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./part01.html" class="pagination-link">
-        <span class="nav-page-text">Part I Basics</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./references.html" class="pagination-link">
+        <span class="nav-page-text">References</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

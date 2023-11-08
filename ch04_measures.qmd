@@ -1,6 +1,6 @@
 # Effect-Measure Modification and Causal Interaction {#measures}
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r}
 library(fciR, quietly = TRUE)
 library(tidyr, quietly = TRUE)
 library(ggvenn, quietly = TRUE)
@@ -8,7 +8,7 @@ library(ggvenn, quietly = TRUE)
 
 
 
-```{r message=FALSE, warning=FALSE, include=FALSE}
+```{r}
 dir_lib <- file.path(getwd(), "lib")
 source(file = file.path(dir_lib, "ggp_venn_sim.R"),
        local = knitr::knit_global())
@@ -430,4 +430,4 @@ On the contrary, if we wish that the model look into the unlikely events that ef
 
 ## Exercises
 
-The exercises are located in a separate project.
+{{< include _warn_ex.qmd >}}

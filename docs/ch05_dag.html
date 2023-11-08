@@ -1,0 +1,2793 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Fundamentals of Causal Inference 2022 - Study Project - 5&nbsp; Causal Directed Acyclic Graphs</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./part02.html" rel="next">
+<link href="./ch04_measures.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./part01.html">Part I Basics</a></li><li class="breadcrumb-item"><a href="./ch05_dag.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Causal Directed Acyclic Graphs</span></a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Fundamentals of Causal Inference 2022 - Study Project</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./part01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Part I Basics</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch01_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch02_probability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Conditional Probability and Expectation</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch03_outcomes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Potential Outcomes and the Fundamental Problem of Causal Inference</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch04_measures.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Effect-Measure Modification and Causal Interaction</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch05_dag.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Causal Directed Acyclic Graphs</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Part II Causality</span></span>
+  </li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./app01_errata.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Errata</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./app02_notes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Notes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./app03_linreg.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">C</span>&nbsp; <span class="chapter-title">Linear Regression with R</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./app04_simdr.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">D</span>&nbsp; <span class="chapter-title">Doubly Robust Simulation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#theory" id="toc-theory" class="nav-link active" data-scroll-target="#theory"><span class="header-section-number">5.1</span> Theory</a>
+  <ul class="collapse">
+  <li><a href="#conditional-indepence-and-dag" id="toc-conditional-indepence-and-dag" class="nav-link" data-scroll-target="#conditional-indepence-and-dag"><span class="header-section-number">5.1.1</span> Conditional Indepence and DAG</a></li>
+  <li><a href="#d-separation" id="toc-d-separation" class="nav-link" data-scroll-target="#d-separation"><span class="header-section-number">5.1.2</span> D-Separation</a></li>
+  <li><a href="#causal-dag-with-collider" id="toc-causal-dag-with-collider" class="nav-link" data-scroll-target="#causal-dag-with-collider"><span class="header-section-number">5.1.3</span> Causal DAG with collider</a></li>
+  </ul></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples"><span class="header-section-number">5.2</span> Examples</a>
+  <ul class="collapse">
+  <li><a href="#causal-dag-with-intermediate-value" id="toc-causal-dag-with-intermediate-value" class="nav-link" data-scroll-target="#causal-dag-with-intermediate-value"><span class="header-section-number">5.2.1</span> Causal DAG With Intermediate Value</a></li>
+  <li><a href="#a-counfounder-may-occur-after-the-exposure" id="toc-a-counfounder-may-occur-after-the-exposure" class="nav-link" data-scroll-target="#a-counfounder-may-occur-after-the-exposure"><span class="header-section-number">5.2.2</span> A counfounder may occur after the exposure</a></li>
+  <li><a href="#potential-outcomes-are-the-ultimate-counfounder" id="toc-potential-outcomes-are-the-ultimate-counfounder" class="nav-link" data-scroll-target="#potential-outcomes-are-the-ultimate-counfounder"><span class="header-section-number">5.2.3</span> Potential Outcomes are the Ultimate Counfounder</a></li>
+  <li><a href="#structural-causal-model-5.7" id="toc-structural-causal-model-5.7" class="nav-link" data-scroll-target="#structural-causal-model-5.7"><span class="header-section-number">5.2.4</span> Structural Causal Model 5.7</a></li>
+  <li><a href="#potential-outcomes-behind-the-scenes" id="toc-potential-outcomes-behind-the-scenes" class="nav-link" data-scroll-target="#potential-outcomes-behind-the-scenes"><span class="header-section-number">5.2.5</span> Potential Outcomes Behind the Scenes</a></li>
+  </ul></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">5.3</span> Exercises</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span id="dag" class="quarto-section-identifier"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Causal Directed Acyclic Graphs</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fciR)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggdag)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dagitty)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simpr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We use the <code>dagitty</code> and <code>ggdag</code> packages to analyse the DAG and plot them. We also use the <code>simpr</code> package from now on to perform the simulations.</p>
+<section id="theory" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="theory"><span class="header-section-number">5.1</span> Theory</h2>
+<section id="conditional-indepence-and-dag" class="level3" data-number="5.1.1">
+<h3 data-number="5.1.1" class="anchored" data-anchor-id="conditional-indepence-and-dag"><span class="header-section-number">5.1.1</span> Conditional Indepence and DAG</h3>
+<blockquote class="blockquote">
+<p>Causal directed acyclic graphs provide a convenient and efficient way to represent statistical ans causal dependence.</p>
+</blockquote>
+<p>For example</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.1</span> <span class="ot">&lt;-</span> <span class="fu">within</span>(scm_5<span class="fl">.1</span>, {</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  the_nodes <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"X1"</span> <span class="ot">=</span> <span class="st">""</span>, </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"X2"</span> <span class="ot">=</span> <span class="st">""</span>, </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"X3"</span> <span class="ot">=</span> <span class="st">""</span>, </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"X4"</span> <span class="ot">=</span> <span class="st">""</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  dag <span class="ot">&lt;-</span> <span class="fu">dagify</span>(</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    X2 <span class="sc">~</span> X1,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    X3 <span class="sc">~</span> X2,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    X4 <span class="sc">~</span> X1 <span class="sc">+</span> X2,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> the_nodes)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  text_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">expression</span>(X[<span class="dv">1</span>]), <span class="fu">expression</span>(X[<span class="dv">2</span>]),</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">expression</span>(X[<span class="dv">3</span>]), <span class="fu">expression</span>(X[<span class="dv">4</span>]))</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  plot <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">ggp_dag</span>(dag, <span class="at">text_labels =</span> text_labels)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-ch05_scm_5.1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="ch05_dag_files/figure-html/fig-ch05_scm_5.1-1.png" class="img-fluid figure-img" style="width:60.0%"></p>
+<figcaption class="figure-caption">Figure&nbsp;5.1: Example of a Directed Acyclic Graph</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>can be expressed in terms of conditional probabilities as</p>
+<p><span class="math display">\[
+\begin{align*}
+P(X_1, X_2, X_3, X_4) = P(X_4 \mid X_2, X_1)P(X_3 \mid X_2)P(X_2 \mid X_1)P(X_1)
+\end{align*}
+\]</span></p>
+</section>
+<section id="d-separation" class="level3" data-number="5.1.2">
+<h3 data-number="5.1.2" class="anchored" data-anchor-id="d-separation"><span class="header-section-number">5.1.2</span> D-Separation</h3>
+<blockquote class="blockquote">
+<p>A path is said to be d-separated, or blocked,, by a set of variables <span class="math inline">\(C\)</span> if and only if the path i) containis a <em>chain</em> as in figure 5.2a such that the midlle variable <span class="math inline">\(Z\)</span> is in <span class="math inline">\(C\)</span> or ii) contains a <em>fork</em> as in figure 5.2b such that such that the middle variable <span class="math inline">\(Z\)</span> is not in <span class="math inline">\(C\)</span> or iii) contains an inverted fork, or <em>collider</em>, as in figure 5.2c such that the midlle variable <span class="math inline">\(Z\)</span> is not in <span class="math inline">\(C\)</span> and such that no descendant of a collider is in <span class="math inline">\(C\)</span>.</p>
+</blockquote>
+<p>and we illustrate the 3 basic graphical structures as follows</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">within</span>(scm_5<span class="fl">.2</span>, {</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># CHAIN</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  dagChain <span class="ot">&lt;-</span> <span class="fu">dagify</span>(</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    Z <span class="sc">~</span> X1,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    X2 <span class="sc">~</span> Z)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  text_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">expression</span>(X[<span class="dv">1</span>]), <span class="fu">expression</span>(X[<span class="dv">2</span>]), <span class="st">"Z"</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  plotChain <span class="ot">&lt;-</span> <span class="fu">ggp_dag</span>(dagChain, <span class="at">text_size =</span> <span class="dv">5</span>, <span class="at">text_labels =</span> text_labels) <span class="sc">+</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>)) <span class="sc">+</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Chain: Z is an intermediate variable"</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># FORK</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  dagFork <span class="ot">&lt;-</span> <span class="fu">dagify</span>(</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    X1 <span class="sc">~</span> Z,</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    X2 <span class="sc">~</span> Z)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  plotFork <span class="ot">&lt;-</span> <span class="fu">ggp_dag</span>(dagFork, <span class="at">text_size =</span> <span class="dv">5</span>, <span class="at">text_labels =</span> text_labels) <span class="sc">+</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>)) <span class="sc">+</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Fork: Z is a common cause"</span>)</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># COLLIDER</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  dagColl <span class="ot">&lt;-</span> <span class="fu">dagify</span>(</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    Z <span class="sc">~</span> X1,</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    Z <span class="sc">~</span> X2)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  plotColl <span class="ot">&lt;-</span> <span class="fu">ggp_dag</span>(dagColl, <span class="at">text_size =</span> <span class="dv">5</span>, <span class="at">text_labels =</span> text_labels) <span class="sc">+</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>)) <span class="sc">+</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Collider: Z is a common effect"</span>)</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>  <span class="co"># DESCENDANT</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  dagDesc <span class="ot">&lt;-</span> <span class="fu">dagify</span>(</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    W <span class="sc">~</span> X1,</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    W <span class="sc">~</span> X2,</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    Z <span class="sc">~</span> W)</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>  text_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">expression</span>(X[<span class="dv">1</span>]), <span class="fu">expression</span>(X[<span class="dv">2</span>]), <span class="fu">expression</span>(X[<span class="dv">3</span>]), <span class="st">"Z"</span>)</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>  plotDesc <span class="ot">&lt;-</span> <span class="fu">ggp_dag</span>(dagDesc, <span class="at">text_size =</span> <span class="dv">5</span>, <span class="at">text_labels =</span> text_labels) <span class="sc">+</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>)) <span class="sc">+</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Descendant: Z is an effect of a common effect"</span>)</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>gridExtra<span class="sc">::</span><span class="fu">grid.arrange</span>(scm_5<span class="fl">.2</span><span class="sc">$</span>plotChain, scm_5<span class="fl">.2</span><span class="sc">$</span>plotFork, scm_5<span class="fl">.2</span><span class="sc">$</span>plotColl, </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                        scm_5<span class="fl">.2</span><span class="sc">$</span>plotDesc, </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="fig-ch05_scm_5.2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="ch05_dag_files/figure-html/fig-ch05_scm_5.2-1.png" class="img-fluid figure-img" style="width:100.0%"></p>
+<figcaption class="figure-caption">Figure&nbsp;5.2: Graphical structures</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="causal-dag-with-collider" class="level3" data-number="5.1.3">
+<h3 data-number="5.1.3" class="anchored" data-anchor-id="causal-dag-with-collider"><span class="header-section-number">5.1.3</span> Causal DAG with collider</h3>
+<p>and for our first practice of d-separation we have a DAG with a collider</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.3</span> <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.3</span> <span class="ot">&lt;-</span> <span class="fu">within</span>(scm_5<span class="fl">.3</span>, {</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  dag <span class="ot">&lt;-</span> <span class="fu">dagify</span>(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    A <span class="sc">~</span> W1,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    Y <span class="sc">~</span> W3,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    W2 <span class="sc">~</span> W1 <span class="sc">+</span> W3,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    W4 <span class="sc">~</span> W2)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  text_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="fu">expression</span>(W[<span class="dv">1</span>]), <span class="fu">expression</span>(W[<span class="dv">2</span>]),</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">expression</span>(W[<span class="dv">3</span>]), <span class="fu">expression</span>(W[<span class="dv">4</span>], <span class="st">"Y"</span>))</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  plot <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">ggp_dag</span>(dag, <span class="at">text_labels =</span> text_labels)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-ch05_scm_5.3" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="ch05_dag_files/figure-html/fig-ch05_scm_5.3-1.png" class="img-fluid figure-img" style="width:60.0%"></p>
+<figcaption class="figure-caption">Figure&nbsp;5.3: Causal DAG With Collider</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The conditional independences can be obtained using <code>impliedConditionalIndependencies</code> from the<code>dagitty</code> package. You must ensure that you use the parameter <code>type = "all.pairs</code> explicitly. The default is <code>type = "missing.edge</code>. We will not list all of them, just their number, 93.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># use type = "all.pairs" to get everything.</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># impliedConditionalIndependencies uses type "missing.edge" by default.</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">impliedConditionalIndependencies</span>(scm_5<span class="fl">.3</span><span class="sc">$</span>dag, <span class="at">type =</span> <span class="st">"all.pairs"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 93</code></pre>
+</div>
+</div>
+<p>some of those independence are</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">impliedConditionalIndependencies</span>(scm_5<span class="fl">.3</span><span class="sc">$</span>dag, <span class="at">type =</span> <span class="st">"missing.edge"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>A _||_ W2 | W1
+A _||_ W3
+A _||_ W4 | W2
+A _||_ W4 | W1
+A _||_ Y
+W1 _||_ W3
+W1 _||_ W4 | W2
+W1 _||_ Y
+W2 _||_ Y | W3
+W3 _||_ W4 | W2
+W4 _||_ Y | W3
+W4 _||_ Y | W2</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="examples" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="examples"><span class="header-section-number">5.2</span> Examples</h2>
+<section id="causal-dag-with-intermediate-value" class="level3" data-number="5.2.1">
+<h3 data-number="5.2.1" class="anchored" data-anchor-id="causal-dag-with-intermediate-value"><span class="header-section-number">5.2.1</span> Causal DAG With Intermediate Value</h3>
+<p>Here we have <span class="math inline">\(A \not\!\perp\!\!\!\perp Y \mid M\)</span> because <span class="math inline">\(M\)</span> is a collider and conditioning on <span class="math inline">\(M\)</span> would open up the path.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.4</span> <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.4</span> <span class="ot">&lt;-</span> <span class="fu">within</span>(scm_5<span class="fl">.4</span>, {</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  dag <span class="ot">&lt;-</span> <span class="fu">dagify</span>(</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    M <span class="sc">~</span> A <span class="sc">+</span> H,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    Y <span class="sc">~</span> A <span class="sc">+</span> M <span class="sc">+</span> H)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  plot <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">ggp_dag</span>(dag)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-ch05_scm_5.4" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="ch05_dag_files/figure-html/fig-ch05_scm_5.4-1.png" class="img-fluid figure-img" style="width:60.0%"></p>
+<figcaption class="figure-caption">Figure&nbsp;5.4: Causal DAG With Intermediate Variable</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="a-counfounder-may-occur-after-the-exposure" class="level3" data-number="5.2.2">
+<h3 data-number="5.2.2" class="anchored" data-anchor-id="a-counfounder-may-occur-after-the-exposure"><span class="header-section-number">5.2.2</span> A counfounder may occur after the exposure</h3>
+<blockquote class="blockquote">
+<p>Figure 5.5 illustrates and unmeasured true confounder <span class="math inline">\(U\)</span> of the effect of <span class="math inline">\(A\)</span> on <span class="math inline">\(Y\)</span> that can be handled by conditioning on the measured variable <span class="math inline">\(Z\)</span>, even if <span class="math inline">\(Z\)</span> <em>occur after</em> <span class="math inline">\(A\)</span>.</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.5</span> <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.5</span> <span class="ot">&lt;-</span> <span class="fu">within</span>(scm_5<span class="fl">.5</span>, {</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  dag <span class="ot">&lt;-</span> <span class="fu">dagify</span>(</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    A <span class="sc">~</span> U,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    Z <span class="sc">~</span> U,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    Y <span class="sc">~</span> A <span class="sc">+</span> Z,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">latent =</span> <span class="st">"U"</span>,</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">exposure =</span> <span class="st">"A"</span>,</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">outcome =</span> <span class="st">"Y"</span>)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  plot <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">ggp_dag</span>(dag)</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-ch05_scm_5.5" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="ch05_dag_files/figure-html/fig-ch05_scm_5.5-1.png" class="img-fluid figure-img" style="width:80.0%"></p>
+<figcaption class="figure-caption">Figure&nbsp;5.5: Confounder May Occur After the Exposure</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="potential-outcomes-are-the-ultimate-counfounder" class="level3" data-number="5.2.3">
+<h3 data-number="5.2.3" class="anchored" data-anchor-id="potential-outcomes-are-the-ultimate-counfounder"><span class="header-section-number">5.2.3</span> Potential Outcomes are the Ultimate Counfounder</h3>
+<blockquote class="blockquote">
+<p>The collection of potential outcomes <span class="math inline">\(\{Y(a)\}_{a \in A}\)</span> can be viewed as the ultimate confounder, even if it is not a tue confounder. The unmeasured counfounder <span class="math inline">\(U = \{Y(a)\}_{a \in A}\)</span> will always block all backdoor paths from <span class="math inline">\(A\)</span> to <span class="math inline">\(Y\)</span>, because <span class="math inline">\(Y\)</span> is a deterministic function of <span class="math inline">\(A\)</span> and <span class="math inline">\(\{Y(a)\}_{a \in A}\)</span>; that is <span class="math inline">\(Y = Y(A)\)</span>, or, for binary <span class="math inline">\(Y\)</span>, <span class="math inline">\(Y = AY(1) + (1-A)Y(0)\)</span></p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.6</span> <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.6</span> <span class="ot">&lt;-</span> <span class="fu">within</span>(scm_5<span class="fl">.6</span>, {</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  the_nodes <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"A"</span> <span class="ot">=</span> <span class="st">""</span>, </span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"Y"</span> <span class="ot">=</span> <span class="st">""</span>, </span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"U"</span> <span class="ot">=</span> <span class="st">"(Y(0), y(1))"</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  dag <span class="ot">&lt;-</span> <span class="fu">dagify</span>(</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    A <span class="sc">~</span> U,</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    Y <span class="sc">~</span> A <span class="sc">+</span> U,</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">latent =</span> <span class="st">"U"</span>,</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> the_nodes)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  plot <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">ggp_dag</span>(dag)</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-ch05_scm_5.6" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="ch05_dag_files/figure-html/fig-ch05_scm_5.6-1.png" class="img-fluid figure-img" style="width:80.0%"></p>
+<figcaption class="figure-caption">Figure&nbsp;5.6: One way to generate confounding</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>and lets do the simulation of figure 5.6 on p.&nbsp;88 with <code>simpr</code></p>
+<div class="cell" data-hash="ch05_dag_cache/html/tbl-ch05_scm_5.6_a8cedf867a9149898ba4399e03c92f8e">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.6</span> <span class="ot">&lt;-</span> <span class="fu">within</span>(scm_5<span class="fl">.6</span>, {</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">111</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> simpr<span class="sc">::</span><span class="fu">specify</span>(</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Y0 =</span> <span class="sc">~</span> <span class="fu">rbinom</span>(<span class="dv">1000</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="fl">0.42</span>),</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Y1 =</span> <span class="sc">~</span> <span class="fu">rbinom</span>(<span class="dv">1000</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="fl">0.62</span>),</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">probA =</span> <span class="sc">~</span> (<span class="dv">1</span><span class="sc">-</span>Y0) <span class="sc">*</span> (<span class="dv">1</span><span class="sc">-</span> Y1) <span class="sc">*</span> <span class="fl">0.6307</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> Y0) <span class="sc">*</span> Y1 <span class="sc">*</span> <span class="fl">0.4867</span> <span class="sc">+</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>      Y0 <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> Y1) <span class="sc">*</span> <span class="fl">0.4699</span> <span class="sc">+</span> Y0 <span class="sc">*</span> Y1 <span class="sc">*</span> <span class="fl">0.4263</span>,</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">A =</span> <span class="sc">~</span> <span class="fu">rbinom</span>(<span class="dv">1000</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> probA),</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Y must depend on A, Y1, Y0 in this way</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">Y =</span> <span class="sc">~</span> A <span class="sc">*</span> Y1 <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> A) <span class="sc">*</span> Y0) <span class="sc">|&gt;</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">generate</span>(<span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unnest</span>()</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># create the tabletbl &lt;- sim_5.6$data |&gt;</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  tbl <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(A, Y0, Y1, Y) <span class="sc">|&gt;</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">count</span>(<span class="at">name =</span> <span class="st">"prob"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">prob =</span> prob <span class="sc">/</span> <span class="fu">sum</span>(prob))</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(<span class="fu">near</span>(<span class="fu">sum</span>(tbl<span class="sc">$</span>prob), <span class="dv">1</span>))</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># format the tableau</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>  summ <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">gt_probs</span>(tbl, <span class="at">title =</span> <span class="st">"Table 5.1"</span>,</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>                   <span class="at">subtitle =</span> <span class="st">"Simulation Probabilities for `sim1.r`"</span>)</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: `cols` is now required when using `unnest()`.
+ℹ Please use `cols = c(sim)`.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.6</span><span class="sc">$</span>summ</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="tbl-ch05_scm_5.6" class="anchored">
+
+<div id="tsoyechzqm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#tsoyechzqm table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#tsoyechzqm thead, #tsoyechzqm tbody, #tsoyechzqm tfoot, #tsoyechzqm tr, #tsoyechzqm td, #tsoyechzqm th {
+  border-style: none;
+}
+
+#tsoyechzqm p {
+  margin: 0;
+  padding: 0;
+}
+
+#tsoyechzqm .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#tsoyechzqm .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#tsoyechzqm .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: bold;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#tsoyechzqm .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: bold;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#tsoyechzqm .gt_heading {
+  background-color: #DCDCDC;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tsoyechzqm .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tsoyechzqm .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tsoyechzqm .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: bold;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#tsoyechzqm .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: bold;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#tsoyechzqm .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#tsoyechzqm .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#tsoyechzqm .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#tsoyechzqm .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#tsoyechzqm .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#tsoyechzqm .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#tsoyechzqm .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#tsoyechzqm .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#tsoyechzqm .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#tsoyechzqm .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tsoyechzqm .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#tsoyechzqm .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#tsoyechzqm .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#tsoyechzqm .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tsoyechzqm .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#tsoyechzqm .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#tsoyechzqm .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tsoyechzqm .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tsoyechzqm .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#tsoyechzqm .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tsoyechzqm .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#tsoyechzqm .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tsoyechzqm .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tsoyechzqm .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tsoyechzqm .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tsoyechzqm .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tsoyechzqm .gt_left {
+  text-align: left;
+}
+
+#tsoyechzqm .gt_center {
+  text-align: center;
+}
+
+#tsoyechzqm .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#tsoyechzqm .gt_font_normal {
+  font-weight: normal;
+}
+
+#tsoyechzqm .gt_font_bold {
+  font-weight: bold;
+}
+
+#tsoyechzqm .gt_font_italic {
+  font-style: italic;
+}
+
+#tsoyechzqm .gt_super {
+  font-size: 65%;
+}
+
+#tsoyechzqm .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#tsoyechzqm .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#tsoyechzqm .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#tsoyechzqm .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#tsoyechzqm .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#tsoyechzqm .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#tsoyechzqm .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false"><caption>Table&nbsp;5.1:  <p>Simulation Probabilities for sim1.r</p> </caption>
+  <thead>
+    <tr class="gt_heading">
+      <td colspan="5" class="gt_heading gt_title gt_font_normal" style="color: #191970;"><strong>Table 5.1</strong></td>
+    </tr>
+    <tr class="gt_heading">
+      <td colspan="5" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="color: #191970;"><strong>Simulation Probabilities for `sim1.r`</strong></td>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="A">A</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="Y0">Y0</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="Y1">Y1</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="Y">Y</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="prob">prob</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="A" class="gt_row gt_center">0</td>
+<td headers="Y0" class="gt_row gt_center">0</td>
+<td headers="Y1" class="gt_row gt_center">0</td>
+<td headers="Y" class="gt_row gt_center">0</td>
+<td headers="prob" class="gt_row gt_center">0.082</td></tr>
+    <tr><td headers="A" class="gt_row gt_center gt_striped">0</td>
+<td headers="Y0" class="gt_row gt_center gt_striped">0</td>
+<td headers="Y1" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y" class="gt_row gt_center gt_striped">0</td>
+<td headers="prob" class="gt_row gt_center gt_striped">0.176</td></tr>
+    <tr><td headers="A" class="gt_row gt_center">0</td>
+<td headers="Y0" class="gt_row gt_center">1</td>
+<td headers="Y1" class="gt_row gt_center">0</td>
+<td headers="Y" class="gt_row gt_center">1</td>
+<td headers="prob" class="gt_row gt_center">0.091</td></tr>
+    <tr><td headers="A" class="gt_row gt_center gt_striped">0</td>
+<td headers="Y0" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y1" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y" class="gt_row gt_center gt_striped">1</td>
+<td headers="prob" class="gt_row gt_center gt_striped">0.156</td></tr>
+    <tr><td headers="A" class="gt_row gt_center">1</td>
+<td headers="Y0" class="gt_row gt_center">0</td>
+<td headers="Y1" class="gt_row gt_center">0</td>
+<td headers="Y" class="gt_row gt_center">0</td>
+<td headers="prob" class="gt_row gt_center">0.142</td></tr>
+    <tr><td headers="A" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y0" class="gt_row gt_center gt_striped">0</td>
+<td headers="Y1" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y" class="gt_row gt_center gt_striped">1</td>
+<td headers="prob" class="gt_row gt_center gt_striped">0.170</td></tr>
+    <tr><td headers="A" class="gt_row gt_center">1</td>
+<td headers="Y0" class="gt_row gt_center">1</td>
+<td headers="Y1" class="gt_row gt_center">0</td>
+<td headers="Y" class="gt_row gt_center">0</td>
+<td headers="prob" class="gt_row gt_center">0.071</td></tr>
+    <tr><td headers="A" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y0" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y1" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y" class="gt_row gt_center gt_striped">1</td>
+<td headers="prob" class="gt_row gt_center gt_striped">0.112</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="5">Fundamentals of Causal Inference, Babette A. Brumback, 2022</td>
+    </tr>
+  </tfoot>
+  
+</table>
+</div>
+</div>
+</div>
+</div>
+<p>but when compare with the author’s</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>bb_5<span class="fl">.6</span> <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">A =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>),</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Y0 =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>),</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Y1 =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Y =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">prob =</span> <span class="fu">c</span>(<span class="fl">0.0814</span>, <span class="fl">0.1846</span>, <span class="fl">0.0846</span>, <span class="fl">0.1494</span>, <span class="fl">0.139</span>, <span class="fl">0.175</span>, <span class="fl">0.075</span>, <span class="fl">0.111</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>bb_5<span class="fl">.6</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  A Y0 Y1 Y   prob
+1 0  0  0 0 0.0814
+2 0  0  1 0 0.1846
+3 0  1  0 1 0.0846
+4 0  1  1 1 0.1494
+5 1  0  0 0 0.1390
+6 1  0  1 1 0.1750
+7 1  1  0 0 0.0750
+8 1  1  1 1 0.1110</code></pre>
+</div>
+</div>
+<p>it is different. Table 5.1 is entitled <em>Simulation probabilities for <code>sim1.r</code></em> because they are simulated probabilities. If the simulation size is increased 10000 the results are more in line with the author’s.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="st">"author"</span> <span class="ot">=</span> bb_5<span class="fl">.6</span><span class="sc">$</span>prob, <span class="st">"sim"</span> <span class="ot">=</span> scm_5<span class="fl">.6</span><span class="sc">$</span>tbl<span class="sc">$</span>prob) <span class="sc">|&gt;</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">diff =</span> sim <span class="sc">-</span> author)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  author   sim    diff
+1 0.0814 0.082  0.0006
+2 0.1846 0.176 -0.0086
+3 0.0846 0.091  0.0064
+4 0.1494 0.156  0.0066
+5 0.1390 0.142  0.0030
+6 0.1750 0.170 -0.0050
+7 0.0750 0.071 -0.0040
+8 0.1110 0.112  0.0010</code></pre>
+</div>
+</div>
+<p>and we also confirm the theoretical probabilities of the first line in the table as follows</p>
+<p><span class="math display">\[
+\begin{align*}
+\text{using (5.1), p.81, we can write the joint distribution as} \\
+P(Y = 0, A = 0, Y1 = 0, Y0 = 0) = \\
+P(Y = 0 \mid A = 0, Y1 = 0, Y0 = 0) P(A = 0 \mid Y1 = 0, Y0 = 0)P(Y1 = 0 \mid Y0 = 0)\ P(Y0 =0)
+\end{align*}
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+P(Y = 0 \mid A = 0, Y1 = 0, Y0 = 0)=1
+\]</span></p>
+<p>and from the simulation we have</p>
+<p><span class="math display">\[
+\begin{align*}
+P(A = 1 \mid Y0 = 0, Y1 = 0) &amp;= 0.6307 \\
+P(A = 0 \mid Y0 = 0, Y1 = 0) &amp;=  - 0.6307 =  0.3693\\
+P(A = 1 \mid Y0 = 1, Y1 = 0) &amp;= 0.4699 \\
+P(A = 0 \mid Y0 = 1, Y1 = 0) &amp;= 1 - 0.4699 = 0.5301 \\
+P(A = 1 \mid Y0 = 0, Y1 = 1) &amp;= 0.4867 \\
+P(A = 0 \mid Y0 = 0, Y1 = 1) &amp;= 1 - 0.4867 = 0.5133 \\
+P(A = 1 \mid Y0 = 1, Y1 = 1) &amp;= 0.4263 \\
+P(A = 0 \mid Y0 = 1, Y1 = 1) &amp;= 1 - 0.4263 = 0.5737
+\end{align*}
+\]</span></p>
+<p>and we note that <span class="math inline">\(Y0\)</span> and <span class="math inline">\(Y1\)</span> are independent, i.e.&nbsp;<span class="math inline">\(P(Y1 \mid Y0) = P(Y1)\)</span> so that</p>
+<p><span class="math display">\[
+\begin{align*}
+P(Y0 = 1) &amp;= 0.42\\
+P(Y0 = 0) &amp;= 1 - 0.42 = 0.58\\
+P(Y1 = 1) &amp;= 0.62\\
+P(Y1 = 0) &amp;= 1 - 0.62 = 0.38
+\end{align*}
+\]</span></p>
+<p>and since <span class="math inline">\(Y0\)</span> and <span class="math inline">\(Y1\)</span> are independent, i.e.&nbsp;<span class="math inline">\(P(Y1 \mid Y0) = P(Y1)\)</span> then</p>
+<p><span class="math display">\[
+\begin{align*}
+P(Y = 0, A = 0, Y1 = 0, Y0 = 0) &amp;= \\
+P(Y = 0 \mid A = 0, Y1 = 0, Y0 = 0) P(A = 0 \mid Y1 = 0, Y0 = 0) \cdot P(Y1 = 0 \mid Y0 = 0)P(Y0 = 0) &amp;= \\
+1 \cdot P(A = 0 \mid Y1 = 0, Y0 = 0) \cdot P(Y1 = 0)P(Y0 = 0) &amp;= \\
+1\times 0.3693 \times 0.58 \times 0.38 &amp;= 0.0814
+\end{align*}
+\]</span></p>
+</section>
+<section id="structural-causal-model-5.7" class="level3" data-number="5.2.4">
+<h3 data-number="5.2.4" class="anchored" data-anchor-id="structural-causal-model-5.7"><span class="header-section-number">5.2.4</span> Structural Causal Model 5.7</h3>
+<p>The causal DAG is</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.7</span> <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.7</span> <span class="ot">&lt;-</span> <span class="fu">within</span>(scm_5<span class="fl">.7</span>, {</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  dag <span class="ot">&lt;-</span> <span class="fu">dagify</span>(</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    A <span class="sc">~</span> H,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    Y <span class="sc">~</span> A <span class="sc">+</span> H)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  plot <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">ggp_dag</span>(dag)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-ch05_scm_5.7" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="ch05_dag_files/figure-html/fig-ch05_scm_5.7-1.png" class="img-fluid figure-img" style="width:60.0%"></p>
+<figcaption class="figure-caption">Figure&nbsp;5.7: Another way to generate confounding</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>and we simulate the model with <code>simpr</code> (and with the author’s script after)</p>
+<div class="cell" data-hash="ch05_dag_cache/html/tbl-ch05_scm_5.7_31a00004a1a5e940266e605e5ed1b384">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.7</span> <span class="ot">&lt;-</span> <span class="fu">within</span>(scm_5<span class="fl">.7</span>, {</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">222</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> simpr<span class="sc">::</span><span class="fu">specify</span>(</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># generate the confounder H first</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">H =</span> <span class="sc">~</span> <span class="fu">rbinom</span>(<span class="dv">1000</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fl">0.4</span>),</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># let the treatment depend on the confounder</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">probA =</span> <span class="sc">~</span> H <span class="sc">*</span> <span class="fl">0.8</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> H) <span class="sc">*</span> <span class="fl">0.3</span>,</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">A =</span> <span class="sc">~</span> <span class="fu">rbinom</span>(<span class="dv">1000</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> probA),</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># let the outcome depend on the treatment and the confounder</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">probY =</span> <span class="sc">~</span> A <span class="sc">*</span> (H <span class="sc">*</span> <span class="fl">0.5</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> H) <span class="sc">*</span> <span class="fl">0.7</span>) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> A) <span class="sc">*</span> (H <span class="sc">*</span> <span class="fl">0.3</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> H) <span class="sc">*</span> <span class="fl">0.5</span>),</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">Y =</span> <span class="sc">~</span> <span class="fu">rbinom</span>(<span class="dv">1000</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> probY)) <span class="sc">|&gt;</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    simpr<span class="sc">::</span><span class="fu">generate</span>(<span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unnest</span>()</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># create the tabletbl &lt;- sim_5.6$data |&gt;</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>  tbl <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(A, H, Y) <span class="sc">|&gt;</span></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">count</span>(<span class="at">name =</span> <span class="st">"prob"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">prob =</span> prob <span class="sc">/</span> <span class="fu">sum</span>(prob))</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(<span class="fu">near</span>(<span class="fu">sum</span>(tbl<span class="sc">$</span>prob), <span class="dv">1</span>))</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># format the tableau</span></span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>  summ <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">gt_probs</span>(tbl, <span class="at">title =</span> <span class="st">"Table 5.2"</span>,</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>                   <span class="at">subtitle =</span> <span class="st">"Simulation Probabilities for `sim2.r`"</span>)</span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: `cols` is now required when using `unnest()`.
+ℹ Please use `cols = c(sim)`.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.7</span><span class="sc">$</span>summ</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="tbl-ch05_scm_5.7" class="anchored">
+
+<div id="orwxvztiji" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#orwxvztiji table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#orwxvztiji thead, #orwxvztiji tbody, #orwxvztiji tfoot, #orwxvztiji tr, #orwxvztiji td, #orwxvztiji th {
+  border-style: none;
+}
+
+#orwxvztiji p {
+  margin: 0;
+  padding: 0;
+}
+
+#orwxvztiji .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#orwxvztiji .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#orwxvztiji .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: bold;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#orwxvztiji .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: bold;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#orwxvztiji .gt_heading {
+  background-color: #DCDCDC;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#orwxvztiji .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#orwxvztiji .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#orwxvztiji .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: bold;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#orwxvztiji .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: bold;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#orwxvztiji .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#orwxvztiji .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#orwxvztiji .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#orwxvztiji .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#orwxvztiji .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#orwxvztiji .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#orwxvztiji .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#orwxvztiji .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#orwxvztiji .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#orwxvztiji .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#orwxvztiji .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#orwxvztiji .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#orwxvztiji .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#orwxvztiji .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#orwxvztiji .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#orwxvztiji .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#orwxvztiji .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#orwxvztiji .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#orwxvztiji .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#orwxvztiji .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#orwxvztiji .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#orwxvztiji .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#orwxvztiji .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#orwxvztiji .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#orwxvztiji .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#orwxvztiji .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#orwxvztiji .gt_left {
+  text-align: left;
+}
+
+#orwxvztiji .gt_center {
+  text-align: center;
+}
+
+#orwxvztiji .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#orwxvztiji .gt_font_normal {
+  font-weight: normal;
+}
+
+#orwxvztiji .gt_font_bold {
+  font-weight: bold;
+}
+
+#orwxvztiji .gt_font_italic {
+  font-style: italic;
+}
+
+#orwxvztiji .gt_super {
+  font-size: 65%;
+}
+
+#orwxvztiji .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#orwxvztiji .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#orwxvztiji .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#orwxvztiji .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#orwxvztiji .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#orwxvztiji .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#orwxvztiji .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false"><caption>Table&nbsp;5.2:  <p>Simulation Probabilities for sim2.r</p> </caption>
+  <thead>
+    <tr class="gt_heading">
+      <td colspan="4" class="gt_heading gt_title gt_font_normal" style="color: #191970;"><strong>Table 5.2</strong></td>
+    </tr>
+    <tr class="gt_heading">
+      <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="color: #191970;"><strong>Simulation Probabilities for `sim2.r`</strong></td>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="A">A</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="H">H</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="Y">Y</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="prob">prob</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="A" class="gt_row gt_center">0</td>
+<td headers="H" class="gt_row gt_center">0</td>
+<td headers="Y" class="gt_row gt_center">0</td>
+<td headers="prob" class="gt_row gt_center">0.221</td></tr>
+    <tr><td headers="A" class="gt_row gt_center gt_striped">0</td>
+<td headers="H" class="gt_row gt_center gt_striped">0</td>
+<td headers="Y" class="gt_row gt_center gt_striped">1</td>
+<td headers="prob" class="gt_row gt_center gt_striped">0.209</td></tr>
+    <tr><td headers="A" class="gt_row gt_center">0</td>
+<td headers="H" class="gt_row gt_center">1</td>
+<td headers="Y" class="gt_row gt_center">0</td>
+<td headers="prob" class="gt_row gt_center">0.054</td></tr>
+    <tr><td headers="A" class="gt_row gt_center gt_striped">0</td>
+<td headers="H" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y" class="gt_row gt_center gt_striped">1</td>
+<td headers="prob" class="gt_row gt_center gt_striped">0.029</td></tr>
+    <tr><td headers="A" class="gt_row gt_center">1</td>
+<td headers="H" class="gt_row gt_center">0</td>
+<td headers="Y" class="gt_row gt_center">0</td>
+<td headers="prob" class="gt_row gt_center">0.060</td></tr>
+    <tr><td headers="A" class="gt_row gt_center gt_striped">1</td>
+<td headers="H" class="gt_row gt_center gt_striped">0</td>
+<td headers="Y" class="gt_row gt_center gt_striped">1</td>
+<td headers="prob" class="gt_row gt_center gt_striped">0.120</td></tr>
+    <tr><td headers="A" class="gt_row gt_center">1</td>
+<td headers="H" class="gt_row gt_center">1</td>
+<td headers="Y" class="gt_row gt_center">0</td>
+<td headers="prob" class="gt_row gt_center">0.153</td></tr>
+    <tr><td headers="A" class="gt_row gt_center gt_striped">1</td>
+<td headers="H" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y" class="gt_row gt_center gt_striped">1</td>
+<td headers="prob" class="gt_row gt_center gt_striped">0.154</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="4">Fundamentals of Causal Inference, Babette A. Brumback, 2022</td>
+    </tr>
+  </tfoot>
+  
+</table>
+</div>
+</div>
+</div>
+</div>
+<p>and the author provides the theoretical probability table</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>bb_5<span class="fl">.7</span> <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">A =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>),</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">H =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>),</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Y =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">prob =</span> <span class="fu">c</span>(<span class="fl">0.21</span>, <span class="fl">0.21</span>, <span class="fl">0.056</span>, <span class="fl">0.024</span>, <span class="fl">0.024</span>, <span class="fl">0.126</span>, <span class="fl">0.16</span>, <span class="fl">0.16</span>)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>bb_5<span class="fl">.7</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  A H Y  prob
+1 0 0 0 0.210
+2 0 0 1 0.210
+3 0 1 0 0.056
+4 0 1 1 0.024
+5 1 0 0 0.024
+6 1 0 1 0.126
+7 1 1 0 0.160
+8 1 1 1 0.160</code></pre>
+</div>
+</div>
+<p>and computating the theoretical prob. as was donw above</p>
+<p><span class="math display">\[
+\begin{align*}
+P(Y, A, H) = P(Y \mid A, H)P(A \mid H)P(H) \\
+\end{align*}
+\]</span></p>
+<p>and from the simulation we have</p>
+<p><span class="math display">\[
+\begin{align*}
+P(H = 1) = 0.4 \\
+P(H = 0) = 0.6 \\
+P(A = 1 \mid H = 0) = 0.3 \\
+P(A = 0 \mid H = 0) = 1 - 0.3 = 0.7 \\
+P(A = 1 \mid H = 1) = 0.8 \\
+P(A = 0 \mid H = 1) = 1 - 0.8 = 0.2 \\
+P(Y = 1 \mid A = 1, H = 1) = 0.5\\
+P(Y = 0 \mid A = 1, H = 1) = 1 - 0.5 = 0.5\\
+P(Y = 1 \mid A = 1, H = 0) = 0.7\\
+P(Y = 0 \mid A = 1, H = 0) = 1 - 0.7 = 0.3\\
+P(Y = 1 \mid A = 0, H = 1) = 0.3\\
+P(Y = 0 \mid A = 0, H = 1) = 1 - 0.3 = 0.7\\
+P(Y = 1 \mid A = 0, H = 0) = 0.5\\
+P(Y = 0 \mid A = 0, H = 0) = 1 - 0.5 = 0.5\\
+\end{align*}
+\]</span></p>
+<p>Therefore for row 1 of table 5.2 we have</p>
+<p><span class="math display">\[
+\begin{align*}
+P(Y = 0, A = 0, H = 0) &amp;= P(Y = 0 \mid A = 0, H = 0)P(A = 0 \mid H = 0)P(H = 0) \\
+&amp;= 0.5 \times 0.7 \times 0.6 = 0.21
+\end{align*}
+\]</span></p>
+<p>and for row 4 of table 5.2</p>
+<p><span class="math display">\[
+\begin{align*}
+P(Y = 1, A = 0, H = 1) &amp;= P(Y = 1 \mid A = 0, H = 1)P(A = 0 \mid H = 1)P(H = 1) \\
+&amp;= 0.3 \times 0.2 \times 0.4 = 0.024
+\end{align*}
+\]</span></p>
+<p>Using either <code>sim1.r</code> or <code>sim2.r</code> we can get the joint probability of <span class="math inline">\(A\)</span> and <span class="math inline">\(Y\)</span> using the law of total probabilities.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>bb_5<span class="fl">.6</span> <span class="sc">|&gt;</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(A, Y) <span class="sc">|&gt;</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">prob =</span> <span class="fu">sum</span>(prob))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'A'. You can override using the `.groups`
+argument.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 3
+# Groups:   A [2]
+      A     Y  prob
+  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1     0     0 0.266
+2     0     1 0.234
+3     1     0 0.214
+4     1     1 0.286</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>bb_5<span class="fl">.7</span> <span class="sc">|&gt;</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(A, Y) <span class="sc">|&gt;</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">prob =</span> <span class="fu">sum</span>(prob))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'A'. You can override using the `.groups`
+argument.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 3
+# Groups:   A [2]
+      A     Y  prob
+  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1     0     0 0.266
+2     0     1 0.234
+3     1     0 0.184
+4     1     1 0.286</code></pre>
+</div>
+</div>
+<p>Now</p>
+<blockquote class="blockquote">
+<p>One might wonder if knowledge of <span class="math inline">\((A, H, Y)\)</span> is equivalent to knowledge of <span class="math inline">\((A, Y0, Y1, Y)\)</span> Given <span class="math inline">\((A, Y)\)</span> we cannot recover both <span class="math inline">\(Y0\)</span> and <span class="math inline">\(Y1\)</span>.</p>
+</blockquote>
+<p>For example we can recover <span class="math inline">\(Y1 = 1\)</span> since</p>
+<p><span class="math display">\[
+\begin{align*}
+P(Y1 = 1 \mid A = 1, Y = 1) &amp;= \frac{P(Y1 = 1, A = 1, Y = 1)}{P(A = 1, Y = 1)} \\
+&amp;= \frac{0.175 + 0.111}{0.175 + 0.111} = 1
+\end{align*}
+\]</span></p>
+<p>but for <span class="math inline">\(P(Y0 = 1 \mid A = 1, Y = 1)\)</span> we have</p>
+<p><span class="math display">\[
+\begin{align*}
+P(Y0 = 1 \mid A = 1, Y = 1) &amp;= \frac{P(Y0 = 1, A = 1, Y = 1)}{P(A = 1, Y = 1)} \\
+&amp;= \frac{0.111}{0.175 + 0.111} = 0.39
+\end{align*}
+\]</span></p>
+<p>and so the likelihood that <span class="math inline">\(Y0 = 1\)</span> is only 39% and it is therefore more likely that <span class="math inline">\(Y0 = 0\)</span> . . . but not always.</p>
+<blockquote class="blockquote">
+<p>Does the additional knowledge of <span class="math inline">\(H\)</span> help to identify <span class="math inline">\(Y(0)\)</span>? We leave that as a question for the reader.</p>
+</blockquote>
+<p>If we include <span class="math inline">\(H\)</span> in the DAG of figure 5.6 we obtain the DAG of figure 5.8 below. We observe that <span class="math inline">\((Y(0), Y(1)) \perp\!\!\!\perp A \mid H\)</span>. In addition, since <span class="math inline">\(Y\)</span> is a collider <span class="math inline">\((Y(0), Y(1)) \not\!\perp\!\!\!\perp A \mid Y\)</span>, therefore if we use the data from figure 5.8 below (<code>simall.r</code>) we have</p>
+<p><span class="math display">\[
+\begin{align*}
+P(Y0 = 1 \mid H = 1) &amp;= \frac{P(Y0 = 1, H = 1)}{P(H = 1)} \\
+&amp;= \frac{0.019 + 0.006 + 0.051 + 0.05}{0.031 + 0.02 + 0.019 + 0.006 + 0.109 + 0.117 + 0.051 + 0.05} \\
+&amp;= \frac{0.126}{0.403} = 0.31
+\end{align*}
+\]</span> Therefore <span class="math inline">\(H\)</span> is not entirely sufficient to determine <span class="math inline">\((Y(0), Y(1))\)</span> as it will do it only 31% of the time for <span class="math inline">\(Y(0) = 1\)</span> and otherwise 69% of the time for <span class="math inline">\(Y(0) = 0\)</span>.</p>
+</section>
+<section id="potential-outcomes-behind-the-scenes" class="level3" data-number="5.2.5">
+<h3 data-number="5.2.5" class="anchored" data-anchor-id="potential-outcomes-behind-the-scenes"><span class="header-section-number">5.2.5</span> Potential Outcomes Behind the Scenes</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.8</span> <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.8</span> <span class="ot">&lt;-</span> <span class="fu">within</span>(scm_5<span class="fl">.8</span>, {</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  the_nodes <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"A"</span> <span class="ot">=</span> <span class="st">""</span>, </span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"Y"</span> <span class="ot">=</span> <span class="st">""</span>, </span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"U"</span> <span class="ot">=</span> <span class="st">"(Y(0), y(1))"</span>)</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  dag <span class="ot">&lt;-</span> <span class="fu">dagify</span>(</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>    A <span class="sc">~</span> H,</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>    Y <span class="sc">~</span> A <span class="sc">+</span> U,</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>    U <span class="sc">~</span> H,</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">latent =</span> <span class="st">"U"</span>,</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> the_nodes)</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>  plot <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">ggp_dag</span>(dag)</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-ch05_scm_5.8" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="ch05_dag_files/figure-html/fig-ch05_scm_5.8-1.png" class="img-fluid figure-img" style="width:80.0%"></p>
+<figcaption class="figure-caption">Figure&nbsp;5.8: Potential Outcomes Behind the Scenes</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell" data-hash="ch05_dag_cache/html/tbl-ch05_scm_5.8_bd0904541d2fe0fa55f95a646d52caa8">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.8</span> <span class="ot">&lt;-</span> <span class="fu">within</span>(scm_5<span class="fl">.8</span>, {</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">888</span>)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  data <span class="ot">&lt;-</span> simpr<span class="sc">::</span><span class="fu">specify</span>(</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># generate the observed confounder H</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">H =</span> <span class="sc">~</span> <span class="fu">rbinom</span>(<span class="dv">1000</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fl">0.4</span>),</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># let the treatment depend on the observed confounder</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">probA =</span> <span class="sc">~</span> H <span class="sc">*</span> <span class="fl">0.8</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> H) <span class="sc">*</span> <span class="fl">0.3</span>,</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">A =</span> <span class="sc">~</span> <span class="fu">rbinom</span>(<span class="dv">1000</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> probA),</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># generate the poential outcomes dependent on the observed confounder</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">probY0 =</span> <span class="sc">~</span> H <span class="sc">*</span> <span class="fl">0.3</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> H) <span class="sc">*</span> <span class="fl">0.5</span>,</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">Y0 =</span> <span class="sc">~</span> <span class="fu">rbinom</span>(<span class="dv">1000</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> probY0),</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">probY1 =</span> <span class="sc">~</span> H <span class="sc">*</span> <span class="fl">0.5</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> H) <span class="sc">*</span> <span class="fl">0.7</span>,</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">Y1 =</span> <span class="sc">~</span> <span class="fu">rbinom</span>(<span class="dv">1000</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> probY1),</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># let the outcome depend on the treatment and Y0, Y1</span></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">Y =</span> <span class="sc">~</span> A <span class="sc">*</span> Y1 <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">-</span> A) <span class="sc">*</span> Y0) <span class="sc">|&gt;</span></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">generate</span>(<span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unnest</span>()</span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>  tbl <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(H, A, Y0, Y1, Y) <span class="sc">|&gt;</span></span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">count</span>(<span class="at">name =</span> <span class="st">"prob"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">prob =</span> prob <span class="sc">/</span> <span class="fu">sum</span>(prob)) <span class="sc">|&gt;</span></span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">identity</span>()</span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(<span class="fu">near</span>(<span class="fu">sum</span>(tbl<span class="sc">$</span>prob), <span class="dv">1</span>))</span>
+<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-28"><a href="#cb33-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># format the tableau</span></span>
+<span id="cb33-29"><a href="#cb33-29" aria-hidden="true" tabindex="-1"></a>  tbl <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">gt_probs</span>(tbl, <span class="at">title =</span> <span class="st">"Table for `simall.r`"</span>,</span>
+<span id="cb33-30"><a href="#cb33-30" aria-hidden="true" tabindex="-1"></a>                   <span class="at">subtitle =</span> <span class="st">"Simulation Probabilities for `simall.r`"</span>)</span>
+<span id="cb33-31"><a href="#cb33-31" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: `cols` is now required when using `unnest()`.
+ℹ Please use `cols = c(sim)`.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.8</span><span class="sc">$</span>tbl</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="tbl-ch05_scm_5.8" class="anchored">
+
+<div id="okkgcrajbf" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#okkgcrajbf table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#okkgcrajbf thead, #okkgcrajbf tbody, #okkgcrajbf tfoot, #okkgcrajbf tr, #okkgcrajbf td, #okkgcrajbf th {
+  border-style: none;
+}
+
+#okkgcrajbf p {
+  margin: 0;
+  padding: 0;
+}
+
+#okkgcrajbf .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#okkgcrajbf .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#okkgcrajbf .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: bold;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#okkgcrajbf .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: bold;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#okkgcrajbf .gt_heading {
+  background-color: #DCDCDC;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#okkgcrajbf .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#okkgcrajbf .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#okkgcrajbf .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: bold;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#okkgcrajbf .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: bold;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#okkgcrajbf .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#okkgcrajbf .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#okkgcrajbf .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#okkgcrajbf .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#okkgcrajbf .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#okkgcrajbf .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#okkgcrajbf .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#okkgcrajbf .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#okkgcrajbf .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#okkgcrajbf .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#okkgcrajbf .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#okkgcrajbf .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#okkgcrajbf .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#okkgcrajbf .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#okkgcrajbf .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#okkgcrajbf .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#okkgcrajbf .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#okkgcrajbf .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#okkgcrajbf .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#okkgcrajbf .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#okkgcrajbf .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#okkgcrajbf .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#okkgcrajbf .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#okkgcrajbf .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#okkgcrajbf .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#okkgcrajbf .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#okkgcrajbf .gt_left {
+  text-align: left;
+}
+
+#okkgcrajbf .gt_center {
+  text-align: center;
+}
+
+#okkgcrajbf .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#okkgcrajbf .gt_font_normal {
+  font-weight: normal;
+}
+
+#okkgcrajbf .gt_font_bold {
+  font-weight: bold;
+}
+
+#okkgcrajbf .gt_font_italic {
+  font-style: italic;
+}
+
+#okkgcrajbf .gt_super {
+  font-size: 65%;
+}
+
+#okkgcrajbf .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#okkgcrajbf .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#okkgcrajbf .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#okkgcrajbf .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#okkgcrajbf .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#okkgcrajbf .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#okkgcrajbf .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false"><caption>Table&nbsp;5.3:  <p>Simulation Probabilities for simall.r</p> </caption>
+  <thead>
+    <tr class="gt_heading">
+      <td colspan="6" class="gt_heading gt_title gt_font_normal" style="color: #191970;"><strong>Table for `simall.r`</strong></td>
+    </tr>
+    <tr class="gt_heading">
+      <td colspan="6" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="color: #191970;"><strong>Simulation Probabilities for `simall.r`</strong></td>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="H">H</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="A">A</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="Y0">Y0</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="Y1">Y1</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="Y">Y</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="prob">prob</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="H" class="gt_row gt_center">0</td>
+<td headers="A" class="gt_row gt_center">0</td>
+<td headers="Y0" class="gt_row gt_center">0</td>
+<td headers="Y1" class="gt_row gt_center">0</td>
+<td headers="Y" class="gt_row gt_center">0</td>
+<td headers="prob" class="gt_row gt_center">0.058</td></tr>
+    <tr><td headers="H" class="gt_row gt_center gt_striped">0</td>
+<td headers="A" class="gt_row gt_center gt_striped">0</td>
+<td headers="Y0" class="gt_row gt_center gt_striped">0</td>
+<td headers="Y1" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y" class="gt_row gt_center gt_striped">0</td>
+<td headers="prob" class="gt_row gt_center gt_striped">0.137</td></tr>
+    <tr><td headers="H" class="gt_row gt_center">0</td>
+<td headers="A" class="gt_row gt_center">0</td>
+<td headers="Y0" class="gt_row gt_center">1</td>
+<td headers="Y1" class="gt_row gt_center">0</td>
+<td headers="Y" class="gt_row gt_center">1</td>
+<td headers="prob" class="gt_row gt_center">0.087</td></tr>
+    <tr><td headers="H" class="gt_row gt_center gt_striped">0</td>
+<td headers="A" class="gt_row gt_center gt_striped">0</td>
+<td headers="Y0" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y1" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y" class="gt_row gt_center gt_striped">1</td>
+<td headers="prob" class="gt_row gt_center gt_striped">0.138</td></tr>
+    <tr><td headers="H" class="gt_row gt_center">0</td>
+<td headers="A" class="gt_row gt_center">1</td>
+<td headers="Y0" class="gt_row gt_center">0</td>
+<td headers="Y1" class="gt_row gt_center">0</td>
+<td headers="Y" class="gt_row gt_center">0</td>
+<td headers="prob" class="gt_row gt_center">0.021</td></tr>
+    <tr><td headers="H" class="gt_row gt_center gt_striped">0</td>
+<td headers="A" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y0" class="gt_row gt_center gt_striped">0</td>
+<td headers="Y1" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y" class="gt_row gt_center gt_striped">1</td>
+<td headers="prob" class="gt_row gt_center gt_striped">0.057</td></tr>
+    <tr><td headers="H" class="gt_row gt_center">0</td>
+<td headers="A" class="gt_row gt_center">1</td>
+<td headers="Y0" class="gt_row gt_center">1</td>
+<td headers="Y1" class="gt_row gt_center">0</td>
+<td headers="Y" class="gt_row gt_center">0</td>
+<td headers="prob" class="gt_row gt_center">0.018</td></tr>
+    <tr><td headers="H" class="gt_row gt_center gt_striped">0</td>
+<td headers="A" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y0" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y1" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y" class="gt_row gt_center gt_striped">1</td>
+<td headers="prob" class="gt_row gt_center gt_striped">0.056</td></tr>
+    <tr><td headers="H" class="gt_row gt_center">1</td>
+<td headers="A" class="gt_row gt_center">0</td>
+<td headers="Y0" class="gt_row gt_center">0</td>
+<td headers="Y1" class="gt_row gt_center">0</td>
+<td headers="Y" class="gt_row gt_center">0</td>
+<td headers="prob" class="gt_row gt_center">0.032</td></tr>
+    <tr><td headers="H" class="gt_row gt_center gt_striped">1</td>
+<td headers="A" class="gt_row gt_center gt_striped">0</td>
+<td headers="Y0" class="gt_row gt_center gt_striped">0</td>
+<td headers="Y1" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y" class="gt_row gt_center gt_striped">0</td>
+<td headers="prob" class="gt_row gt_center gt_striped">0.027</td></tr>
+    <tr><td headers="H" class="gt_row gt_center">1</td>
+<td headers="A" class="gt_row gt_center">0</td>
+<td headers="Y0" class="gt_row gt_center">1</td>
+<td headers="Y1" class="gt_row gt_center">0</td>
+<td headers="Y" class="gt_row gt_center">1</td>
+<td headers="prob" class="gt_row gt_center">0.012</td></tr>
+    <tr><td headers="H" class="gt_row gt_center gt_striped">1</td>
+<td headers="A" class="gt_row gt_center gt_striped">0</td>
+<td headers="Y0" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y1" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y" class="gt_row gt_center gt_striped">1</td>
+<td headers="prob" class="gt_row gt_center gt_striped">0.022</td></tr>
+    <tr><td headers="H" class="gt_row gt_center">1</td>
+<td headers="A" class="gt_row gt_center">1</td>
+<td headers="Y0" class="gt_row gt_center">0</td>
+<td headers="Y1" class="gt_row gt_center">0</td>
+<td headers="Y" class="gt_row gt_center">0</td>
+<td headers="prob" class="gt_row gt_center">0.113</td></tr>
+    <tr><td headers="H" class="gt_row gt_center gt_striped">1</td>
+<td headers="A" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y0" class="gt_row gt_center gt_striped">0</td>
+<td headers="Y1" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y" class="gt_row gt_center gt_striped">1</td>
+<td headers="prob" class="gt_row gt_center gt_striped">0.111</td></tr>
+    <tr><td headers="H" class="gt_row gt_center">1</td>
+<td headers="A" class="gt_row gt_center">1</td>
+<td headers="Y0" class="gt_row gt_center">1</td>
+<td headers="Y1" class="gt_row gt_center">0</td>
+<td headers="Y" class="gt_row gt_center">0</td>
+<td headers="prob" class="gt_row gt_center">0.050</td></tr>
+    <tr><td headers="H" class="gt_row gt_center gt_striped">1</td>
+<td headers="A" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y0" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y1" class="gt_row gt_center gt_striped">1</td>
+<td headers="Y" class="gt_row gt_center gt_striped">1</td>
+<td headers="prob" class="gt_row gt_center gt_striped">0.061</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="6">Fundamentals of Causal Inference, Babette A. Brumback, 2022</td>
+    </tr>
+  </tfoot>
+  
+</table>
+</div>
+</div>
+</div>
+</div>
+<p>and the causal DAG for the What-If? study is</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.9</span> <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>scm_5<span class="fl">.9</span> <span class="ot">&lt;-</span> <span class="fu">within</span>(scm_5<span class="fl">.9</span>, {</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  the_nodes <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"U"</span> <span class="ot">=</span> <span class="st">"Unmeasured, healthy behavior (U=1)"</span>, </span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"AD0"</span> <span class="ot">=</span> <span class="st">"Adherence time 0"</span>, </span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"VL0"</span> <span class="ot">=</span> <span class="st">"Viral Load time 0"</span>, </span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"T"</span> <span class="ot">=</span> <span class="st">"Naltrexone (T=1)"</span>, </span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"A"</span> <span class="ot">=</span> <span class="st">"Reduced drinking (A=1)"</span>, </span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"AD1"</span> <span class="ot">=</span> <span class="st">"Adherence time 1"</span>, </span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>                 <span class="st">"VL1"</span> <span class="ot">=</span> <span class="st">"Viral Load time 1"</span>)</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>  coords <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="fu">names</span>(the_nodes),</span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>),</span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>  dag <span class="ot">&lt;-</span> <span class="fu">dagify</span>(</span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>    AD0 <span class="sc">~</span> U,</span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a>    VL0 <span class="sc">~</span> AD0,</span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a>    A <span class="sc">~</span> <span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">+</span> U,</span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a>    AD1 <span class="sc">~</span> A,</span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a>    VL1 <span class="sc">~</span> AD0 <span class="sc">+</span> AD1 <span class="sc">+</span> U,</span>
+<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">outcome =</span> <span class="st">"VL1"</span>,</span>
+<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">exposure =</span> <span class="st">"T"</span>,</span>
+<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">latent =</span> <span class="st">"U"</span>,</span>
+<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">labels =</span> the_nodes)</span>
+<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb36-26"><a href="#cb36-26" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb36-27"><a href="#cb36-27" aria-hidden="true" tabindex="-1"></a>  text_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="fu">expression</span>(AD[<span class="dv">0</span>]), <span class="fu">expression</span>(AD[<span class="dv">1</span>]),</span>
+<span id="cb36-28"><a href="#cb36-28" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"T"</span>, <span class="st">"U"</span>, <span class="fu">expression</span>(VL[<span class="dv">0</span>]), <span class="fu">expression</span>(VL[<span class="dv">1</span>]))</span>
+<span id="cb36-29"><a href="#cb36-29" aria-hidden="true" tabindex="-1"></a>  plot <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">ggp_dag</span>(dag, <span class="at">text_labels =</span> text_labels, <span class="at">text_size =</span> <span class="dv">5</span>)</span>
+<span id="cb36-30"><a href="#cb36-30" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-ch05_scm_5.9" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="ch05_dag_files/figure-html/fig-ch05_scm_5.9-1.png" class="img-fluid figure-img" style="width:80.0%"></p>
+<figcaption class="figure-caption">Figure&nbsp;5.9: The Double What-If? Study</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="exercises" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="exercises"><span class="header-section-number">5.3</span> Exercises</h2>
+<p>The exercises are located in a separate project.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./ch04_measures.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Effect-Measure Modification and Causal Interaction</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./part02.html" class="pagination-link">
+        <span class="nav-page-text">Part II Causality</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>

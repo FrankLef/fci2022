@@ -19,8 +19,8 @@ Many thanks to Babette A. Brumback for a book full of amazing observations, tric
 For data processing and analysis the following packages are used
 
 | Package                                                               | Comment                                     |
-|-------------------------|-----------------------------------------------|
-| [fciR](https://github.com/FrankLef/fciR)                              | This companion R package for this book      |
+|-------------------------|----------------------------------------------|
+| [fciR](https://github.com/FrankLef/fciR)                              | Companion R package for this book           |
 | [conflicted](https://conflicted.r-lib.org)                            | Manage conflict resolution amongst packages |
 | [tidyverse](https://www.tidyverse.org)                                | Tidyverse is the favored coding way         |
 | [skimr](https://docs.ropensci.org/skimr/)                             | Summary statistics                          |
@@ -32,10 +32,10 @@ For data processing and analysis the following packages are used
 
 For plotting, graphs and tables these packages are used
 
-| Package                                           | Comment                                          |
-|-------------------------|-----------------------------------------------|
-| [ggplot](https://ggplot2.tidyverse.org)           | Create graphics based on the grammar of graphics |
-| [ggdag](https://github.com/r-causal/ggdag)        | Causal directed acyclic graphs                   |
-| [tidygraph](https://tidygraph.data-imaginist.com) | Graphs and networks manipulation                 |
-| [ggvenn](https://cran.r-project.org/web/packages/ggvenn/index.html) | Venn diagrams by ggplot2. Used in chap. 4|
-| [gt](https://gt.rstudio.com)                      | Nice-looking tables                              |
+| Package                                                             | Comment                                          |
+|-------------------------|----------------------------------------------|
+| [ggplot](https://ggplot2.tidyverse.org)                             | Create graphics based on the grammar of graphics |
+| [ggdag](https://github.com/r-causal/ggdag)                          | Causal directed acyclic graphs                   |
+| [tidygraph](https://tidygraph.data-imaginist.com)                   | Graphs and networks manipulation                 |
+| [ggvenn](https://cran.r-project.org/web/packages/ggvenn/index.html) | Venn diagrams by ggplot2. Used in chap. 4        |
+| [gt](https://gt.rstudio.com)                                        | Nice-looking tables                              |

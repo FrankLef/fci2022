@@ -46,11 +46,9 @@ $$
 E(Y \mid T) = \sum_y y P(Y=y \mid T)
 $$
 
-and one way that helps me usually understand it well is that conditioning 
-is the same as *filtering* the data.
+and one way that helps me usually understand it well is that conditioning is the same as *filtering* the data.
 
-For example the conditional expectation of mortality of US resident at the 
-beginning of 2019 $E(Y \mid T = 1) = 0.0088$
+For example the conditional expectation of mortality of US resident at the beginning of 2019 $E(Y \mid T = 1) = 0.0088$
 
 ```{r}
 #| label: ch02_mortality_long
@@ -79,7 +77,7 @@ $$
 E(Y \mid T) &= E_{H \mid T}(E(Y \mid H, T)) \\
 &= \sum_h \left[ \sum_y y P(Y=y \mid H=h, T) \right] P(H=h \mid T)
 \end{align*}
-$$ 
+$$
 
 Also the following equivalence is used very often in this book.
 
@@ -239,7 +237,7 @@ U(\beta) &= \sum_{i=1}^n (Y_i - \beta) \\
 &= \sum_{i=1}^n \left[ Y_i - E(Y \mid X, \beta) \right] \\
 &= 0
 \end{align*}
-$$ 
+$$
 
 and to do the actual calculations we use a variation of the estimating equation as follows
 
@@ -260,17 +258,13 @@ whatif.mod <- glm(Y ~ A + `T` + H, family = "binomial", data = whatifdat)
 summary(whatif.mod)
 ```
 
-The coefficients, $\beta_0, \beta_A, \beta_T, \beta_H$ are obtained with 
-`coef()` which is an alias for `coefficient()`. The example in the book uses 
-`lmod$coef` which is not a recommended coding practice. The data should be 
-obtained with an extractor function such as `coef()`.
+The coefficients, $\beta_0, \beta_A, \beta_T, \beta_H$ are obtained with `coef()` which is an alias for `coefficient()`. The example in the book uses `lmod$coef` which is not a recommended coding practice. The data should be obtained with an extractor function such as `coef()`.
 
 ```{r}
 coef(whatif.mod)
 ```
 
-and since the model is binomial then the inverse function to convert from the 
-logit scale to the natural scale is `stats::plogis()`.
+and since the model is binomial then the inverse function to convert from the logit scale to the natural scale is `stats::plogis()`.
 
 Therefore the parametric estimate is
 
@@ -282,9 +276,7 @@ $$
 stats::plogis(sum(coef(whatif.mod)))
 ```
 
-we can also use the linear model directly, thus avoiding a call to `plogis` 
-and making the code a little more robust. This technique is used quite often 
-in the book, especially starting from chapter 6 on.
+we can also use the linear model directly, thus avoiding a call to `plogis` and making the code a little more robust. This technique is used quite often in the book, especially starting from chapter 6 on.
 
 ```{r}
 whatif.newdata <- whatifdat |>
@@ -309,9 +301,7 @@ which is close to the parametric estimate.
 
 ## Sampling Distributions and the Bootstrap
 
-The previous section prived and estimate. But how variable is this estimator? 
-One way would be to report the standard error $\sigma_{\hat{x}} = \frac{\sigma}{\sqrt{n}}$. 
-Therefore, since $\sigma^2 = p(1-p)$ for a binomial distribution
+The previous section prived and estimate. But how variable is this estimator? One way would be to report the standard error $\sigma_{\hat{x}} = \frac{\sigma}{\sqrt{n}}$. Therefore, since $\sigma^2 = p(1-p)$ for a binomial distribution
 
 ```{r}
 # the sample size
@@ -327,9 +317,7 @@ whatifdat.se <- whatifdat.sd / sqrt(whatifdat.n)
 whatifdat.se
 ```
 
-Note that the formula used by B. Brumback is using the standard deviation of the 
-population $p(1-p)$ which, maybe, is not entirely the right way since the 
-standard error of the mean is defined using the *standard deviation of the sample*.
+Note that the formula used by B. Brumback is using the standard deviation of the population $p(1-p)$ which, maybe, is not entirely the right way since the standard error of the mean is defined using the *standard deviation of the sample*.
 
 That is Brumback uses
 
@@ -348,13 +336,11 @@ sd(x) / sqrt(length(x))
 
 > Another way would be by reporting the *sampling distribution* of our estimator.
 
-> the sampling distribution is centered at the true value of our estimand and it 
-has a standard deviation equal to the true standard error of our estimator.
+> the sampling distribution is centered at the true value of our estimand and it has a standard deviation equal to the true standard error of our estimator.
 
 The section 2.4 will not be repeated here, yet it is very instructive and cover a topic that we end to forget. We will just repeat the calculations below. They
 
-The `sim()` function in section 2.4, p. 31 is coded in `fciR::sim_intervals()` 
-and its alias `fciR::sim()`.
+The `sim()` function in section 2.4, p. 31 is coded in `fciR::sim_intervals()` and its alias `fciR::sim()`.
 
 Run and verify with author's results on p. 32
 
@@ -420,8 +406,7 @@ whatifdat.out
 
 #### `rsample` package
 
-Another way package that could be used for boostrapping is `rsample::bootstrap` 
-which uses the tidyverse way of R programming.
+Another way package that could be used for boostrapping is `rsample::bootstrap` which uses the tidyverse way of R programming.
 
 To be fully tidyverse-like we recode the `prob_lmod` function from above and call it `prob_lmod_td` where the `td` suffix stands for `tidyverse`. Note the use of a formula as an argument to the function and the `rlang` package which is a great tool to learn for quality code in R.
 
@@ -457,9 +442,7 @@ prob_lmod_td(whatifdat, formula = Y ~ `T` + A + H)
 
 The following function is inspired from [rsample bootstrap](https://rsample.tidymodels.org/articles/Applications/Intervals.html).
 
-We obtain the confidence interval using `rsample::int_pctl` which uses a 
-percentile interval instead of assuming a normal distribution as Ms Brumback does. 
-The result are not materially different in the current case.
+We obtain the confidence interval using `rsample::int_pctl` which uses a percentile interval instead of assuming a normal distribution as Ms Brumback does. The result are not materially different in the current case.
 
 ```{r}
 #| label: ch02_whatifdat_boot

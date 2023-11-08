@@ -213,4 +213,4 @@ stopifnot(
 
 ## Exercises
 
-The exercises are located in a separate project.
+{{< include _warn_ex.qmd >}}

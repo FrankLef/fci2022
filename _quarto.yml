@@ -16,6 +16,8 @@ book:
         - ch02_probability.qmd
         - ch03_outcomes.qmd
         - ch04_measures.qmd
+        - ch05_dag.qmd
+    - part: part02.qmd
     - references.qmd
   appendices: 
     - app01_errata.qmd
