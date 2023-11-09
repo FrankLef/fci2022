@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Fundamentals of Causal Inference 2022 - Study Project - 3&nbsp; Potential Outcomes and the Fundamental Problem of Causal Inference</title>
+<title>Fundamentals of Causal Inference 2022 - Study Project - 7&nbsp; Difference-in-Differences Estimators</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -64,8 +64,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./ch04_measures.html" rel="next">
-<link href="./ch02_probability.html" rel="prev">
+<link href="./ch08_frontdoor.html" rel="next">
+<link href="./ch06_backdoor.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -110,7 +110,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./part01.html">Part I Basics</a></li><li class="breadcrumb-item"><a href="./ch03_outcomes.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Potential Outcomes and the Fundamental Problem of Causal Inference</span></a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./part02.html">Part II Causality</a></li><li class="breadcrumb-item"><a href="./ch07_did.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Difference-in-Differences Estimators</span></a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -164,7 +164,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch03_outcomes.html" class="sidebar-item-text sidebar-link active">
+  <a href="./ch03_outcomes.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Potential Outcomes and the Fundamental Problem of Causal Inference</span></span></a>
   </div>
 </li>
@@ -199,7 +199,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ch07_did.html" class="sidebar-item-text sidebar-link">
+  <a href="./ch07_did.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Difference-in-Differences Estimators</span></span></a>
   </div>
 </li>
@@ -262,10 +262,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#potential-outcomes-and-the-consistency-assumption" id="toc-potential-outcomes-and-the-consistency-assumption" class="nav-link active" data-scroll-target="#potential-outcomes-and-the-consistency-assumption"><span class="header-section-number">3.1</span> Potential Outcomes and the Consistency Assumption</a></li>
-  <li><a href="#circumventing-the-fundamental-problem-of-causal-inference" id="toc-circumventing-the-fundamental-problem-of-causal-inference" class="nav-link" data-scroll-target="#circumventing-the-fundamental-problem-of-causal-inference"><span class="header-section-number">3.2</span> Circumventing the Fundamental Problem of Causal Inference</a></li>
-  <li><a href="#effect-measures" id="toc-effect-measures" class="nav-link" data-scroll-target="#effect-measures"><span class="header-section-number">3.3</span> Effect Measures</a></li>
-  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">3.4</span> Exercises</a></li>
+  <li><a href="#difference-in-differences-did-estimators" id="toc-difference-in-differences-did-estimators" class="nav-link active" data-scroll-target="#difference-in-differences-did-estimators"><span class="header-section-number">7.1</span> Difference-in-Differences (DiD) Estimators</a>
+  <ul class="collapse">
+  <li><a href="#did-estimator-with-a-linear-model" id="toc-did-estimator-with-a-linear-model" class="nav-link" data-scroll-target="#did-estimator-with-a-linear-model"><span class="header-section-number">7.1.1</span> DiD Estimator with a Linear Model</a></li>
+  <li><a href="#did-estimator-with-a-loglinear-model" id="toc-did-estimator-with-a-loglinear-model" class="nav-link" data-scroll-target="#did-estimator-with-a-loglinear-model"><span class="header-section-number">7.1.2</span> DiD Estimator with a Loglinear Model</a></li>
+  <li><a href="#did-estimator-with-a-logistic-model" id="toc-did-estimator-with-a-logistic-model" class="nav-link" data-scroll-target="#did-estimator-with-a-logistic-model"><span class="header-section-number">7.1.3</span> DiD Estimator with a Logistic Model</a></li>
+  </ul></li>
+  <li><a href="#comparison-with-standardization" id="toc-comparison-with-standardization" class="nav-link" data-scroll-target="#comparison-with-standardization"><span class="header-section-number">7.2</span> Comparison with Standardization</a>
+  <ul class="collapse">
+  <li><a href="#doublewhatifdat" id="toc-doublewhatifdat" class="nav-link" data-scroll-target="#doublewhatifdat"><span class="header-section-number">7.2.1</span> <code>doublewhatifdat</code></a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -274,7 +280,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span id="outcomes" class="quarto-section-identifier"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Potential Outcomes and the Fundamental Problem of Causal Inference</span></span></h1>
+<h1 class="title"><span id="did" class="quarto-section-identifier"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Difference-in-Differences Estimators</span></span></h1>
 </div>
 
 
@@ -291,172 +297,192 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(conflicted)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rsample, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fciR)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">dplyr.summarise.inform =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">conflicts_prefer</span>(dplyr<span class="sc">::</span>filter)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fciR)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">dplyr.summarise.inform =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">conflicts_prefer</span>(dplyr<span class="sc">::</span>filter)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>[conflicted] Will prefer dplyr::filter over any other package.</code></pre>
 </div>
 </div>
-<p>The results from the preliminary report on June 22, 20202 (RECOVERY Collaborative Group) (2020)) are as follows</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>dataRecovery <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">1</span>),</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Y =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>),</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">n =</span> <span class="fu">c</span>(<span class="dv">1065</span>, <span class="dv">3256</span>, <span class="dv">454</span>, <span class="dv">2104</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>and the estimate of survival <span class="math inline">\(Y=1\)</span> with treatment is</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> dataRecovery <span class="sc">|&gt;</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">p =</span> n <span class="sc">/</span> <span class="fu">sum</span>(n)) <span class="sc">|&gt;</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">EYT1 =</span> <span class="fu">sum</span>(Y <span class="sc">*</span> p))</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>p1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>       EYT1
-1 0.8225176</code></pre>
-</div>
-</div>
-<p>whereas the estimate of survival with treatment is</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>p0 <span class="ot">&lt;-</span> dataRecovery <span class="sc">|&gt;</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">==</span> <span class="dv">0</span>) <span class="sc">|&gt;</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">p =</span> n <span class="sc">/</span> <span class="fu">sum</span>(n)) <span class="sc">|&gt;</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">EYT0 =</span> <span class="fu">sum</span>(Y <span class="sc">*</span> p))</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>p0</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>       EYT0
-1 0.7535293</code></pre>
-</div>
-</div>
-<p>and the chi-square test of difference can be calculated as follows</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create the data table</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>dataRecoveryChi <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Y0 =</span> <span class="fu">c</span>(<span class="at">T0 =</span> <span class="dv">1065</span>, <span class="at">T1 =</span> <span class="dv">454</span>),</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Y1 =</span> <span class="fu">c</span>(<span class="at">T0 =</span> <span class="dv">3256</span>, <span class="at">T1 =</span> <span class="dv">2104</span>))</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># perform the chi-square test</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>chisq <span class="ot">&lt;-</span> <span class="fu">chisq.test</span>(dataRecoveryChi)</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>chisq</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-    Pearson's Chi-squared test with Yates' continuity correction
-
-data:  dataRecoveryChi
-X-squared = 44.047, df = 1, p-value = 3.207e-11</code></pre>
-</div>
-</div>
-<p>The p-value is small enough (&lt;0.05) to allow us to reject the null hypothesis that the treatment <span class="math inline">\(T\)</span> and the outcome <span class="math inline">\(Y\)</span> are independent.</p>
-<p><em>The author’s chi-square test gives a p-value of 0.032 whereas the chi-square above gives 3.207e-11.</em> <strong>Why the difference?</strong></p>
-<p>If we use a <em>t-test</em> to also test the difference in means</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># we don't have the raw data, so we simulate</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>YT1 <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="at">n =</span> <span class="dv">454</span> <span class="sc">+</span> <span class="dv">2104</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fl">0.823</span>)</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>YT0 <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="at">n =</span> <span class="dv">1065</span> <span class="sc">+</span> <span class="dv">3256</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fl">0.754</span>)</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>ttest <span class="ot">&lt;-</span> <span class="fu">t.test</span>(<span class="at">x =</span> YT1, YT0, <span class="at">var.equal =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>ttest</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-    Welch Two Sample t-test
-
-data:  YT1 and YT0
-t = 7.551, df = 5928.6, p-value = 4.975e-14
-alternative hypothesis: true difference in means is not equal to 0
-95 percent confidence interval:
- 0.05589853 0.09510067
-sample estimates:
-mean of x mean of y 
-0.8248632 0.7493636 </code></pre>
-</div>
-</div>
-<p>and again the p-value are quite different with the same conclusion.</p>
-<section id="potential-outcomes-and-the-consistency-assumption" class="level2" data-number="3.1">
-<h2 data-number="3.1" class="anchored" data-anchor-id="potential-outcomes-and-the-consistency-assumption"><span class="header-section-number">3.1</span> Potential Outcomes and the Consistency Assumption</h2>
+<section id="difference-in-differences-did-estimators" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="difference-in-differences-did-estimators"><span class="header-section-number">7.1</span> Difference-in-Differences (DiD) Estimators</h2>
+<section id="did-estimator-with-a-linear-model" class="level3" data-number="7.1.1">
+<h3 data-number="7.1.1" class="anchored" data-anchor-id="did-estimator-with-a-linear-model"><span class="header-section-number">7.1.1</span> DiD Estimator with a Linear Model</h3>
 <blockquote class="blockquote">
-<p>The utility of the potential outcome framework hinges on the validity of a <em>consistency assumption</em> that links potential outcome to obe=served outcomes.</p>
+<p>The method relies on consistency as well as assumption A1:</p>
 </blockquote>
-<blockquote class="blockquote">
-<p>It is worth emphasizing that the consistency assumption requires the potential outcomes to be well-defined.</p>
-</blockquote>
-<blockquote class="blockquote">
-<p>A major problem for causal inference is that we can only observe <em>one potential outcome per participant</em>. This is the <em>Fundamental Problem of Causal Inference</em> (FPCI).</p>
-</blockquote>
-<p>We can therefore classify 4 causal types</p>
 <p><span class="math display">\[
-\text{Doomed:} \: Y(0) = Y(1) = 0 \\
-\text{Responsive:} \: Y(0) = 0,  Y(1) = 1 \\
-\text{Harmed:} \: Y(0) = 1,  Y(1) = 0 \\
-\text{Immune:} \: Y(0) = Y(1) = 1 \\
+\begin{align*}
+&amp;E(Y_1(0) \mid A=1) - E(Y_1(0) \mid A=1) = \\
+&amp;E(Y_0(0) \mid A=1) - E(Y_0(0) \mid A=1)
+\end{align*}
 \]</span></p>
-<p>If we consider that the treatment cannot be harmful, in that case a patient with <span class="math inline">\(Y=0\)</span> must be doomed and an untreated patient with <span class="math inline">\(Y=0\)</span> must be immune.</p>
+<p>That assumption is interpreted as : If assume that no treatment was applied in “year” 1 (nothing happened in year 1) than we have the same results as in the base “year”.</p>
+<blockquote class="blockquote">
+<p>also called <strong>additive equi-confounding</strong> […]. The target of estimation is the linear ATT presented in chapter 6 as a risk difference</p>
+</blockquote>
 <p><span class="math display">\[
-\text{Assuming the treatment cannot be harmful} \\ \\
-\text{Doomed:} \: Y(0) = Y(1) = 0 \\
-\text{Responsive:} \: Y(0) = 0,  Y(1) = 1 \\
-\text{Immune:} \: Y(0) = 1 \\
+\text{Linear ATT:} \: E(Y_1(1) - Y_1(0) \mid A=1)
+\]</span></p>
+<p>which is interpreted as *what is the the average difference between <span class="math inline">\(Y_1(1)\)</span> and <span class="math inline">\(Y_1(0)\)</span> if they all treated. For the example of the bank’s NIM, what is the average difference between the banks’ NIM in NIRP ad non-NIRP economy assuming they are all subjected to the NIRP policy, that is wihout the impact of the NIRP policy.</p>
+<p>and we have</p>
+<p><span class="math display">\[
+\begin{align*}
+&amp; E(Y_1(1) - Y_1(0)) \mid A=1) = \\
+&amp; E(Y_1(1) \mid A=1) - E(Y_1(0) \mid A=1) = \\
+&amp; [E(Y_1(1) \mid A=1) - E(Y_1(0) \mid A=1)] - [E(Y_1(0) \mid A=0) - E(Y_1(0) \mid A=0)] = \\
+&amp; [E(Y_1(1) \mid A=1) - E(Y_1(0) \mid A=0)] - [E(Y_1(0) \mid A=1) - E(Y_1(0) \mid A=0)] = \\
+&amp;\text{consistency assumption} \\
+&amp; [E(Y_1 \mid A=1) - E(Y_1 \mid A=0)] - [E(Y_1(0) \mid A=1) - E(Y_1(0) \mid A=0)] = \\
+&amp;\text{assumption A1, additive equi-confounding} \\
+&amp;\text{i.e. assuming that if nothing happens in year 1, then we can use the results of year 0} \\
+&amp; [E(Y_1 \mid A=1) - E(Y_1 \mid A=0)] - [E(Y_0 \mid A=1) - E(Y_0 \mid A=0)]
+\end{align*}
+\]</span></p>
+<blockquote class="blockquote">
+<p>we can therefore estimate the linear ATT via the difference in differences of averages</p>
+</blockquote>
+<p><span class="math display">\[
+\begin{align*}
+&amp;[\hat{E}(Y_1 \mid A=1) - \hat{E}(Y_1 \mid A=0)] - [\hat{E}(Y_0 \mid A=1) - \hat{E}(Y_0 \mid A=0)]= \\
+&amp;[\hat{E}(Y_1 \mid A=1) - \hat{E}(Y_0 \mid A=1)] - [\hat{E}(Y_1 \mid A=0) - \hat{E}(Y_0 \mid A=0)]= \\
+&amp;[\hat{E}(Y_1 - Y_0 \mid A=1)] - [\hat{E}(Y_1 - Y_0 \mid A=0)]
+\end{align*}
+\]</span></p>
+<blockquote class="blockquote">
+<p>We can also compute the DiD via the linear model</p>
+</blockquote>
+<p><span class="math display">\[
+E(Y_t \mid A) = \alpha_0 + \alpha_1 t + \alpha_2 A + \beta A * t
+\]</span></p>
+<p>and therefore</p>
+<p><span class="math display">\[
+\begin{align*}
+\beta &amp;= [E(Y_1 \mid A=1) - E(Y_0 \mid A=1)] - [E(Y_1 \mid A=0) - E(Y_0 \mid A=0)] \\
+&amp;= (\alpha_0 + \alpha_1 + \alpha_2 + \beta) - (\alpha_0 + \alpha_2) -
+((\alpha_0 + \alpha_2) - (\alpha_0))
+\end{align*}
+\]</span></p>
+<blockquote class="blockquote">
+<p>As we can estimate <span class="math inline">\(E(Y(1) \mid A=1)\)</span> directly via <span class="math inline">\(E(Y_1 \mid A=1)\)</span>, we can also recover <span class="math inline">\(E(Y(0) \mid A=1)\)</span> via <span class="math inline">\(E(Y_1 \mid A=1) - \beta\)</span></p>
+</blockquote>
+<p>because from above we have</p>
+<p><span class="math display">\[
+\begin{align*}
+\beta &amp;= E(Y_1(1) - Y_1(0)) \mid A=1) \\
+&amp;= E(Y_1(1) \mid A=1) - E(Y_1(0) \mid A=1) \\
+&amp;= E(Y_1 \mid A=1) - E(Y_1(0) \mid A=1) \\
+&amp;\therefore \\
+E(Y_1(0) \mid A=1)&amp; = E(Y_1 \mid A=1) - \beta
+\end{align*}
 \]</span></p>
 </section>
-<section id="circumventing-the-fundamental-problem-of-causal-inference" class="level2" data-number="3.2">
-<h2 data-number="3.2" class="anchored" data-anchor-id="circumventing-the-fundamental-problem-of-causal-inference"><span class="header-section-number">3.2</span> Circumventing the Fundamental Problem of Causal Inference</h2>
-<p>There are 2 solutions to the FPCI</p>
-<ul>
-<li><p>Scientific solution: We use scientific theory to measure both potential outcomes. For example by using 2 different participants that are considered identical for the purpose of the scientific study.</p></li>
-<li><p>Statistical solution: The treatment is randomized independently of any existing data. As a result we obtain mean independence and the mean can be used to draw inference. This approach has some issues</p>
-<ul>
-<li>The difference between the outcome with or without treatment can still be caused by chance.</li>
-<li>The study populaiton may not be relevant anymore.</li>
-<li>Extrapolating an average result to an individdual might be problematic.</li>
-</ul></li>
-</ul>
-</section>
-<section id="effect-measures" class="level2" data-number="3.3">
-<h2 data-number="3.3" class="anchored" data-anchor-id="effect-measures"><span class="header-section-number">3.3</span> Effect Measures</h2>
-<p>To estimate the association measures we use the parametric method with the <code>glm</code> function.</p>
+<section id="did-estimator-with-a-loglinear-model" class="level3" data-number="7.1.2">
+<h3 data-number="7.1.2" class="anchored" data-anchor-id="did-estimator-with-a-loglinear-model"><span class="header-section-number">7.1.2</span> DiD Estimator with a Loglinear Model</h3>
 <blockquote class="blockquote">
-<p>We certainly do not believe that our binary outcomes the distributional assumtptions for the gaussian and poisson models, but we are only using the <code>glm</code> function to solve estimating equations.</p>
+<p>The method relies on consistency as well as assumption A2:</p>
 </blockquote>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"gss"</span>, <span class="at">package =</span> <span class="st">"fciR"</span>)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>gssrcc <span class="ot">&lt;-</span> gss[, <span class="fu">c</span>(<span class="st">"trump"</span>, <span class="st">"gthsedu"</span>, <span class="st">"magthsedu"</span>, <span class="st">"white"</span>, <span class="st">"female"</span>, <span class="st">"gt65"</span>)]</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>gssrcc <span class="ot">&lt;-</span> gss[<span class="fu">complete.cases</span>(gssrcc), ]</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">nrow</span>(gssrcc) <span class="sc">==</span> <span class="dv">2348</span> <span class="sc">-</span> <span class="dv">180</span>)  <span class="co"># see comment on p. 46</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><span class="math display">\[
+\begin{align*}
+\frac{E(Y_1(0) \mid A=1)}{E(Y_1(0) \mid A=1)} =
+\frac{E(Y_0(0) \mid A=1)}{E(Y_0(0) \mid A=1)}
+\end{align*}
+\]</span></p>
+</section>
+<section id="did-estimator-with-a-logistic-model" class="level3" data-number="7.1.3">
+<h3 data-number="7.1.3" class="anchored" data-anchor-id="did-estimator-with-a-logistic-model"><span class="header-section-number">7.1.3</span> DiD Estimator with a Logistic Model</h3>
+<blockquote class="blockquote">
+<p>The method relies on consistency as well as assumption A3:</p>
+</blockquote>
+<p><span class="math display">\[
+\begin{align*}
+logit(E(Y_1(0) \mid A=1)) - logit(E(Y_1(0) \mid A=1)) =
+logit(E(Y_0(0) \mid A=1)) - logit(E(Y_0(0) \mid A=1))
+\end{align*}
+\]</span></p>
+</section>
+</section>
+<section id="comparison-with-standardization" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="comparison-with-standardization"><span class="header-section-number">7.2</span> Comparison with Standardization</h2>
+<p>The functions used for DID estimations are <code>fciR::did_linear()</code>, <code>fciR::did_loglinear</code> and <code>fciR::logistic</code>.</p>
+<section id="doublewhatifdat" class="level3" data-number="7.2.1">
+<h3 data-number="7.2.1" class="anchored" data-anchor-id="doublewhatifdat"><span class="header-section-number">7.2.1</span> <code>doublewhatifdat</code></h3>
+<p>The DiD estimator with the linear model</p>
+<div class="cell" data-hash="ch07_did_cache/html/ch07_dwhatif_did_lin_fdafaf27ebd9d10b2f1e7c112fc3561b">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>dwhatif.did.lin <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">boot_est</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    doublewhatifdat, <span class="at">func =</span> fciR<span class="sc">::</span>did_linear,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">times =</span> <span class="dv">100</span>, <span class="at">alpha =</span> <span class="fl">0.05</span>, <span class="at">transf =</span> <span class="st">"exp"</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">terms =</span> <span class="fu">c</span>(<span class="st">"EY0A1"</span>, <span class="st">"EY1"</span>, <span class="st">"RD"</span>, <span class="st">"RR"</span>, <span class="st">"RR*"</span>, <span class="st">"OR"</span>),</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">formula =</span> VL1 <span class="sc">~</span> A <span class="sc">+</span> VL0, <span class="at">exposure.name =</span> <span class="st">"A"</span>, <span class="at">confound.names =</span> <span class="st">"VL0"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-hash="ch03_outcomes_cache/html/ch03_bootu_29d2ff57c55b9659ae1e9574cafd7f18">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>uncond <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">boot_est</span>(gssrcc, <span class="at">func =</span> fciR<span class="sc">::</span>meas_effect_uncond, <span class="at">times =</span> <span class="dv">500</span>,</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">alpha =</span> <span class="fl">0.05</span>, <span class="at">transf =</span> <span class="st">"exp"</span>,</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">terms =</span> <span class="fu">c</span>(<span class="st">"P0"</span>, <span class="st">"P1"</span>, <span class="st">"RD"</span>, <span class="st">"RR"</span>, <span class="st">"RR*"</span>, <span class="st">"OR"</span>), </span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">formula =</span> trump <span class="sc">~</span> gthsedu)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The DiD estimator with the loglinear model</p>
+<div class="cell" data-hash="ch07_did_cache/html/ch07_dwhatif_did_loglin_f8dc848f7bd4de4cc524eccb6d827bdb">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>dwhatif.did.loglin <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">boot_est</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    doublewhatifdat, <span class="at">func =</span> fciR<span class="sc">::</span>did_loglinear,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">times =</span> <span class="dv">100</span>, <span class="at">alpha =</span> <span class="fl">0.05</span>, <span class="at">transf =</span> <span class="st">"exp"</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">terms =</span> <span class="fu">c</span>(<span class="st">"EY0A1"</span>, <span class="st">"EY1"</span>, <span class="st">"RD"</span>, <span class="st">"RR"</span>, <span class="st">"RR*"</span>, <span class="st">"OR"</span>),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">formula =</span> VL1 <span class="sc">~</span> A <span class="sc">+</span> VL0, <span class="at">exposure.name =</span> <span class="st">"A"</span>, <span class="at">confound.names =</span> <span class="st">"VL0"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The DiD estimator with the logistic model</p>
+<div class="cell" data-hash="ch07_did_cache/html/ch07_dwhatif_did_logit_0afacfbb617f5244057aac1598427eaf">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>dwhatif.did.logit <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">boot_est</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    doublewhatifdat, <span class="at">func =</span> fciR<span class="sc">::</span>did_logistic,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">times =</span> <span class="dv">100</span>, <span class="at">alpha =</span> <span class="fl">0.05</span>, <span class="at">transf =</span> <span class="st">"exp"</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">terms =</span> <span class="fu">c</span>(<span class="st">"EY0A1"</span>, <span class="st">"EY1"</span>, <span class="st">"RD"</span>, <span class="st">"RR"</span>, <span class="st">"RR*"</span>, <span class="st">"OR"</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">formula =</span> VL1 <span class="sc">~</span> A <span class="sc">+</span> VL0, <span class="at">exposure.name =</span> <span class="st">"A"</span>, <span class="at">confound.names =</span> <span class="st">"VL0"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>verify the results</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"fci_tbl_07_02"</span>, <span class="at">package =</span> <span class="st">"fciR"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>bb_dwhatif <span class="ot">&lt;-</span> fci_tbl_07_02</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>bb_dwhatif</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       model       term  Truth .estimate .lower .upper .alpha .method
+1        All E(VL1|A=1)  0.199     0.231  0.179  0.282   0.05    norm
+2     Linear      EY0A1  0.559     0.586  0.508  0.664   0.05    norm
+3  Loglinear      EY0A1  0.559     0.577  0.498  0.656   0.05    norm
+4   Logistic      EY0A1  0.559     0.592  0.513  0.671   0.05    norm
+5     Linear         RD -0.360    -0.355 -0.441 -0.270   0.05    norm
+6  Loglinear         RD -0.360    -0.346 -0.431 -0.262   0.05    norm
+7   Logistic         RD -0.360    -0.362 -0.447 -0.276   0.05    norm
+8     Linear         RR  0.356     0.394  0.309  0.500   0.05    norm
+9  Loglinear         RR  0.356     0.400  0.315  0.508   0.05    norm
+10  Logistic         RR  0.356     0.390  0.306  0.496   0.05    norm
+11    Linear         OR  0.196     0.212  0.142  0.315   0.05    norm
+12 Loglinear         OR  0.196     0.220  0.149  0.325   0.05    norm
+13  Logistic         OR  0.196     0.206  0.139  0.307   0.05    norm</code></pre>
+</div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gt_measures</span>(uncond, </span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">title =</span> <span class="st">"Table 3.2"</span>, </span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">subtitle =</span> <span class="fu">paste</span>(<span class="st">"4 Association Measures Relating"</span>, </span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>            <span class="st">"&lt;em&gt;More than High School Education&lt;/em&gt; to &lt;em&gt;Voting for Trump&lt;/em&gt;"</span>, </span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">sep =</span> <span class="st">"&lt;br&gt;"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gt_measures_rowgrp</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    bb_dwhatif, </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">rowgroup =</span> <span class="st">"term"</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">rowname =</span> <span class="st">"model"</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="fu">paste</span>(<span class="st">"Table 7.2"</span>, <span class="st">"Double What-If Study"</span>), </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="fu">paste</span>(<span class="st">"Difference-in-Differences Estimation of the ATT"</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>                     <span class="at">sep =</span> <span class="st">"&lt;br&gt;"</span>)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
+<div id="tbl-ch07_02" class="anchored">
 
-<div id="unxsmdzbps" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#unxsmdzbps table {
+<div id="xpjnuueabe" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#xpjnuueabe table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#unxsmdzbps thead, #unxsmdzbps tbody, #unxsmdzbps tfoot, #unxsmdzbps tr, #unxsmdzbps td, #unxsmdzbps th {
+#xpjnuueabe thead, #xpjnuueabe tbody, #xpjnuueabe tfoot, #xpjnuueabe tr, #xpjnuueabe td, #xpjnuueabe th {
   border-style: none;
 }
 
-#unxsmdzbps p {
+#xpjnuueabe p {
   margin: 0;
   padding: 0;
 }
 
-#unxsmdzbps .gt_table {
+#xpjnuueabe .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -482,12 +508,12 @@ mean of x mean of y
   border-left-color: #D3D3D3;
 }
 
-#unxsmdzbps .gt_caption {
+#xpjnuueabe .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#unxsmdzbps .gt_title {
+#xpjnuueabe .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: bold;
@@ -499,7 +525,7 @@ mean of x mean of y
   border-bottom-width: 0;
 }
 
-#unxsmdzbps .gt_subtitle {
+#xpjnuueabe .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: bold;
@@ -511,7 +537,7 @@ mean of x mean of y
   border-top-width: 0;
 }
 
-#unxsmdzbps .gt_heading {
+#xpjnuueabe .gt_heading {
   background-color: #DCDCDC;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -523,13 +549,13 @@ mean of x mean of y
   border-right-color: #D3D3D3;
 }
 
-#unxsmdzbps .gt_bottom_border {
+#xpjnuueabe .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#unxsmdzbps .gt_col_headings {
+#xpjnuueabe .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -544,7 +570,7 @@ mean of x mean of y
   border-right-color: #D3D3D3;
 }
 
-#unxsmdzbps .gt_col_heading {
+#xpjnuueabe .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -564,7 +590,7 @@ mean of x mean of y
   overflow-x: hidden;
 }
 
-#unxsmdzbps .gt_column_spanner_outer {
+#xpjnuueabe .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -576,15 +602,15 @@ mean of x mean of y
   padding-right: 4px;
 }
 
-#unxsmdzbps .gt_column_spanner_outer:first-child {
+#xpjnuueabe .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#unxsmdzbps .gt_column_spanner_outer:last-child {
+#xpjnuueabe .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#unxsmdzbps .gt_column_spanner {
+#xpjnuueabe .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -596,11 +622,11 @@ mean of x mean of y
   width: 100%;
 }
 
-#unxsmdzbps .gt_spanner_row {
+#xpjnuueabe .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#unxsmdzbps .gt_group_heading {
+#xpjnuueabe .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -608,7 +634,7 @@ mean of x mean of y
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
-  font-weight: initial;
+  font-weight: bold;
   text-transform: inherit;
   border-top-style: solid;
   border-top-width: 2px;
@@ -626,12 +652,12 @@ mean of x mean of y
   text-align: left;
 }
 
-#unxsmdzbps .gt_empty_group_heading {
+#xpjnuueabe .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
-  font-weight: initial;
+  font-weight: bold;
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -641,15 +667,15 @@ mean of x mean of y
   vertical-align: middle;
 }
 
-#unxsmdzbps .gt_from_md > :first-child {
+#xpjnuueabe .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#unxsmdzbps .gt_from_md > :last-child {
+#xpjnuueabe .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#unxsmdzbps .gt_row {
+#xpjnuueabe .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -668,7 +694,7 @@ mean of x mean of y
   overflow-x: hidden;
 }
 
-#unxsmdzbps .gt_stub {
+#xpjnuueabe .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -681,7 +707,7 @@ mean of x mean of y
   padding-right: 5px;
 }
 
-#unxsmdzbps .gt_stub_row_group {
+#xpjnuueabe .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -695,15 +721,15 @@ mean of x mean of y
   vertical-align: top;
 }
 
-#unxsmdzbps .gt_row_group_first td {
+#xpjnuueabe .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#unxsmdzbps .gt_row_group_first th {
+#xpjnuueabe .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#unxsmdzbps .gt_summary_row {
+#xpjnuueabe .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -713,16 +739,16 @@ mean of x mean of y
   padding-right: 5px;
 }
 
-#unxsmdzbps .gt_first_summary_row {
+#xpjnuueabe .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#unxsmdzbps .gt_first_summary_row.thick {
+#xpjnuueabe .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#unxsmdzbps .gt_last_summary_row {
+#xpjnuueabe .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -732,7 +758,7 @@ mean of x mean of y
   border-bottom-color: #D3D3D3;
 }
 
-#unxsmdzbps .gt_grand_summary_row {
+#xpjnuueabe .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -742,7 +768,7 @@ mean of x mean of y
   padding-right: 5px;
 }
 
-#unxsmdzbps .gt_first_grand_summary_row {
+#xpjnuueabe .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -752,7 +778,7 @@ mean of x mean of y
   border-top-color: #D3D3D3;
 }
 
-#unxsmdzbps .gt_last_grand_summary_row_top {
+#xpjnuueabe .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -762,11 +788,11 @@ mean of x mean of y
   border-bottom-color: #D3D3D3;
 }
 
-#unxsmdzbps .gt_striped {
+#xpjnuueabe .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#unxsmdzbps .gt_table_body {
+#xpjnuueabe .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -775,7 +801,7 @@ mean of x mean of y
   border-bottom-color: #D3D3D3;
 }
 
-#unxsmdzbps .gt_footnotes {
+#xpjnuueabe .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -789,7 +815,7 @@ mean of x mean of y
   border-right-color: #D3D3D3;
 }
 
-#unxsmdzbps .gt_footnote {
+#xpjnuueabe .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -798,7 +824,7 @@ mean of x mean of y
   padding-right: 5px;
 }
 
-#unxsmdzbps .gt_sourcenotes {
+#xpjnuueabe .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -812,7 +838,7 @@ mean of x mean of y
   border-right-color: #D3D3D3;
 }
 
-#unxsmdzbps .gt_sourcenote {
+#xpjnuueabe .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -820,180 +846,203 @@ mean of x mean of y
   padding-right: 5px;
 }
 
-#unxsmdzbps .gt_left {
+#xpjnuueabe .gt_left {
   text-align: left;
 }
 
-#unxsmdzbps .gt_center {
+#xpjnuueabe .gt_center {
   text-align: center;
 }
 
-#unxsmdzbps .gt_right {
+#xpjnuueabe .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#unxsmdzbps .gt_font_normal {
+#xpjnuueabe .gt_font_normal {
   font-weight: normal;
 }
 
-#unxsmdzbps .gt_font_bold {
+#xpjnuueabe .gt_font_bold {
   font-weight: bold;
 }
 
-#unxsmdzbps .gt_font_italic {
+#xpjnuueabe .gt_font_italic {
   font-style: italic;
 }
 
-#unxsmdzbps .gt_super {
+#xpjnuueabe .gt_super {
   font-size: 65%;
 }
 
-#unxsmdzbps .gt_footnote_marks {
+#xpjnuueabe .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#unxsmdzbps .gt_asterisk {
+#xpjnuueabe .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#unxsmdzbps .gt_indent_1 {
+#xpjnuueabe .gt_indent_1 {
   text-indent: 5px;
 }
 
-#unxsmdzbps .gt_indent_2 {
+#xpjnuueabe .gt_indent_2 {
   text-indent: 10px;
 }
 
-#unxsmdzbps .gt_indent_3 {
+#xpjnuueabe .gt_indent_3 {
   text-indent: 15px;
 }
 
-#unxsmdzbps .gt_indent_4 {
+#xpjnuueabe .gt_indent_4 {
   text-indent: 20px;
 }
 
-#unxsmdzbps .gt_indent_5 {
+#xpjnuueabe .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
-<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false"><caption>Table&nbsp;7.1:  <p>Table 7.2</p> </caption>
   <thead>
     <tr class="gt_heading">
-      <td colspan="3" class="gt_heading gt_title gt_font_normal" style="color: #191970;"><strong>Table 3.2</strong></td>
+      <td colspan="4" class="gt_heading gt_title gt_font_normal" style="color: #191970;"><strong>Table 7.2 Double What-If Study</strong></td>
     </tr>
     <tr class="gt_heading">
-      <td colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="color: #191970;"><strong>4 Association Measures Relating<br><em>More than High School Education</em> to <em>Voting for Trump</em></strong></td>
+      <td colspan="4" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="color: #191970;"><strong>Difference-in-Differences Estimation of the ATT</strong></td>
     </tr>
     <tr class="gt_col_headings">
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="Measure">Measure</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="Truth">Truth</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="Estimate">Estimate</th>
       <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="CI<span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;><sup>1</sup></span>">CI<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span></th>
     </tr>
   </thead>
   <tbody class="gt_table_body">
-    <tr><td headers="term" class="gt_row gt_center">P0</td>
-<td headers=".estimate" class="gt_row gt_center">0.234</td>
-<td headers="CI" class="gt_row gt_center">(0.213, 0.259)</td></tr>
-    <tr><td headers="term" class="gt_row gt_center gt_striped">P1</td>
-<td headers=".estimate" class="gt_row gt_center gt_striped">0.272</td>
-<td headers="CI" class="gt_row gt_center gt_striped">(0.239, 0.302)</td></tr>
-    <tr><td headers="term" class="gt_row gt_center">RD</td>
-<td headers=".estimate" class="gt_row gt_center">0.038</td>
-<td headers="CI" class="gt_row gt_center">(0.001, 0.077)</td></tr>
-    <tr><td headers="term" class="gt_row gt_center gt_striped">RR</td>
-<td headers=".estimate" class="gt_row gt_center gt_striped">1.162</td>
-<td headers="CI" class="gt_row gt_center gt_striped">(1.005, 1.358)</td></tr>
-    <tr><td headers="term" class="gt_row gt_center">RR*</td>
-<td headers=".estimate" class="gt_row gt_center">1.052</td>
-<td headers="CI" class="gt_row gt_center">(1.002, 1.109)</td></tr>
-    <tr><td headers="term" class="gt_row gt_center gt_striped">OR</td>
-<td headers=".estimate" class="gt_row gt_center gt_striped">1.222</td>
-<td headers="CI" class="gt_row gt_center gt_striped">(1.007, 1.504)</td></tr>
+    <tr class="gt_group_heading_row">
+      <th colspan="4" class="gt_group_heading" scope="colgroup" id="E(VL1|A=1)">E(VL1|A=1)</th>
+    </tr>
+    <tr class="gt_row_group_first"><th id="stub_1_1" scope="row" class="gt_row gt_center gt_stub">All</th>
+<td headers="E(VL1|A=1) stub_1_1 Truth" class="gt_row gt_center">0.199</td>
+<td headers="E(VL1|A=1) stub_1_1 .estimate" class="gt_row gt_center">0.231</td>
+<td headers="E(VL1|A=1) stub_1_1 CI" class="gt_row gt_center">(0.179, 0.282)</td></tr>
+    <tr class="gt_group_heading_row">
+      <th colspan="4" class="gt_group_heading" scope="colgroup" id="EY0A1">EY0A1</th>
+    </tr>
+    <tr class="gt_row_group_first"><th id="stub_1_2" scope="row" class="gt_row gt_center gt_stub">Linear</th>
+<td headers="EY0A1 stub_1_2 Truth" class="gt_row gt_center gt_striped">0.559</td>
+<td headers="EY0A1 stub_1_2 .estimate" class="gt_row gt_center gt_striped">0.586</td>
+<td headers="EY0A1 stub_1_2 CI" class="gt_row gt_center gt_striped">(0.508, 0.664)</td></tr>
+    <tr><th id="stub_1_3" scope="row" class="gt_row gt_center gt_stub">Loglinear</th>
+<td headers="EY0A1 stub_1_3 Truth" class="gt_row gt_center">0.559</td>
+<td headers="EY0A1 stub_1_3 .estimate" class="gt_row gt_center">0.577</td>
+<td headers="EY0A1 stub_1_3 CI" class="gt_row gt_center">(0.498, 0.656)</td></tr>
+    <tr><th id="stub_1_4" scope="row" class="gt_row gt_center gt_stub">Logistic</th>
+<td headers="EY0A1 stub_1_4 Truth" class="gt_row gt_center gt_striped">0.559</td>
+<td headers="EY0A1 stub_1_4 .estimate" class="gt_row gt_center gt_striped">0.592</td>
+<td headers="EY0A1 stub_1_4 CI" class="gt_row gt_center gt_striped">(0.513, 0.671)</td></tr>
+    <tr class="gt_group_heading_row">
+      <th colspan="4" class="gt_group_heading" scope="colgroup" id="RD">RD</th>
+    </tr>
+    <tr class="gt_row_group_first"><th id="stub_1_5" scope="row" class="gt_row gt_center gt_stub">Linear</th>
+<td headers="RD stub_1_5 Truth" class="gt_row gt_center">-0.360</td>
+<td headers="RD stub_1_5 .estimate" class="gt_row gt_center">-0.355</td>
+<td headers="RD stub_1_5 CI" class="gt_row gt_center">(-0.441, -0.27)</td></tr>
+    <tr><th id="stub_1_6" scope="row" class="gt_row gt_center gt_stub">Loglinear</th>
+<td headers="RD stub_1_6 Truth" class="gt_row gt_center gt_striped">-0.360</td>
+<td headers="RD stub_1_6 .estimate" class="gt_row gt_center gt_striped">-0.346</td>
+<td headers="RD stub_1_6 CI" class="gt_row gt_center gt_striped">(-0.431, -0.262)</td></tr>
+    <tr><th id="stub_1_7" scope="row" class="gt_row gt_center gt_stub">Logistic</th>
+<td headers="RD stub_1_7 Truth" class="gt_row gt_center">-0.360</td>
+<td headers="RD stub_1_7 .estimate" class="gt_row gt_center">-0.362</td>
+<td headers="RD stub_1_7 CI" class="gt_row gt_center">(-0.447, -0.276)</td></tr>
+    <tr class="gt_group_heading_row">
+      <th colspan="4" class="gt_group_heading" scope="colgroup" id="RR">RR</th>
+    </tr>
+    <tr class="gt_row_group_first"><th id="stub_1_8" scope="row" class="gt_row gt_center gt_stub">Linear</th>
+<td headers="RR stub_1_8 Truth" class="gt_row gt_center gt_striped">0.356</td>
+<td headers="RR stub_1_8 .estimate" class="gt_row gt_center gt_striped">0.394</td>
+<td headers="RR stub_1_8 CI" class="gt_row gt_center gt_striped">(0.309, 0.5)</td></tr>
+    <tr><th id="stub_1_9" scope="row" class="gt_row gt_center gt_stub">Loglinear</th>
+<td headers="RR stub_1_9 Truth" class="gt_row gt_center">0.356</td>
+<td headers="RR stub_1_9 .estimate" class="gt_row gt_center">0.400</td>
+<td headers="RR stub_1_9 CI" class="gt_row gt_center">(0.315, 0.508)</td></tr>
+    <tr><th id="stub_1_10" scope="row" class="gt_row gt_center gt_stub">Logistic</th>
+<td headers="RR stub_1_10 Truth" class="gt_row gt_center gt_striped">0.356</td>
+<td headers="RR stub_1_10 .estimate" class="gt_row gt_center gt_striped">0.390</td>
+<td headers="RR stub_1_10 CI" class="gt_row gt_center gt_striped">(0.306, 0.496)</td></tr>
+    <tr class="gt_group_heading_row">
+      <th colspan="4" class="gt_group_heading" scope="colgroup" id="OR">OR</th>
+    </tr>
+    <tr class="gt_row_group_first"><th id="stub_1_11" scope="row" class="gt_row gt_center gt_stub">Linear</th>
+<td headers="OR stub_1_11 Truth" class="gt_row gt_center">0.196</td>
+<td headers="OR stub_1_11 .estimate" class="gt_row gt_center">0.212</td>
+<td headers="OR stub_1_11 CI" class="gt_row gt_center">(0.142, 0.315)</td></tr>
+    <tr><th id="stub_1_12" scope="row" class="gt_row gt_center gt_stub">Loglinear</th>
+<td headers="OR stub_1_12 Truth" class="gt_row gt_center gt_striped">0.196</td>
+<td headers="OR stub_1_12 .estimate" class="gt_row gt_center gt_striped">0.220</td>
+<td headers="OR stub_1_12 CI" class="gt_row gt_center gt_striped">(0.149, 0.325)</td></tr>
+    <tr><th id="stub_1_13" scope="row" class="gt_row gt_center gt_stub">Logistic</th>
+<td headers="OR stub_1_13 Truth" class="gt_row gt_center">0.196</td>
+<td headers="OR stub_1_13 .estimate" class="gt_row gt_center">0.206</td>
+<td headers="OR stub_1_13 CI" class="gt_row gt_center">(0.139, 0.307)</td></tr>
   </tbody>
   <tfoot class="gt_sourcenotes">
     <tr>
-      <td class="gt_sourcenote" colspan="3">Fundamentals of Causal Inference, Babette A. Brumback, 2022</td>
+      <td class="gt_sourcenote" colspan="4">Fundamentals of Causal Inference, Babette A. Brumback, 2022</td>
     </tr>
   </tfoot>
   <tfoot class="gt_footnotes">
     <tr>
-      <td class="gt_footnote" colspan="3"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span> 95% confidence interval</td>
+      <td class="gt_footnote" colspan="4"><span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span> 95% confidence interval</td>
     </tr>
   </tfoot>
 </table>
 </div>
 </div>
 </div>
-<p>verify with author’s results, p.&nbsp;48-49</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>bb <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">term =</span> <span class="fu">c</span>(<span class="st">"P0"</span>, <span class="st">"P1"</span>, <span class="st">"RD"</span>, <span class="st">"RR"</span>, <span class="st">"RR*"</span>, <span class="st">"OR"</span>),</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">.estimate =</span> <span class="fu">c</span>(<span class="fl">0.23338</span>, <span class="fl">0.27117</span>, <span class="fl">0.037782</span>, <span class="fl">1.1619</span>, <span class="fl">1.0518</span>, <span class="fl">1.221</span>),</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">.lower =</span> <span class="fu">c</span>(<span class="fl">0.21030</span>, <span class="fl">0.24095</span>, <span class="fl">0.00078085</span>, <span class="fl">1.0047</span>, <span class="fl">1.0006</span>, <span class="fl">1.0056</span>),</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">.upper =</span> <span class="fu">c</span>(<span class="fl">0.25647</span>, <span class="fl">0.30139</span>, <span class="fl">0.07478354</span>, <span class="fl">1.3437</span>, <span class="fl">1.1057</span>, <span class="fl">1.4853</span>))</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">all</span>((uncond<span class="sc">$</span>.estimate <span class="sc">-</span> bb<span class="sc">$</span>.estimate) <span class="sc">&lt;</span> <span class="fl">0.01</span>),</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">all</span>((uncond<span class="sc">$</span>.lower <span class="sc">-</span> bb<span class="sc">$</span>.lower) <span class="sc">&lt;</span> <span class="fl">0.1</span>),</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">all</span>((uncond<span class="sc">$</span>.upper <span class="sc">-</span> bb<span class="sc">$</span>.upper) <span class="sc">&lt;</span> <span class="fl">0.1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Now we estimate the four effect measures using <em>conditional</em> association measures.</p>
-<p>To use the function with conditioning on variables, i.e.&nbsp;filtering on variables, we note that</p>
-<p><span class="math display">\[
-\begin{align*}
-Y &amp;= \text{trump} \\
-T &amp;= \text{gthsedu} \\
-H_1 &amp;= \text{magthsedu} \\
-H_2 &amp;= \text{white} \\
-H_3 &amp;= \text{female} \\
-H_4 &amp;= \text{gt65} \\
-\end{align*}
-\]</span></p>
-<p>Therefore</p>
-<p><span class="math display">\[
-\begin{align*}
-E(Y &amp;\mid T = 0, H_1 = 1, H_2 = 1, H_3 = 1, H_4 = 1) \\
-&amp;\therefore \text{because T = 0} \\
-Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
-\text{trump} &amp;\sim \text{magthsedu} + \text{white} + \text{female} + \text{gt65} \\
-\end{align*}
-\]</span></p>
-<div class="cell" data-hash="ch03_outcomes_cache/html/ch03_bootc_a8ffc8f4904cfe6297d64e670ad96177">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>a_formula <span class="ot">&lt;-</span> trump <span class="sc">~</span> gthsedu <span class="sc">+</span> magthsedu <span class="sc">+</span> white <span class="sc">+</span> female <span class="sc">+</span> gt65</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>condit <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">boot_est</span>(gssrcc, <span class="at">func =</span> fciR<span class="sc">::</span>meas_effect_cond,</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">times =</span> <span class="dv">500</span>, <span class="at">alpha =</span> <span class="fl">0.05</span>, <span class="at">seed =</span> <span class="dv">1234</span>, <span class="at">transf =</span> <span class="st">"exp"</span>,</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">terms =</span> <span class="fu">c</span>(<span class="st">"P0"</span>, <span class="st">"P1"</span>, <span class="st">"RD"</span>, <span class="st">"RR"</span>, <span class="st">"RR*"</span>, <span class="st">"OR"</span>),</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>                 <span class="at">formula =</span> a_formula, <span class="at">exposure.name =</span> <span class="st">"gthsedu"</span>,</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>                 <span class="at">confound.names =</span> <span class="fu">c</span>(<span class="st">"magthsedu"</span>, <span class="st">"white"</span>, <span class="st">"female"</span>, <span class="st">"gt65"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
+<p>and the results using the <code>fciR</code> package are identical.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gt_measures</span>(condit, </span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">title =</span> <span class="st">"Table 3.3"</span>, </span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">subtitle =</span> <span class="fu">paste</span>(<span class="st">"4 Conditional Association or Effect Measures"</span>,</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Relating &lt;em&gt;More than High School Education&lt;/em&gt; </span></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="st">            to &lt;em&gt;Voting for Trump&lt;/em&gt;"</span>, <span class="at">sep =</span> <span class="st">"&lt;br&gt;"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>tbl_7<span class="fl">.2</span> <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">model =</span> <span class="st">"Linear"</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    dwhatif.did.lin), </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">model =</span> <span class="st">"Loglinear"</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    dwhatif.did.loglin),</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">model =</span> <span class="st">"Logistic"</span>,</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    dwhatif.did.logit))</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="fu">gt_measures_rowgrp</span>(tbl_7<span class="fl">.2</span>,</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">rowgroup =</span> <span class="st">"term"</span>,</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">rowname =</span> <span class="st">"model"</span>,</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="fu">paste</span>(<span class="st">"Table 7.2&lt;em&gt;(by FL)&lt;/em&gt;"</span>, <span class="st">"Double What-If Study"</span>, <span class="at">sep =</span> <span class="st">"&lt;br&gt;"</span>), </span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="fu">paste</span>(<span class="st">"Difference-in-Differences Estimation of the ATT"</span>,</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>                     <span class="at">sep =</span> <span class="st">"&lt;br&gt;"</span>)</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
-<div id="wrwoaozmnw" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#wrwoaozmnw table {
+<div id="cbzfsyahxp" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#cbzfsyahxp table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#wrwoaozmnw thead, #wrwoaozmnw tbody, #wrwoaozmnw tfoot, #wrwoaozmnw tr, #wrwoaozmnw td, #wrwoaozmnw th {
+#cbzfsyahxp thead, #cbzfsyahxp tbody, #cbzfsyahxp tfoot, #cbzfsyahxp tr, #cbzfsyahxp td, #cbzfsyahxp th {
   border-style: none;
 }
 
-#wrwoaozmnw p {
+#cbzfsyahxp p {
   margin: 0;
   padding: 0;
 }
 
-#wrwoaozmnw .gt_table {
+#cbzfsyahxp .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1019,12 +1068,12 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   border-left-color: #D3D3D3;
 }
 
-#wrwoaozmnw .gt_caption {
+#cbzfsyahxp .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#wrwoaozmnw .gt_title {
+#cbzfsyahxp .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: bold;
@@ -1036,7 +1085,7 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   border-bottom-width: 0;
 }
 
-#wrwoaozmnw .gt_subtitle {
+#cbzfsyahxp .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: bold;
@@ -1048,7 +1097,7 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   border-top-width: 0;
 }
 
-#wrwoaozmnw .gt_heading {
+#cbzfsyahxp .gt_heading {
   background-color: #DCDCDC;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1060,13 +1109,13 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   border-right-color: #D3D3D3;
 }
 
-#wrwoaozmnw .gt_bottom_border {
+#cbzfsyahxp .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#wrwoaozmnw .gt_col_headings {
+#cbzfsyahxp .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1081,7 +1130,7 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   border-right-color: #D3D3D3;
 }
 
-#wrwoaozmnw .gt_col_heading {
+#cbzfsyahxp .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1101,7 +1150,7 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   overflow-x: hidden;
 }
 
-#wrwoaozmnw .gt_column_spanner_outer {
+#cbzfsyahxp .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1113,15 +1162,15 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   padding-right: 4px;
 }
 
-#wrwoaozmnw .gt_column_spanner_outer:first-child {
+#cbzfsyahxp .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#wrwoaozmnw .gt_column_spanner_outer:last-child {
+#cbzfsyahxp .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#wrwoaozmnw .gt_column_spanner {
+#cbzfsyahxp .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1133,11 +1182,11 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   width: 100%;
 }
 
-#wrwoaozmnw .gt_spanner_row {
+#cbzfsyahxp .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#wrwoaozmnw .gt_group_heading {
+#cbzfsyahxp .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1145,7 +1194,7 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
-  font-weight: initial;
+  font-weight: bold;
   text-transform: inherit;
   border-top-style: solid;
   border-top-width: 2px;
@@ -1163,12 +1212,12 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   text-align: left;
 }
 
-#wrwoaozmnw .gt_empty_group_heading {
+#cbzfsyahxp .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
-  font-weight: initial;
+  font-weight: bold;
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1178,15 +1227,15 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   vertical-align: middle;
 }
 
-#wrwoaozmnw .gt_from_md > :first-child {
+#cbzfsyahxp .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#wrwoaozmnw .gt_from_md > :last-child {
+#cbzfsyahxp .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#wrwoaozmnw .gt_row {
+#cbzfsyahxp .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1205,7 +1254,7 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   overflow-x: hidden;
 }
 
-#wrwoaozmnw .gt_stub {
+#cbzfsyahxp .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1218,7 +1267,7 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   padding-right: 5px;
 }
 
-#wrwoaozmnw .gt_stub_row_group {
+#cbzfsyahxp .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1232,15 +1281,15 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   vertical-align: top;
 }
 
-#wrwoaozmnw .gt_row_group_first td {
+#cbzfsyahxp .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#wrwoaozmnw .gt_row_group_first th {
+#cbzfsyahxp .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#wrwoaozmnw .gt_summary_row {
+#cbzfsyahxp .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1250,16 +1299,16 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   padding-right: 5px;
 }
 
-#wrwoaozmnw .gt_first_summary_row {
+#cbzfsyahxp .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#wrwoaozmnw .gt_first_summary_row.thick {
+#cbzfsyahxp .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#wrwoaozmnw .gt_last_summary_row {
+#cbzfsyahxp .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1269,7 +1318,7 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   border-bottom-color: #D3D3D3;
 }
 
-#wrwoaozmnw .gt_grand_summary_row {
+#cbzfsyahxp .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1279,7 +1328,7 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   padding-right: 5px;
 }
 
-#wrwoaozmnw .gt_first_grand_summary_row {
+#cbzfsyahxp .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1289,7 +1338,7 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   border-top-color: #D3D3D3;
 }
 
-#wrwoaozmnw .gt_last_grand_summary_row_top {
+#cbzfsyahxp .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1299,11 +1348,11 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   border-bottom-color: #D3D3D3;
 }
 
-#wrwoaozmnw .gt_striped {
+#cbzfsyahxp .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#wrwoaozmnw .gt_table_body {
+#cbzfsyahxp .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1312,7 +1361,7 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   border-bottom-color: #D3D3D3;
 }
 
-#wrwoaozmnw .gt_footnotes {
+#cbzfsyahxp .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1326,7 +1375,7 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   border-right-color: #D3D3D3;
 }
 
-#wrwoaozmnw .gt_footnote {
+#cbzfsyahxp .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1335,7 +1384,7 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   padding-right: 5px;
 }
 
-#wrwoaozmnw .gt_sourcenotes {
+#cbzfsyahxp .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1349,7 +1398,7 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   border-right-color: #D3D3D3;
 }
 
-#wrwoaozmnw .gt_sourcenote {
+#cbzfsyahxp .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1357,100 +1406,153 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
   padding-right: 5px;
 }
 
-#wrwoaozmnw .gt_left {
+#cbzfsyahxp .gt_left {
   text-align: left;
 }
 
-#wrwoaozmnw .gt_center {
+#cbzfsyahxp .gt_center {
   text-align: center;
 }
 
-#wrwoaozmnw .gt_right {
+#cbzfsyahxp .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#wrwoaozmnw .gt_font_normal {
+#cbzfsyahxp .gt_font_normal {
   font-weight: normal;
 }
 
-#wrwoaozmnw .gt_font_bold {
+#cbzfsyahxp .gt_font_bold {
   font-weight: bold;
 }
 
-#wrwoaozmnw .gt_font_italic {
+#cbzfsyahxp .gt_font_italic {
   font-style: italic;
 }
 
-#wrwoaozmnw .gt_super {
+#cbzfsyahxp .gt_super {
   font-size: 65%;
 }
 
-#wrwoaozmnw .gt_footnote_marks {
+#cbzfsyahxp .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#wrwoaozmnw .gt_asterisk {
+#cbzfsyahxp .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#wrwoaozmnw .gt_indent_1 {
+#cbzfsyahxp .gt_indent_1 {
   text-indent: 5px;
 }
 
-#wrwoaozmnw .gt_indent_2 {
+#cbzfsyahxp .gt_indent_2 {
   text-indent: 10px;
 }
 
-#wrwoaozmnw .gt_indent_3 {
+#cbzfsyahxp .gt_indent_3 {
   text-indent: 15px;
 }
 
-#wrwoaozmnw .gt_indent_4 {
+#cbzfsyahxp .gt_indent_4 {
   text-indent: 20px;
 }
 
-#wrwoaozmnw .gt_indent_5 {
+#cbzfsyahxp .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
 <table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
   <thead>
     <tr class="gt_heading">
-      <td colspan="3" class="gt_heading gt_title gt_font_normal" style="color: #191970;"><strong>Table 3.3</strong></td>
+      <td colspan="3" class="gt_heading gt_title gt_font_normal" style="color: #191970;"><strong>Table 7.2<em>(by FL)</em><br>Double What-If Study</strong></td>
     </tr>
     <tr class="gt_heading">
-      <td colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="color: #191970;"><strong>4 Conditional Association or Effect Measures<br>Relating <em>More than High School Education</em> 
-            to <em>Voting for Trump</em></strong></td>
+      <td colspan="3" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="color: #191970;"><strong>Difference-in-Differences Estimation of the ATT</strong></td>
     </tr>
     <tr class="gt_col_headings">
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="Measure">Measure</th>
-      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="Estimate">Estimate</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
       <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="CI<span class=&quot;gt_footnote_marks&quot; style=&quot;white-space:nowrap;font-style:italic;font-weight:normal;&quot;><sup>1</sup></span>">CI<span class="gt_footnote_marks" style="white-space:nowrap;font-style:italic;font-weight:normal;"><sup>1</sup></span></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" scope="col" id="Estimate">Estimate</th>
     </tr>
   </thead>
   <tbody class="gt_table_body">
-    <tr><td headers="term" class="gt_row gt_center">P0</td>
-<td headers=".estimate" class="gt_row gt_center">0.257</td>
-<td headers="CI" class="gt_row gt_center">(0.191, 0.332)</td></tr>
-    <tr><td headers="term" class="gt_row gt_center gt_striped">P1</td>
-<td headers=".estimate" class="gt_row gt_center gt_striped">0.302</td>
-<td headers="CI" class="gt_row gt_center gt_striped">(0.234, 0.372)</td></tr>
-    <tr><td headers="term" class="gt_row gt_center">RD</td>
-<td headers=".estimate" class="gt_row gt_center">0.045</td>
-<td headers="CI" class="gt_row gt_center">(0.006, 0.092)</td></tr>
-    <tr><td headers="term" class="gt_row gt_center gt_striped">RR</td>
-<td headers=".estimate" class="gt_row gt_center gt_striped">1.180</td>
-<td headers="CI" class="gt_row gt_center gt_striped">(1.023, 1.425)</td></tr>
-    <tr><td headers="term" class="gt_row gt_center">RR*</td>
-<td headers=".estimate" class="gt_row gt_center">1.065</td>
-<td headers="CI" class="gt_row gt_center">(1.008, 1.138)</td></tr>
-    <tr><td headers="term" class="gt_row gt_center gt_striped">OR</td>
-<td headers=".estimate" class="gt_row gt_center gt_striped">1.257</td>
-<td headers="CI" class="gt_row gt_center gt_striped">(1.031, 1.618)</td></tr>
+    <tr class="gt_group_heading_row">
+      <th colspan="3" class="gt_group_heading" scope="colgroup" id="EY0A1">EY0A1</th>
+    </tr>
+    <tr class="gt_row_group_first"><th id="stub_1_1" scope="row" class="gt_row gt_center gt_stub">Linear</th>
+<td headers="EY0A1 stub_1_1 CI" class="gt_row gt_center">(0.499, 0.644)</td>
+<td headers="EY0A1 stub_1_1 .estimate" class="gt_row gt_center">0.577</td></tr>
+    <tr><th id="stub_1_2" scope="row" class="gt_row gt_center gt_stub">Loglinear</th>
+<td headers="EY0A1 stub_1_2 CI" class="gt_row gt_center gt_striped">(0.52, 0.653)</td>
+<td headers="EY0A1 stub_1_2 .estimate" class="gt_row gt_center gt_striped">0.584</td></tr>
+    <tr><th id="stub_1_3" scope="row" class="gt_row gt_center gt_stub">Logistic</th>
+<td headers="EY0A1 stub_1_3 CI" class="gt_row gt_center">(0.508, 0.68)</td>
+<td headers="EY0A1 stub_1_3 .estimate" class="gt_row gt_center">0.592</td></tr>
+    <tr class="gt_group_heading_row">
+      <th colspan="3" class="gt_group_heading" scope="colgroup" id="EY1">EY1</th>
+    </tr>
+    <tr class="gt_row_group_first"><th id="stub_1_4" scope="row" class="gt_row gt_center gt_stub">Linear</th>
+<td headers="EY1 stub_1_4 CI" class="gt_row gt_center gt_striped">(0.186, 0.285)</td>
+<td headers="EY1 stub_1_4 .estimate" class="gt_row gt_center gt_striped">0.233</td></tr>
+    <tr><th id="stub_1_5" scope="row" class="gt_row gt_center gt_stub">Loglinear</th>
+<td headers="EY1 stub_1_5 CI" class="gt_row gt_center">(0.179, 0.277)</td>
+<td headers="EY1 stub_1_5 .estimate" class="gt_row gt_center">0.231</td></tr>
+    <tr><th id="stub_1_6" scope="row" class="gt_row gt_center gt_stub">Logistic</th>
+<td headers="EY1 stub_1_6 CI" class="gt_row gt_center gt_striped">(0.184, 0.28)</td>
+<td headers="EY1 stub_1_6 .estimate" class="gt_row gt_center gt_striped">0.236</td></tr>
+    <tr class="gt_group_heading_row">
+      <th colspan="3" class="gt_group_heading" scope="colgroup" id="RD">RD</th>
+    </tr>
+    <tr class="gt_row_group_first"><th id="stub_1_7" scope="row" class="gt_row gt_center gt_stub">Linear</th>
+<td headers="RD stub_1_7 CI" class="gt_row gt_center">(-0.431, -0.267)</td>
+<td headers="RD stub_1_7 .estimate" class="gt_row gt_center">-0.344</td></tr>
+    <tr><th id="stub_1_8" scope="row" class="gt_row gt_center gt_stub">Loglinear</th>
+<td headers="RD stub_1_8 CI" class="gt_row gt_center gt_striped">(-0.427, -0.273)</td>
+<td headers="RD stub_1_8 .estimate" class="gt_row gt_center gt_striped">-0.353</td></tr>
+    <tr><th id="stub_1_9" scope="row" class="gt_row gt_center gt_stub">Logistic</th>
+<td headers="RD stub_1_9 CI" class="gt_row gt_center">(-0.441, -0.265)</td>
+<td headers="RD stub_1_9 .estimate" class="gt_row gt_center">-0.356</td></tr>
+    <tr class="gt_group_heading_row">
+      <th colspan="3" class="gt_group_heading" scope="colgroup" id="RR">RR</th>
+    </tr>
+    <tr class="gt_row_group_first"><th id="stub_1_10" scope="row" class="gt_row gt_center gt_stub">Linear</th>
+<td headers="RR stub_1_10 CI" class="gt_row gt_center gt_striped">(0.306, 0.494)</td>
+<td headers="RR stub_1_10 .estimate" class="gt_row gt_center gt_striped">0.402</td></tr>
+    <tr><th id="stub_1_11" scope="row" class="gt_row gt_center gt_stub">Loglinear</th>
+<td headers="RR stub_1_11 CI" class="gt_row gt_center">(0.308, 0.5)</td>
+<td headers="RR stub_1_11 .estimate" class="gt_row gt_center">0.394</td></tr>
+    <tr><th id="stub_1_12" scope="row" class="gt_row gt_center gt_stub">Logistic</th>
+<td headers="RR stub_1_12 CI" class="gt_row gt_center gt_striped">(0.315, 0.499)</td>
+<td headers="RR stub_1_12 .estimate" class="gt_row gt_center gt_striped">0.397</td></tr>
+    <tr class="gt_group_heading_row">
+      <th colspan="3" class="gt_group_heading" scope="colgroup" id="RR*">RR*</th>
+    </tr>
+    <tr class="gt_row_group_first"><th id="stub_1_13" scope="row" class="gt_row gt_center gt_stub">Linear</th>
+<td headers="RR* stub_1_13 CI" class="gt_row gt_center">(0.448, 0.65)</td>
+<td headers="RR* stub_1_13 .estimate" class="gt_row gt_center">0.549</td></tr>
+    <tr><th id="stub_1_14" scope="row" class="gt_row gt_center gt_stub">Loglinear</th>
+<td headers="RR* stub_1_14 CI" class="gt_row gt_center gt_striped">(0.451, 0.627)</td>
+<td headers="RR* stub_1_14 .estimate" class="gt_row gt_center gt_striped">0.540</td></tr>
+    <tr><th id="stub_1_15" scope="row" class="gt_row gt_center gt_stub">Logistic</th>
+<td headers="RR* stub_1_15 CI" class="gt_row gt_center">(0.424, 0.641)</td>
+<td headers="RR* stub_1_15 .estimate" class="gt_row gt_center">0.531</td></tr>
+    <tr class="gt_group_heading_row">
+      <th colspan="3" class="gt_group_heading" scope="colgroup" id="OR">OR</th>
+    </tr>
+    <tr class="gt_row_group_first"><th id="stub_1_16" scope="row" class="gt_row gt_center gt_stub">Linear</th>
+<td headers="OR stub_1_16 CI" class="gt_row gt_center gt_striped">(0.148, 0.311)</td>
+<td headers="OR stub_1_16 .estimate" class="gt_row gt_center gt_striped">0.221</td></tr>
+    <tr><th id="stub_1_17" scope="row" class="gt_row gt_center gt_stub">Loglinear</th>
+<td headers="OR stub_1_17 CI" class="gt_row gt_center">(0.148, 0.311)</td>
+<td headers="OR stub_1_17 .estimate" class="gt_row gt_center">0.213</td></tr>
+    <tr><th id="stub_1_18" scope="row" class="gt_row gt_center gt_stub">Logistic</th>
+<td headers="OR stub_1_18 CI" class="gt_row gt_center gt_striped">(0.145, 0.32)</td>
+<td headers="OR stub_1_18 .estimate" class="gt_row gt_center gt_striped">0.211</td></tr>
   </tbody>
   <tfoot class="gt_sourcenotes">
     <tr>
@@ -1465,25 +1567,17 @@ Y &amp;\sim H_1 + H_2 + H_3 + H_4 \\
 </table>
 </div>
 </div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>fciR<span class="sc">::</span><span class="fu">ggp_measures_groups</span>(tbl_7<span class="fl">.2</span>, <span class="at">group =</span> <span class="st">"model"</span>, </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                          <span class="at">title =</span> <span class="fu">paste</span>(<span class="st">"Table 7.2"</span>, <span class="st">"Double What-If Study"</span>),</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                          <span class="at">subtitle =</span> <span class="fu">paste</span>(<span class="st">"Difference-in-Differences Estimation of the ATT"</span>,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">sep =</span> <span class="st">"&lt;br&gt;"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="ch07_did_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
 </div>
-<p>verify with author’s results, p.52</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>bb <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">term =</span> <span class="fu">c</span>(<span class="st">"P0"</span>, <span class="st">"P1"</span>, <span class="st">"RD"</span>, <span class="st">"RR"</span>, <span class="st">"RR*"</span>, <span class="st">"OR"</span>),</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">.estimate =</span> <span class="fu">c</span>(<span class="fl">0.25458</span>, <span class="fl">0.30101</span>, <span class="fl">0.046438</span>, <span class="fl">1.1824</span>, <span class="fl">1.0664</span>, <span class="fl">1.261</span>),</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">.lower =</span> <span class="fu">c</span>(<span class="fl">0.18518</span>, <span class="fl">0.22995</span>, <span class="fl">0.0022706</span>, <span class="fl">1.0039</span>, <span class="fl">1.0018</span>, <span class="fl">1.0091</span>),</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">.upper =</span> <span class="fu">c</span>(<span class="fl">0.32397</span>, <span class="fl">0.37208</span>, <span class="fl">0.0906057</span>, <span class="fl">1.3927</span>, <span class="fl">1.1352</span>, <span class="fl">1.5758</span>))</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">all</span>(<span class="fu">abs</span>(condit<span class="sc">$</span>.estimate <span class="sc">-</span> bb<span class="sc">$</span>.estimate) <span class="sc">&lt;</span> <span class="fl">0.01</span>),</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">all</span>(<span class="fu">abs</span>(condit<span class="sc">$</span>.lower <span class="sc">-</span> bb<span class="sc">$</span>.lower) <span class="sc">&lt;</span> <span class="fl">0.1</span>),</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">all</span>(<span class="fu">abs</span>(condit<span class="sc">$</span>.upper <span class="sc">-</span> bb<span class="sc">$</span>.upper) <span class="sc">&lt;</span> <span class="fl">0.1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+
+
 </section>
-<section id="exercises" class="level2" data-number="3.4">
-<h2 data-number="3.4" class="anchored" data-anchor-id="exercises"><span class="header-section-number">3.4</span> Exercises</h2>
-<p>The exercises are located in a separate project.</p>
-
-
 </section>
 
 </main> <!-- /main -->
@@ -1722,13 +1816,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./ch02_probability.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Conditional Probability and Expectation</span></span>
+      <a href="./ch06_backdoor.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Backdoor Method via Standardization</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./ch04_measures.html" class="pagination-link">
-        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Effect-Measure Modification and Causal Interaction</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="./ch08_frontdoor.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Front-Door Method</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

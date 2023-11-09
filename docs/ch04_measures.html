@@ -216,6 +216,18 @@ div.csl-indent {
  <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Backdoor Method via Standardization</span></span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch07_did.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Difference-in-Differences Estimators</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch08_frontdoor.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Front-Door Method</span></span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item">
@@ -305,9 +317,10 @@ div.csl-indent {
 </header>
 
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fciR, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggvenn, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(conflicted)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fciR, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggvenn, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>
 Attaching package: 'dplyr'</code></pre>
@@ -325,13 +338,18 @@ Attaching package: 'dplyr'</code></pre>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: package 'ggplot2' was built under R version 4.3.2</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">dplyr.summarise.inform =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">conflicts_prefer</span>(dplyr<span class="sc">::</span>filter)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>[conflicted] Will prefer dplyr::filter over any other package.</code></pre>
+</div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>dir_lib <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">getwd</span>(), <span class="st">"lib"</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="at">file =</span> <span class="fu">file.path</span>(dir_lib, <span class="st">"ggp_venn_sim.R"</span>),</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">local =</span> knitr<span class="sc">::</span><span class="fu">knit_global</span>())</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="at">file =</span> <span class="fu">file.path</span>(dir_lib, <span class="st">"ggp_betasim.R"</span>),</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">local =</span> knitr<span class="sc">::</span><span class="fu">knit_global</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>dir_lib <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">getwd</span>(), <span class="st">"lib"</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="at">file =</span> <span class="fu">file.path</span>(dir_lib, <span class="st">"ggp_venn_sim.R"</span>),</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">local =</span> knitr<span class="sc">::</span><span class="fu">knit_global</span>())</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="at">file =</span> <span class="fu">file.path</span>(dir_lib, <span class="st">"ggp_betasim.R"</span>),</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">local =</span> knitr<span class="sc">::</span><span class="fu">knit_global</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="effect-measure-modification-and-statistical-interaction" class="level2" data-number="4.1">
 <h2 data-number="4.1" class="anchored" data-anchor-id="effect-measure-modification-and-statistical-interaction"><span class="header-section-number">4.1</span> Effect-Measure Modification and Statistical Interaction</h2>
@@ -339,99 +357,99 @@ Attaching package: 'dplyr'</code></pre>
 <h3 data-number="4.1.1" class="anchored" data-anchor-id="recovery-trial"><span class="header-section-number">4.1.1</span> RECOVERY trial</h3>
 <p>Get the data.frame for <em>RECOVERY</em> trial</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"recovery"</span>, <span class="at">package =</span> <span class="st">"fciR"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"recovery"</span>, <span class="at">package =</span> <span class="st">"fciR"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>run <code>fciR::boot()</code>, alias <code>meas_effect_modif()</code> with the RECOVERY data set</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>the_terms <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"EYT0.M0"</span>, <span class="st">"EYT0.M1"</span>, <span class="st">"EYT0.diff"</span>, <span class="st">"EYT1.M0"</span>, <span class="st">"EYT1.M1"</span>, <span class="st">"EYT1.diff"</span>, </span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"RD.M0"</span>, <span class="st">"RD.M1"</span>, <span class="st">"RD.diff"</span>, <span class="st">"RR.M0"</span>, <span class="st">"RR.M1"</span>, <span class="st">"RR.diff"</span>,</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"RR*.M0"</span>, <span class="st">"RR*.M1"</span>, <span class="st">"RR*.diff"</span>, <span class="st">"OR.diff"</span>, <span class="st">"OR.M0"</span>, <span class="st">"OR.M1"</span>)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>recovery.out <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">boot_est</span>(<span class="at">data =</span> recovery, <span class="at">func =</span> meas_effect_modif,</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>                         <span class="at">times =</span> <span class="dv">100</span>, <span class="at">alpha =</span> <span class="fl">0.05</span>, </span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>                         <span class="at">terms =</span> the_terms, <span class="at">transf =</span> <span class="st">"exp"</span>,</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>                         <span class="at">formula =</span> Y <span class="sc">~</span> <span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">+</span> M, <span class="at">exposure.name =</span> <span class="st">"T"</span>,</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>                         <span class="at">modifier.name =</span> <span class="st">"M"</span>)</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>recovery.out</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>the_terms <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"EYT0.M0"</span>, <span class="st">"EYT0.M1"</span>, <span class="st">"EYT0.diff"</span>, <span class="st">"EYT1.M0"</span>, <span class="st">"EYT1.M1"</span>, <span class="st">"EYT1.diff"</span>, </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"RD.M0"</span>, <span class="st">"RD.M1"</span>, <span class="st">"RD.diff"</span>, <span class="st">"RR.M0"</span>, <span class="st">"RR.M1"</span>, <span class="st">"RR.diff"</span>,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"RR*.M0"</span>, <span class="st">"RR*.M1"</span>, <span class="st">"RR*.diff"</span>, <span class="st">"OR.diff"</span>, <span class="st">"OR.M0"</span>, <span class="st">"OR.M1"</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>recovery.out <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">boot_est</span>(<span class="at">data =</span> recovery, <span class="at">func =</span> meas_effect_modif,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>                         <span class="at">times =</span> <span class="dv">100</span>, <span class="at">alpha =</span> <span class="fl">0.05</span>, </span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>                         <span class="at">terms =</span> the_terms, <span class="at">transf =</span> <span class="st">"exp"</span>,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>                         <span class="at">formula =</span> Y <span class="sc">~</span> <span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">+</span> M, <span class="at">exposure.name =</span> <span class="st">"T"</span>,</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>                         <span class="at">modifier.name =</span> <span class="st">"M"</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>recovery.out</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 18 × 6
-   term       .lower .estimate   .upper .alpha .method   
-   &lt;chr&gt;       &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;     
- 1 EYT0.M0    0.773    0.783    0.797     0.05 percentile
- 2 EYT0.M1    0.551    0.595    0.636     0.05 percentile
- 3 EYT0.diff -0.230   -0.188   -0.152     0.05 percentile
- 4 EYT1.M0    0.775    0.792    0.814     0.05 percentile
- 5 EYT1.M1    0.697    0.736    0.777     0.05 percentile
- 6 EYT1.diff -0.0977  -0.0568  -0.00271   0.05 percentile
- 7 RD.M0     -0.0149   0.00953  0.0365    0.05 percentile
- 8 RD.M1      0.0857   0.140    0.206     0.05 percentile
- 9 RD.diff    0.0749   0.131    0.193     0.05 percentile
-10 RR.M0      0.981    1.01     1.05      0.05 percentile
-11 RR.M1      1.13     1.24     1.36      0.05 percentile
-12 RR.diff    1.12     1.22     1.33      0.05 percentile
-13 RR*.M0     0.933    1.05     1.20      0.05 percentile
-14 RR*.M1     1.30     1.53     1.87      0.05 percentile
-15 RR*.diff   1.23     1.47     1.83      0.05 percentile
-16 OR.diff    1.38     1.79     2.43      0.05 percentile
-17 OR.M0      0.916    1.06     1.25      0.05 percentile
-18 OR.M1      1.48     1.90     2.58      0.05 percentile</code></pre>
+   term       .lower .estimate  .upper .alpha .method   
+   &lt;chr&gt;       &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;     
+ 1 EYT0.M0    0.769    0.784    0.797    0.05 percentile
+ 2 EYT0.M1    0.556    0.592    0.620    0.05 percentile
+ 3 EYT0.diff -0.233   -0.191   -0.157    0.05 percentile
+ 4 EYT1.M0    0.776    0.793    0.809    0.05 percentile
+ 5 EYT1.M1    0.682    0.732    0.769    0.05 percentile
+ 6 EYT1.diff -0.113   -0.0612  -0.0144   0.05 percentile
+ 7 RD.M0     -0.0120   0.00915  0.0329   0.05 percentile
+ 8 RD.M1      0.0713   0.139    0.200    0.05 percentile
+ 9 RD.diff    0.0533   0.130    0.196    0.05 percentile
+10 RR.M0      0.985    1.01     1.04     0.05 percentile
+11 RR.M1      1.11     1.24     1.36     0.05 percentile
+12 RR.diff    1.09     1.22     1.34     0.05 percentile
+13 RR*.M0     0.945    1.04     1.17     0.05 percentile
+14 RR*.M1     1.23     1.52     1.84     0.05 percentile
+15 RR*.diff   1.12     1.46     1.85     0.05 percentile
+16 OR.diff    1.23     1.78     2.49     0.05 percentile
+17 OR.M0      0.931    1.06     1.22     0.05 percentile
+18 OR.M1      1.37     1.88     2.49     0.05 percentile</code></pre>
 </div>
 </div>
 <p>verify the results with the author’s on p.&nbsp;65.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>bb <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">term =</span> <span class="fu">c</span>(<span class="st">"EYT0"</span>, <span class="st">"EYT0"</span>, <span class="st">"EYT1"</span>, <span class="st">"EYT1"</span>, <span class="st">"RD"</span>, <span class="st">"RD"</span>,</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>           <span class="st">"EYT0"</span>, <span class="st">"EYT1"</span>, <span class="st">"RD"</span>, <span class="st">"RR"</span>, <span class="st">"RR"</span>, <span class="st">"RR"</span>,</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>           <span class="st">"RR*"</span>, <span class="st">"RR*"</span>, <span class="st">"RR*"</span>, <span class="st">"OR"</span>, <span class="st">"OR"</span>, <span class="st">"OR"</span>),</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">group =</span> <span class="fu">c</span>(<span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>,</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>           <span class="st">"diff"</span>, <span class="st">"diff"</span>, <span class="st">"diff"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"diff"</span>,</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>           <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"diff"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"diff"</span>),</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> <span class="fu">c</span>(<span class="fl">0.784</span>, <span class="fl">0.593</span>, <span class="fl">0.793</span>, <span class="fl">0.735</span>, <span class="fl">0.01</span>, <span class="fl">0.142</span>,</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>          <span class="sc">-</span><span class="fl">0.191</span>, <span class="sc">-</span><span class="fl">0.059</span>, <span class="fl">0.132</span>, <span class="fl">1.012</span>, <span class="fl">1.239</span>, <span class="fl">1.224</span>,</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>          <span class="fl">1.046</span>, <span class="fl">1.533</span>, <span class="fl">1.466</span>, <span class="fl">1.059</span>, <span class="fl">1.9</span>, <span class="fl">1.794</span>)</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>recovery.out<span class="sc">$</span>term</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>bb <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">term =</span> <span class="fu">c</span>(<span class="st">"EYT0"</span>, <span class="st">"EYT0"</span>, <span class="st">"EYT1"</span>, <span class="st">"EYT1"</span>, <span class="st">"RD"</span>, <span class="st">"RD"</span>,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>           <span class="st">"EYT0"</span>, <span class="st">"EYT1"</span>, <span class="st">"RD"</span>, <span class="st">"RR"</span>, <span class="st">"RR"</span>, <span class="st">"RR"</span>,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>           <span class="st">"RR*"</span>, <span class="st">"RR*"</span>, <span class="st">"RR*"</span>, <span class="st">"OR"</span>, <span class="st">"OR"</span>, <span class="st">"OR"</span>),</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">group =</span> <span class="fu">c</span>(<span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>           <span class="st">"diff"</span>, <span class="st">"diff"</span>, <span class="st">"diff"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"diff"</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>           <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"diff"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"diff"</span>),</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> <span class="fu">c</span>(<span class="fl">0.784</span>, <span class="fl">0.593</span>, <span class="fl">0.793</span>, <span class="fl">0.735</span>, <span class="fl">0.01</span>, <span class="fl">0.142</span>,</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>          <span class="sc">-</span><span class="fl">0.191</span>, <span class="sc">-</span><span class="fl">0.059</span>, <span class="fl">0.132</span>, <span class="fl">1.012</span>, <span class="fl">1.239</span>, <span class="fl">1.224</span>,</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>          <span class="fl">1.046</span>, <span class="fl">1.533</span>, <span class="fl">1.466</span>, <span class="fl">1.059</span>, <span class="fl">1.9</span>, <span class="fl">1.794</span>)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>recovery.out<span class="sc">$</span>term</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> [1] "EYT0.M0"   "EYT0.M1"   "EYT0.diff" "EYT1.M0"   "EYT1.M1"   "EYT1.diff"
  [7] "RD.M0"     "RD.M1"     "RD.diff"   "RR.M0"     "RR.M1"     "RR.diff"  
 [13] "RR*.M0"    "RR*.M1"    "RR*.diff"  "OR.diff"   "OR.M0"     "OR.M1"    </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>ids <span class="ot">&lt;-</span> <span class="fu">match</span>(<span class="fu">paste</span>(bb<span class="sc">$</span>term, bb<span class="sc">$</span>group, <span class="at">sep =</span> <span class="st">"."</span>), recovery.out<span class="sc">$</span>term)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ids</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>comp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">bb =</span> bb,</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">d =</span> recovery.out<span class="sc">$</span>.estimate[ids])</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># comp</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>comp<span class="sc">$</span>dev <span class="ot">&lt;-</span> <span class="fu">abs</span>(comp<span class="sc">$</span>bb.estimate <span class="sc">-</span> comp<span class="sc">$</span>d)</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># comp$dev</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(comp<span class="sc">$</span>dev <span class="sc">&lt;</span> <span class="fl">0.1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>ids <span class="ot">&lt;-</span> <span class="fu">match</span>(<span class="fu">paste</span>(bb<span class="sc">$</span>term, bb<span class="sc">$</span>group, <span class="at">sep =</span> <span class="st">"."</span>), recovery.out<span class="sc">$</span>term)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ids</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>comp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">bb =</span> bb,</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">d =</span> recovery.out<span class="sc">$</span>.estimate[ids])</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co"># comp</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>comp<span class="sc">$</span>dev <span class="ot">&lt;-</span> <span class="fu">abs</span>(comp<span class="sc">$</span>bb.estimate <span class="sc">-</span> comp<span class="sc">$</span>d)</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># comp$dev</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(comp<span class="sc">$</span>dev <span class="sc">&lt;</span> <span class="fl">0.1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>and we communicate the results in a table</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># reformat to use for table and plot</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>recovery.out <span class="ot">&lt;-</span> recovery.out <span class="sc">%&gt;%</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(<span class="at">col =</span> <span class="st">"term"</span>, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"term"</span>, <span class="st">"group"</span>), <span class="at">sep =</span> <span class="st">"[.]"</span>, <span class="at">remove =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>fciR<span class="sc">::</span><span class="fu">gt_measures_colgrp</span>(recovery.out, <span class="at">var_grp =</span> <span class="st">"group"</span>,</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">title =</span> <span class="st">"Table 4.2 RECOVERY Trial"</span>,</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">subtitle =</span> <span class="st">"Effect-measure Modification"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># reformat to use for table and plot</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>recovery.out <span class="ot">&lt;-</span> recovery.out <span class="sc">%&gt;%</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(<span class="at">col =</span> <span class="st">"term"</span>, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"term"</span>, <span class="st">"group"</span>), <span class="at">sep =</span> <span class="st">"[.]"</span>, <span class="at">remove =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>fciR<span class="sc">::</span><span class="fu">gt_measures_colgrp</span>(recovery.out, <span class="at">var_grp =</span> <span class="st">"group"</span>,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">title =</span> <span class="st">"Table 4.2 RECOVERY Trial"</span>,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">subtitle =</span> <span class="st">"Effect-measure Modification"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
-<div id="gkkcbuckvl" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#gkkcbuckvl table {
+<div id="zuhjclqjti" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#zuhjclqjti table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#gkkcbuckvl thead, #gkkcbuckvl tbody, #gkkcbuckvl tfoot, #gkkcbuckvl tr, #gkkcbuckvl td, #gkkcbuckvl th {
+#zuhjclqjti thead, #zuhjclqjti tbody, #zuhjclqjti tfoot, #zuhjclqjti tr, #zuhjclqjti td, #zuhjclqjti th {
   border-style: none;
 }
 
-#gkkcbuckvl p {
+#zuhjclqjti p {
   margin: 0;
   padding: 0;
 }
 
-#gkkcbuckvl .gt_table {
+#zuhjclqjti .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -457,12 +475,12 @@ Attaching package: 'dplyr'</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#gkkcbuckvl .gt_caption {
+#zuhjclqjti .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#gkkcbuckvl .gt_title {
+#zuhjclqjti .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: bold;
@@ -474,7 +492,7 @@ Attaching package: 'dplyr'</code></pre>
   border-bottom-width: 0;
 }
 
-#gkkcbuckvl .gt_subtitle {
+#zuhjclqjti .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: bold;
@@ -486,7 +504,7 @@ Attaching package: 'dplyr'</code></pre>
   border-top-width: 0;
 }
 
-#gkkcbuckvl .gt_heading {
+#zuhjclqjti .gt_heading {
   background-color: #DCDCDC;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -498,13 +516,13 @@ Attaching package: 'dplyr'</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#gkkcbuckvl .gt_bottom_border {
+#zuhjclqjti .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#gkkcbuckvl .gt_col_headings {
+#zuhjclqjti .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -519,7 +537,7 @@ Attaching package: 'dplyr'</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#gkkcbuckvl .gt_col_heading {
+#zuhjclqjti .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -539,7 +557,7 @@ Attaching package: 'dplyr'</code></pre>
   overflow-x: hidden;
 }
 
-#gkkcbuckvl .gt_column_spanner_outer {
+#zuhjclqjti .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -551,15 +569,15 @@ Attaching package: 'dplyr'</code></pre>
   padding-right: 4px;
 }
 
-#gkkcbuckvl .gt_column_spanner_outer:first-child {
+#zuhjclqjti .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#gkkcbuckvl .gt_column_spanner_outer:last-child {
+#zuhjclqjti .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#gkkcbuckvl .gt_column_spanner {
+#zuhjclqjti .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -571,11 +589,11 @@ Attaching package: 'dplyr'</code></pre>
   width: 100%;
 }
 
-#gkkcbuckvl .gt_spanner_row {
+#zuhjclqjti .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#gkkcbuckvl .gt_group_heading {
+#zuhjclqjti .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -601,7 +619,7 @@ Attaching package: 'dplyr'</code></pre>
   text-align: left;
 }
 
-#gkkcbuckvl .gt_empty_group_heading {
+#zuhjclqjti .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -616,15 +634,15 @@ Attaching package: 'dplyr'</code></pre>
   vertical-align: middle;
 }
 
-#gkkcbuckvl .gt_from_md > :first-child {
+#zuhjclqjti .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#gkkcbuckvl .gt_from_md > :last-child {
+#zuhjclqjti .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#gkkcbuckvl .gt_row {
+#zuhjclqjti .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -643,7 +661,7 @@ Attaching package: 'dplyr'</code></pre>
   overflow-x: hidden;
 }
 
-#gkkcbuckvl .gt_stub {
+#zuhjclqjti .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -656,7 +674,7 @@ Attaching package: 'dplyr'</code></pre>
   padding-right: 5px;
 }
 
-#gkkcbuckvl .gt_stub_row_group {
+#zuhjclqjti .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -670,15 +688,15 @@ Attaching package: 'dplyr'</code></pre>
   vertical-align: top;
 }
 
-#gkkcbuckvl .gt_row_group_first td {
+#zuhjclqjti .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#gkkcbuckvl .gt_row_group_first th {
+#zuhjclqjti .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#gkkcbuckvl .gt_summary_row {
+#zuhjclqjti .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -688,16 +706,16 @@ Attaching package: 'dplyr'</code></pre>
   padding-right: 5px;
 }
 
-#gkkcbuckvl .gt_first_summary_row {
+#zuhjclqjti .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#gkkcbuckvl .gt_first_summary_row.thick {
+#zuhjclqjti .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#gkkcbuckvl .gt_last_summary_row {
+#zuhjclqjti .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -707,7 +725,7 @@ Attaching package: 'dplyr'</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#gkkcbuckvl .gt_grand_summary_row {
+#zuhjclqjti .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -717,7 +735,7 @@ Attaching package: 'dplyr'</code></pre>
   padding-right: 5px;
 }
 
-#gkkcbuckvl .gt_first_grand_summary_row {
+#zuhjclqjti .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -727,7 +745,7 @@ Attaching package: 'dplyr'</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#gkkcbuckvl .gt_last_grand_summary_row_top {
+#zuhjclqjti .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -737,11 +755,11 @@ Attaching package: 'dplyr'</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#gkkcbuckvl .gt_striped {
+#zuhjclqjti .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#gkkcbuckvl .gt_table_body {
+#zuhjclqjti .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -750,7 +768,7 @@ Attaching package: 'dplyr'</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#gkkcbuckvl .gt_footnotes {
+#zuhjclqjti .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -764,7 +782,7 @@ Attaching package: 'dplyr'</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#gkkcbuckvl .gt_footnote {
+#zuhjclqjti .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -773,7 +791,7 @@ Attaching package: 'dplyr'</code></pre>
   padding-right: 5px;
 }
 
-#gkkcbuckvl .gt_sourcenotes {
+#zuhjclqjti .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -787,7 +805,7 @@ Attaching package: 'dplyr'</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#gkkcbuckvl .gt_sourcenote {
+#zuhjclqjti .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -795,63 +813,63 @@ Attaching package: 'dplyr'</code></pre>
   padding-right: 5px;
 }
 
-#gkkcbuckvl .gt_left {
+#zuhjclqjti .gt_left {
   text-align: left;
 }
 
-#gkkcbuckvl .gt_center {
+#zuhjclqjti .gt_center {
   text-align: center;
 }
 
-#gkkcbuckvl .gt_right {
+#zuhjclqjti .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#gkkcbuckvl .gt_font_normal {
+#zuhjclqjti .gt_font_normal {
   font-weight: normal;
 }
 
-#gkkcbuckvl .gt_font_bold {
+#zuhjclqjti .gt_font_bold {
   font-weight: bold;
 }
 
-#gkkcbuckvl .gt_font_italic {
+#zuhjclqjti .gt_font_italic {
   font-style: italic;
 }
 
-#gkkcbuckvl .gt_super {
+#zuhjclqjti .gt_super {
   font-size: 65%;
 }
 
-#gkkcbuckvl .gt_footnote_marks {
+#zuhjclqjti .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#gkkcbuckvl .gt_asterisk {
+#zuhjclqjti .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#gkkcbuckvl .gt_indent_1 {
+#zuhjclqjti .gt_indent_1 {
   text-indent: 5px;
 }
 
-#gkkcbuckvl .gt_indent_2 {
+#zuhjclqjti .gt_indent_2 {
   text-indent: 10px;
 }
 
-#gkkcbuckvl .gt_indent_3 {
+#zuhjclqjti .gt_indent_3 {
   text-indent: 15px;
 }
 
-#gkkcbuckvl .gt_indent_4 {
+#zuhjclqjti .gt_indent_4 {
   text-indent: 20px;
 }
 
-#gkkcbuckvl .gt_indent_5 {
+#zuhjclqjti .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -886,47 +904,47 @@ Attaching package: 'dplyr'</code></pre>
   </thead>
   <tbody class="gt_table_body">
     <tr><td headers="Estimator" class="gt_row gt_center">EYT0</td>
-<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.783</td>
-<td headers="M0_CI" class="gt_row gt_center">(0.773, 0.797)</td>
-<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.595</td>
-<td headers="M1_CI" class="gt_row gt_center">(0.551, 0.636)</td>
-<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.188</td>
-<td headers="diff_CI" class="gt_row gt_center">(-0.230, -0.152)</td></tr>
+<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.784</td>
+<td headers="M0_CI" class="gt_row gt_center">(0.769, 0.797)</td>
+<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.592</td>
+<td headers="M1_CI" class="gt_row gt_center">(0.556, 0.620)</td>
+<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.191</td>
+<td headers="diff_CI" class="gt_row gt_center">(-0.233, -0.157)</td></tr>
     <tr><td headers="Estimator" class="gt_row gt_center gt_striped">EYT1</td>
-<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.792</td>
-<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.775, 0.814)</td>
-<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.736</td>
-<td headers="M1_CI" class="gt_row gt_center gt_striped">(0.697, 0.777)</td>
-<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.057</td>
-<td headers="diff_CI" class="gt_row gt_center gt_striped">(-0.098, -0.003)</td></tr>
+<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.793</td>
+<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.776, 0.809)</td>
+<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.732</td>
+<td headers="M1_CI" class="gt_row gt_center gt_striped">(0.682, 0.769)</td>
+<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.061</td>
+<td headers="diff_CI" class="gt_row gt_center gt_striped">(-0.113, -0.014)</td></tr>
     <tr><td headers="Estimator" class="gt_row gt_center">RD</td>
-<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.010</td>
-<td headers="M0_CI" class="gt_row gt_center">(-0.015, 0.037)</td>
-<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.140</td>
-<td headers="M1_CI" class="gt_row gt_center">(0.086, 0.206)</td>
-<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.131</td>
-<td headers="diff_CI" class="gt_row gt_center">(0.075, 0.193)</td></tr>
+<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.009</td>
+<td headers="M0_CI" class="gt_row gt_center">(-0.012, 0.033)</td>
+<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.139</td>
+<td headers="M1_CI" class="gt_row gt_center">(0.071, 0.200)</td>
+<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.130</td>
+<td headers="diff_CI" class="gt_row gt_center">(0.053, 0.196)</td></tr>
     <tr><td headers="Estimator" class="gt_row gt_center gt_striped">RR</td>
 <td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.012</td>
-<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.981, 1.047)</td>
-<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.236</td>
-<td headers="M1_CI" class="gt_row gt_center gt_striped">(1.135, 1.365)</td>
+<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.985, 1.042)</td>
+<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.235</td>
+<td headers="M1_CI" class="gt_row gt_center gt_striped">(1.115, 1.357)</td>
 <td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.221</td>
-<td headers="diff_CI" class="gt_row gt_center gt_striped">(1.121, 1.327)</td></tr>
+<td headers="diff_CI" class="gt_row gt_center gt_striped">(1.091, 1.344)</td></tr>
     <tr><td headers="Estimator" class="gt_row gt_center">RR*</td>
-<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.047</td>
-<td headers="M0_CI" class="gt_row gt_center">(0.933, 1.195)</td>
-<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.535</td>
-<td headers="M1_CI" class="gt_row gt_center">(1.297, 1.871)</td>
-<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.466</td>
-<td headers="diff_CI" class="gt_row gt_center">(1.230, 1.833)</td></tr>
+<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.045</td>
+<td headers="M0_CI" class="gt_row gt_center">(0.945, 1.171)</td>
+<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.524</td>
+<td headers="M1_CI" class="gt_row gt_center">(1.232, 1.837)</td>
+<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.459</td>
+<td headers="diff_CI" class="gt_row gt_center">(1.125, 1.853)</td></tr>
     <tr><td headers="Estimator" class="gt_row gt_center gt_striped">OR</td>
-<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.059</td>
-<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.916, 1.251)</td>
-<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.897</td>
-<td headers="M1_CI" class="gt_row gt_center gt_striped">(1.477, 2.582)</td>
-<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.790</td>
-<td headers="diff_CI" class="gt_row gt_center gt_striped">(1.378, 2.426)</td></tr>
+<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.057</td>
+<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.931, 1.220)</td>
+<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.882</td>
+<td headers="M1_CI" class="gt_row gt_center gt_striped">(1.373, 2.490)</td>
+<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.781</td>
+<td headers="diff_CI" class="gt_row gt_center gt_striped">(1.227, 2.490)</td></tr>
   </tbody>
   <tfoot class="gt_sourcenotes">
     <tr>
@@ -945,7 +963,7 @@ Attaching package: 'dplyr'</code></pre>
 <p>plotting the results makes it easier to see the measures vary among the strata. We can clearly see here significant difference in effect measures between the 2 strata.</p>
 <p>It supports the observation in the text concerning the lack of effect of dexamethasone without intrusive mechanical ventilation (M0) vs its use with intrusive mechanical ventilation (M1) which is significant.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>fciR<span class="sc">::</span><span class="fu">ggp_measures_modif</span>(recovery.out, <span class="at">title =</span> <span class="st">"RECOVERY trial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>fciR<span class="sc">::</span><span class="fu">ggp_measures_modif</span>(recovery.out, <span class="at">title =</span> <span class="st">"RECOVERY trial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="ch04_measures_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -954,10 +972,10 @@ Attaching package: 'dplyr'</code></pre>
 <p>Luckily, the <code>gee()</code> works exactly like the <code>glm()</code> functions, with the same extractor functions <code>coefficients()</code>, <code>effects()</code>, etc. See the documentation of <code>lm</code> with <code>?lm</code> for more details.</p>
 <p>We are going through an example just below to illustrate how tthe extractor functions are used which is not shown in the textbook.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>linmod <span class="ot">&lt;-</span> gee<span class="sc">::</span><span class="fu">gee</span>(Y <span class="sc">~</span> <span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">+</span> M <span class="sc">+</span> <span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">*</span> M,</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">id =</span> id,</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> recovery,</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">family =</span> gaussian)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>linmod <span class="ot">&lt;-</span> gee<span class="sc">::</span><span class="fu">gee</span>(Y <span class="sc">~</span> <span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">+</span> M <span class="sc">+</span> <span class="st">`</span><span class="at">T</span><span class="st">`</span> <span class="sc">*</span> M,</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">id =</span> id,</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> recovery,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">family =</span> gaussian)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Beginning Cgee S-function, @(#) geeformula.q 4.13 98/01/27</code></pre>
 </div>
@@ -968,7 +986,7 @@ Attaching package: 'dplyr'</code></pre>
 <pre><code>(Intercept)           T           M         T:M 
  0.78367235  0.00958608 -0.19070017  0.13200964 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(linmod)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(linmod)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
  GEE:  GENERALIZED LINEAR MODELS FOR DEPENDENT DATA
@@ -1005,7 +1023,7 @@ Working Correlation
 </div>
 <p>To extract the coefficients from the <code>gee</code> object we use the extractor function <code>coefficients()</code> or its alias <code>coef()</code></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(linmod)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(linmod)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>(Intercept)           T           M         T:M 
  0.78367235  0.00958608 -0.19070017  0.13200964 </code></pre>
@@ -1013,7 +1031,7 @@ Working Correlation
 </div>
 <p>and to extract the entire coefficient data to work with it, just use <code>coefficients()</code> with <code>summary()</code></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(<span class="fu">summary</span>(linmod))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(<span class="fu">summary</span>(linmod))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>               Estimate  Naive S.E.     Naive z Robust S.E.    Robust z
 (Intercept)  0.78367235 0.006975704 112.3431253 0.006826403 114.8001855
@@ -1024,7 +1042,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
 </div>
 <p>and in this case we are concerned about how significant the interaction is. Therefore the <em>Robust z</em> is extracted with <code>coefficients()</code> alias <code>coef()</code></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(<span class="fu">summary</span>(linmod))[, <span class="st">"Robust z"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(<span class="fu">summary</span>(linmod))[, <span class="st">"Robust z"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>(Intercept)           T           M         T:M 
 114.8001855   0.8138588  -9.5352906   3.9913327 </code></pre>
@@ -1032,8 +1050,8 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
 </div>
 <p>we see that <span class="math inline">\(T:M\)</span> is 3.99 standard deviations away from zero which will give us the 2-sided p-value that is significant</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>z <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">summary</span>(linmod))[<span class="st">"T:M"</span>, <span class="st">"Robust z"</span>]</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span> <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">pnorm</span>(z))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>z <span class="ot">&lt;-</span> <span class="fu">coef</span>(<span class="fu">summary</span>(linmod))[<span class="st">"T:M"</span>, <span class="st">"Robust z"</span>]</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span> <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">pnorm</span>(z))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 6.570304e-05</code></pre>
 </div>
@@ -1044,58 +1062,58 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
 <p>We process the <code>NCES</code> data the same way we did for the RECOVERY trial.</p>
 <p>Run the bootsrap</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>nces.out <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">boot_est</span>(<span class="at">data =</span> nces, <span class="at">func =</span> meas_effect_modif,</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">times =</span> <span class="dv">100</span>, <span class="at">alpha =</span> <span class="fl">0.05</span>, <span class="at">transf =</span> <span class="st">"exp"</span>,</span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">terms =</span> the_terms,</span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">formula =</span> highmathsat <span class="sc">~</span> female <span class="sc">+</span> selective, </span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>                     <span class="at">exposure.name =</span> <span class="st">"female"</span>, <span class="at">modifier.name =</span> <span class="st">"selective"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>nces.out <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">boot_est</span>(<span class="at">data =</span> nces, <span class="at">func =</span> meas_effect_modif,</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">times =</span> <span class="dv">100</span>, <span class="at">alpha =</span> <span class="fl">0.05</span>, <span class="at">transf =</span> <span class="st">"exp"</span>,</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">terms =</span> the_terms,</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">formula =</span> highmathsat <span class="sc">~</span> female <span class="sc">+</span> selective, </span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>                     <span class="at">exposure.name =</span> <span class="st">"female"</span>, <span class="at">modifier.name =</span> <span class="st">"selective"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>verify the results with the author’s on p.&nbsp;70.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>bb <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">term =</span> <span class="fu">c</span>(<span class="st">"EYT0"</span>, <span class="st">"EYT0"</span>, <span class="st">"EYT1"</span>, <span class="st">"EYT1"</span>, <span class="st">"RD"</span>, <span class="st">"RD"</span>,</span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>           <span class="st">"EYT0"</span>, <span class="st">"EYT1"</span>, <span class="st">"RD"</span>, <span class="st">"RR"</span>, <span class="st">"RR"</span>, <span class="st">"RR"</span>,</span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>           <span class="st">"RR*"</span>, <span class="st">"RR*"</span>, <span class="st">"RR*"</span>, <span class="st">"OR"</span>, <span class="st">"OR"</span>, <span class="st">"OR"</span>),</span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">group =</span> <span class="fu">c</span>(<span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>,</span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>           <span class="st">"diff"</span>, <span class="st">"diff"</span>, <span class="st">"diff"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"diff"</span>,</span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>           <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"diff"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"diff"</span>),</span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> <span class="fu">c</span>(<span class="fl">0.167</span>, <span class="fl">0.675</span>, <span class="fl">0.081</span>, <span class="fl">0.345</span>, <span class="sc">-</span><span class="fl">0.086</span>, <span class="sc">-</span><span class="fl">0.33</span>,</span>
-<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>          <span class="fl">0.509</span>, <span class="fl">0.264</span>, <span class="sc">-</span><span class="fl">0.244</span>, <span class="fl">0.486</span>, <span class="fl">0.511</span>, <span class="fl">1.052</span>,</span>
-<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>          <span class="fl">0.907</span>, <span class="fl">0.496</span>, <span class="fl">0.547</span>, <span class="fl">0.44</span>, <span class="fl">0.254</span>, <span class="fl">0.576</span>)</span>
-<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>ids <span class="ot">&lt;-</span> <span class="fu">match</span>(<span class="fu">paste</span>(bb<span class="sc">$</span>term, bb<span class="sc">$</span>group, <span class="at">sep =</span> <span class="st">"."</span>), nces.out<span class="sc">$</span>term)</span>
-<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>comp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">bb =</span> bb, <span class="at">d =</span> nces.out<span class="sc">$</span>.estimate[ids])</span>
-<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>comp<span class="sc">$</span>dev <span class="ot">&lt;-</span> <span class="fu">abs</span>(comp<span class="sc">$</span>bb.estimate <span class="sc">-</span> comp<span class="sc">$</span>d)</span>
-<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a><span class="co"># comp$dev</span></span>
-<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(comp<span class="sc">$</span>dev <span class="sc">&lt;</span> <span class="fl">0.1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>bb <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">term =</span> <span class="fu">c</span>(<span class="st">"EYT0"</span>, <span class="st">"EYT0"</span>, <span class="st">"EYT1"</span>, <span class="st">"EYT1"</span>, <span class="st">"RD"</span>, <span class="st">"RD"</span>,</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>           <span class="st">"EYT0"</span>, <span class="st">"EYT1"</span>, <span class="st">"RD"</span>, <span class="st">"RR"</span>, <span class="st">"RR"</span>, <span class="st">"RR"</span>,</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>           <span class="st">"RR*"</span>, <span class="st">"RR*"</span>, <span class="st">"RR*"</span>, <span class="st">"OR"</span>, <span class="st">"OR"</span>, <span class="st">"OR"</span>),</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">group =</span> <span class="fu">c</span>(<span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>,</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>           <span class="st">"diff"</span>, <span class="st">"diff"</span>, <span class="st">"diff"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"diff"</span>,</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>           <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"diff"</span>, <span class="st">"M0"</span>, <span class="st">"M1"</span>, <span class="st">"diff"</span>),</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> <span class="fu">c</span>(<span class="fl">0.167</span>, <span class="fl">0.675</span>, <span class="fl">0.081</span>, <span class="fl">0.345</span>, <span class="sc">-</span><span class="fl">0.086</span>, <span class="sc">-</span><span class="fl">0.33</span>,</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>          <span class="fl">0.509</span>, <span class="fl">0.264</span>, <span class="sc">-</span><span class="fl">0.244</span>, <span class="fl">0.486</span>, <span class="fl">0.511</span>, <span class="fl">1.052</span>,</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>          <span class="fl">0.907</span>, <span class="fl">0.496</span>, <span class="fl">0.547</span>, <span class="fl">0.44</span>, <span class="fl">0.254</span>, <span class="fl">0.576</span>)</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>ids <span class="ot">&lt;-</span> <span class="fu">match</span>(<span class="fu">paste</span>(bb<span class="sc">$</span>term, bb<span class="sc">$</span>group, <span class="at">sep =</span> <span class="st">"."</span>), nces.out<span class="sc">$</span>term)</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>comp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">bb =</span> bb, <span class="at">d =</span> nces.out<span class="sc">$</span>.estimate[ids])</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>comp<span class="sc">$</span>dev <span class="ot">&lt;-</span> <span class="fu">abs</span>(comp<span class="sc">$</span>bb.estimate <span class="sc">-</span> comp<span class="sc">$</span>d)</span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a><span class="co"># comp$dev</span></span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(comp<span class="sc">$</span>dev <span class="sc">&lt;</span> <span class="fl">0.1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>and the table is</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># reformat to use for table and plot</span></span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>nces.out <span class="ot">&lt;-</span> nces.out <span class="sc">%&gt;%</span></span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(<span class="at">col =</span> <span class="st">"term"</span>, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"term"</span>, <span class="st">"group"</span>), <span class="at">sep =</span> <span class="st">"[.]"</span>, <span class="at">remove =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>fciR<span class="sc">::</span><span class="fu">gt_measures_colgrp</span>(nces.out, <span class="at">var_grp =</span> <span class="st">"group"</span>,</span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">title =</span> <span class="st">"Table 4.3 NCES data"</span>,</span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">subtitle =</span> <span class="st">"Effect-measure Modification"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># reformat to use for table and plot</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>nces.out <span class="ot">&lt;-</span> nces.out <span class="sc">%&gt;%</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(<span class="at">col =</span> <span class="st">"term"</span>, <span class="at">into =</span> <span class="fu">c</span>(<span class="st">"term"</span>, <span class="st">"group"</span>), <span class="at">sep =</span> <span class="st">"[.]"</span>, <span class="at">remove =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>fciR<span class="sc">::</span><span class="fu">gt_measures_colgrp</span>(nces.out, <span class="at">var_grp =</span> <span class="st">"group"</span>,</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">title =</span> <span class="st">"Table 4.3 NCES data"</span>,</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">subtitle =</span> <span class="st">"Effect-measure Modification"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
-<div id="uihezsbkij" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#uihezsbkij table {
+<div id="rpblitfkms" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#rpblitfkms table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#uihezsbkij thead, #uihezsbkij tbody, #uihezsbkij tfoot, #uihezsbkij tr, #uihezsbkij td, #uihezsbkij th {
+#rpblitfkms thead, #rpblitfkms tbody, #rpblitfkms tfoot, #rpblitfkms tr, #rpblitfkms td, #rpblitfkms th {
   border-style: none;
 }
 
-#uihezsbkij p {
+#rpblitfkms p {
   margin: 0;
   padding: 0;
 }
 
-#uihezsbkij .gt_table {
+#rpblitfkms .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1121,12 +1139,12 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   border-left-color: #D3D3D3;
 }
 
-#uihezsbkij .gt_caption {
+#rpblitfkms .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#uihezsbkij .gt_title {
+#rpblitfkms .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: bold;
@@ -1138,7 +1156,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   border-bottom-width: 0;
 }
 
-#uihezsbkij .gt_subtitle {
+#rpblitfkms .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: bold;
@@ -1150,7 +1168,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   border-top-width: 0;
 }
 
-#uihezsbkij .gt_heading {
+#rpblitfkms .gt_heading {
   background-color: #DCDCDC;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1162,13 +1180,13 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   border-right-color: #D3D3D3;
 }
 
-#uihezsbkij .gt_bottom_border {
+#rpblitfkms .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#uihezsbkij .gt_col_headings {
+#rpblitfkms .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1183,7 +1201,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   border-right-color: #D3D3D3;
 }
 
-#uihezsbkij .gt_col_heading {
+#rpblitfkms .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1203,7 +1221,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   overflow-x: hidden;
 }
 
-#uihezsbkij .gt_column_spanner_outer {
+#rpblitfkms .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1215,15 +1233,15 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   padding-right: 4px;
 }
 
-#uihezsbkij .gt_column_spanner_outer:first-child {
+#rpblitfkms .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#uihezsbkij .gt_column_spanner_outer:last-child {
+#rpblitfkms .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#uihezsbkij .gt_column_spanner {
+#rpblitfkms .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1235,11 +1253,11 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   width: 100%;
 }
 
-#uihezsbkij .gt_spanner_row {
+#rpblitfkms .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#uihezsbkij .gt_group_heading {
+#rpblitfkms .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1265,7 +1283,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   text-align: left;
 }
 
-#uihezsbkij .gt_empty_group_heading {
+#rpblitfkms .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1280,15 +1298,15 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   vertical-align: middle;
 }
 
-#uihezsbkij .gt_from_md > :first-child {
+#rpblitfkms .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#uihezsbkij .gt_from_md > :last-child {
+#rpblitfkms .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#uihezsbkij .gt_row {
+#rpblitfkms .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1307,7 +1325,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   overflow-x: hidden;
 }
 
-#uihezsbkij .gt_stub {
+#rpblitfkms .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1320,7 +1338,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   padding-right: 5px;
 }
 
-#uihezsbkij .gt_stub_row_group {
+#rpblitfkms .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1334,15 +1352,15 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   vertical-align: top;
 }
 
-#uihezsbkij .gt_row_group_first td {
+#rpblitfkms .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#uihezsbkij .gt_row_group_first th {
+#rpblitfkms .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#uihezsbkij .gt_summary_row {
+#rpblitfkms .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1352,16 +1370,16 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   padding-right: 5px;
 }
 
-#uihezsbkij .gt_first_summary_row {
+#rpblitfkms .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#uihezsbkij .gt_first_summary_row.thick {
+#rpblitfkms .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#uihezsbkij .gt_last_summary_row {
+#rpblitfkms .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1371,7 +1389,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   border-bottom-color: #D3D3D3;
 }
 
-#uihezsbkij .gt_grand_summary_row {
+#rpblitfkms .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1381,7 +1399,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   padding-right: 5px;
 }
 
-#uihezsbkij .gt_first_grand_summary_row {
+#rpblitfkms .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1391,7 +1409,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   border-top-color: #D3D3D3;
 }
 
-#uihezsbkij .gt_last_grand_summary_row_top {
+#rpblitfkms .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1401,11 +1419,11 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   border-bottom-color: #D3D3D3;
 }
 
-#uihezsbkij .gt_striped {
+#rpblitfkms .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#uihezsbkij .gt_table_body {
+#rpblitfkms .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1414,7 +1432,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   border-bottom-color: #D3D3D3;
 }
 
-#uihezsbkij .gt_footnotes {
+#rpblitfkms .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1428,7 +1446,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   border-right-color: #D3D3D3;
 }
 
-#uihezsbkij .gt_footnote {
+#rpblitfkms .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1437,7 +1455,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   padding-right: 5px;
 }
 
-#uihezsbkij .gt_sourcenotes {
+#rpblitfkms .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1451,7 +1469,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   border-right-color: #D3D3D3;
 }
 
-#uihezsbkij .gt_sourcenote {
+#rpblitfkms .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1459,63 +1477,63 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   padding-right: 5px;
 }
 
-#uihezsbkij .gt_left {
+#rpblitfkms .gt_left {
   text-align: left;
 }
 
-#uihezsbkij .gt_center {
+#rpblitfkms .gt_center {
   text-align: center;
 }
 
-#uihezsbkij .gt_right {
+#rpblitfkms .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#uihezsbkij .gt_font_normal {
+#rpblitfkms .gt_font_normal {
   font-weight: normal;
 }
 
-#uihezsbkij .gt_font_bold {
+#rpblitfkms .gt_font_bold {
   font-weight: bold;
 }
 
-#uihezsbkij .gt_font_italic {
+#rpblitfkms .gt_font_italic {
   font-style: italic;
 }
 
-#uihezsbkij .gt_super {
+#rpblitfkms .gt_super {
   font-size: 65%;
 }
 
-#uihezsbkij .gt_footnote_marks {
+#rpblitfkms .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#uihezsbkij .gt_asterisk {
+#rpblitfkms .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#uihezsbkij .gt_indent_1 {
+#rpblitfkms .gt_indent_1 {
   text-indent: 5px;
 }
 
-#uihezsbkij .gt_indent_2 {
+#rpblitfkms .gt_indent_2 {
   text-indent: 10px;
 }
 
-#uihezsbkij .gt_indent_3 {
+#rpblitfkms .gt_indent_3 {
   text-indent: 15px;
 }
 
-#uihezsbkij .gt_indent_4 {
+#rpblitfkms .gt_indent_4 {
   text-indent: 20px;
 }
 
-#uihezsbkij .gt_indent_5 {
+#rpblitfkms .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -1550,47 +1568,47 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   </thead>
   <tbody class="gt_table_body">
     <tr><td headers="Estimator" class="gt_row gt_center">EYT0</td>
-<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.163</td>
-<td headers="M0_CI" class="gt_row gt_center">(0.131, 0.194)</td>
-<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.678</td>
-<td headers="M1_CI" class="gt_row gt_center">(0.603, 0.746)</td>
-<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.515</td>
-<td headers="diff_CI" class="gt_row gt_center">(0.444, 0.597)</td></tr>
+<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.166</td>
+<td headers="M0_CI" class="gt_row gt_center">(0.132, 0.202)</td>
+<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.680</td>
+<td headers="M1_CI" class="gt_row gt_center">(0.617, 0.747)</td>
+<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.514</td>
+<td headers="diff_CI" class="gt_row gt_center">(0.437, 0.604)</td></tr>
     <tr><td headers="Estimator" class="gt_row gt_center gt_striped">EYT1</td>
-<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.080</td>
-<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.058, 0.103)</td>
-<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.341</td>
-<td headers="M1_CI" class="gt_row gt_center gt_striped">(0.247, 0.441)</td>
-<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.261</td>
-<td headers="diff_CI" class="gt_row gt_center gt_striped">(0.169, 0.364)</td></tr>
+<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.082</td>
+<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.053, 0.109)</td>
+<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.351</td>
+<td headers="M1_CI" class="gt_row gt_center gt_striped">(0.252, 0.447)</td>
+<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.269</td>
+<td headers="diff_CI" class="gt_row gt_center gt_striped">(0.160, 0.366)</td></tr>
     <tr><td headers="Estimator" class="gt_row gt_center">RD</td>
-<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.083</td>
-<td headers="M0_CI" class="gt_row gt_center">(-0.121, -0.040)</td>
-<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.338</td>
-<td headers="M1_CI" class="gt_row gt_center">(-0.455, -0.205)</td>
-<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.254</td>
-<td headers="diff_CI" class="gt_row gt_center">(-0.372, -0.114)</td></tr>
+<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.084</td>
+<td headers="M0_CI" class="gt_row gt_center">(-0.131, -0.047)</td>
+<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.329</td>
+<td headers="M1_CI" class="gt_row gt_center">(-0.448, -0.205)</td>
+<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.245</td>
+<td headers="diff_CI" class="gt_row gt_center">(-0.365, -0.121)</td></tr>
     <tr><td headers="Estimator" class="gt_row gt_center gt_striped">RR</td>
-<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.486</td>
-<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.338, 0.688)</td>
-<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.496</td>
-<td headers="M1_CI" class="gt_row gt_center gt_striped">(0.356, 0.674)</td>
-<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.022</td>
-<td headers="diff_CI" class="gt_row gt_center gt_striped">(0.658, 1.755)</td></tr>
+<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.489</td>
+<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.299, 0.676)</td>
+<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.511</td>
+<td headers="M1_CI" class="gt_row gt_center gt_striped">(0.370, 0.683)</td>
+<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.045</td>
+<td headers="diff_CI" class="gt_row gt_center gt_striped">(0.630, 1.754)</td></tr>
     <tr><td headers="Estimator" class="gt_row gt_center">RR*</td>
-<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.910</td>
-<td headers="M0_CI" class="gt_row gt_center">(0.871, 0.956)</td>
-<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.486</td>
-<td headers="M1_CI" class="gt_row gt_center">(0.369, 0.652)</td>
-<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.534</td>
-<td headers="diff_CI" class="gt_row gt_center">(0.401, 0.711)</td></tr>
+<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.908</td>
+<td headers="M0_CI" class="gt_row gt_center">(0.860, 0.949)</td>
+<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.491</td>
+<td headers="M1_CI" class="gt_row gt_center">(0.390, 0.640)</td>
+<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.541</td>
+<td headers="diff_CI" class="gt_row gt_center">(0.421, 0.708)</td></tr>
     <tr><td headers="Estimator" class="gt_row gt_center gt_striped">OR</td>
-<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.442</td>
-<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.294, 0.658)</td>
-<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.241</td>
-<td headers="M1_CI" class="gt_row gt_center gt_striped">(0.140, 0.433)</td>
-<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.546</td>
-<td headers="diff_CI" class="gt_row gt_center gt_striped">(0.300, 1.194)</td></tr>
+<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.444</td>
+<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.260, 0.637)</td>
+<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.251</td>
+<td headers="M1_CI" class="gt_row gt_center gt_striped">(0.145, 0.432)</td>
+<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.565</td>
+<td headers="diff_CI" class="gt_row gt_center gt_striped">(0.289, 1.168)</td></tr>
   </tbody>
   <tfoot class="gt_sourcenotes">
     <tr>
@@ -1608,7 +1626,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
 </div>
 <p>and we plot the results</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>fciR<span class="sc">::</span><span class="fu">ggp_measures_modif</span>(nces.out, <span class="at">title =</span> <span class="st">"NCES data"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>fciR<span class="sc">::</span><span class="fu">ggp_measures_modif</span>(nces.out, <span class="at">title =</span> <span class="st">"NCES data"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="ch04_measures_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -1630,7 +1648,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
 <h3 data-number="4.2.1" class="anchored" data-anchor-id="simulate-the-effect-measures"><span class="header-section-number">4.2.1</span> Simulate the effect measures</h3>
 <p>We run the Monte-Carlo simulation without constraint and with <span class="math inline">\(Beta(1,1)\)</span> which is equivalent to <span class="math inline">\(Uniform(0,1)\)</span> used by <span class="citation" data-cites="shanninbrumback2021">Jake Shannin (<a href="references.html#ref-shanninbrumback2021" role="doc-biblioref">2021</a>)</span>.</p>
 <div class="cell" data-hash="ch04_measures_cache/html/ch04_gridsim_c8a0319bef1c444d75adc21102f22cbe">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>gridsim <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">mc_beta_effect_measures</span>(<span class="at">shape1 =</span> <span class="dv">1</span>, <span class="at">shape2 =</span> <span class="dv">1</span>, <span class="at">nrep =</span> <span class="dv">5000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>gridsim <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">mc_beta_effect_measures</span>(<span class="at">shape1 =</span> <span class="dv">1</span>, <span class="at">shape2 =</span> <span class="dv">1</span>, <span class="at">nrep =</span> <span class="dv">5000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Grid of  1  parameter constellations to be evaluated. 
  
@@ -1650,11 +1668,11 @@ socketHosts, : Unknown option on commandline: --file</code></pre>
   |======================================================================| 100%
  </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># gridsim</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># gridsim</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>which gives the vector of percentages</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unlist</span>(gridsim)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unlist</span>(gridsim)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>             RD_RR          RD_RRstar              RD_OR          RR_RRstar 
             0.0000             0.0000             0.0000             0.0000 
@@ -1678,16 +1696,16 @@ RD_OR_vs_RR_RRstar       RD_RR_RRstar           RD_RR_OR       RD_RRstar_OR
 <p>The event definitions above ensure that the sample space is actually a <span class="math inline">\(\sigma-field\)</span>. See <span class="citation" data-cites="grimmett">Geoffrey R. Grimmet (<a href="references.html#ref-grimmett" role="doc-biblioref">2001</a>)</span>, section 1.2.</p>
 <p>then we compare with the author’s results</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>bb <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"RD_RR"</span> <span class="ot">=</span> <span class="fl">0.026</span>, <span class="st">"RD_RRstar"</span> <span class="ot">=</span> <span class="fl">0.026</span>, <span class="st">"RD_OR"</span> <span class="ot">=</span> <span class="dv">0</span>, </span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RR_RRstar"</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">"RR_OR"</span> <span class="ot">=</span> <span class="fl">0.026</span>, <span class="st">"RRstar_OR"</span> <span class="ot">=</span> <span class="fl">0.026</span>,</span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RR_vs_RRstar_OR"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RRstar_vs_RR_OR"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
-<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_OR_vs_RR_RRstar"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
-<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RR_RRstar"</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">"RD_RR_OR"</span> <span class="ot">=</span> <span class="fl">0.057</span>, </span>
-<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RRstar_OR"</span> <span class="ot">=</span> <span class="fl">0.057</span>, <span class="st">"RR_RRstar_OR"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
-<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RR_RRstar_OR"</span> <span class="ot">=</span> <span class="fl">0.833</span>, <span class="st">"NONE"</span> <span class="ot">=</span> <span class="dv">0</span>)</span>
-<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>comp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">bb =</span> <span class="fu">round</span>(bb, <span class="dv">4</span>), <span class="at">sim =</span> <span class="fu">round</span>(<span class="fu">unlist</span>(gridsim), <span class="dv">4</span>))</span>
-<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>comp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>bb <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"RD_RR"</span> <span class="ot">=</span> <span class="fl">0.026</span>, <span class="st">"RD_RRstar"</span> <span class="ot">=</span> <span class="fl">0.026</span>, <span class="st">"RD_OR"</span> <span class="ot">=</span> <span class="dv">0</span>, </span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RR_RRstar"</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">"RR_OR"</span> <span class="ot">=</span> <span class="fl">0.026</span>, <span class="st">"RRstar_OR"</span> <span class="ot">=</span> <span class="fl">0.026</span>,</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RR_vs_RRstar_OR"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RRstar_vs_RR_OR"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_OR_vs_RR_RRstar"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RR_RRstar"</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">"RD_RR_OR"</span> <span class="ot">=</span> <span class="fl">0.057</span>, </span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RRstar_OR"</span> <span class="ot">=</span> <span class="fl">0.057</span>, <span class="st">"RR_RRstar_OR"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RR_RRstar_OR"</span> <span class="ot">=</span> <span class="fl">0.833</span>, <span class="st">"NONE"</span> <span class="ot">=</span> <span class="dv">0</span>)</span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>comp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">bb =</span> <span class="fu">round</span>(bb, <span class="dv">4</span>), <span class="at">sim =</span> <span class="fu">round</span>(<span class="fu">unlist</span>(gridsim), <span class="dv">4</span>))</span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>comp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                      bb    sim
 RD_RR              0.026 0.0000
@@ -1709,8 +1727,8 @@ NONE               0.000 0.0000</code></pre>
 </div>
 <p>The results from the Monte Carlo simulation above confirm the main conclusion from <span class="citation" data-cites="shanninbrumback2021">Jake Shannin (<a href="references.html#ref-shanninbrumback2021" role="doc-biblioref">2021</a>)</span> that all effect measures move together 84% of the time.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="st">"simulation"</span> <span class="ot">=</span> <span class="fu">unname</span>(<span class="fu">unlist</span>(gridsim[<span class="st">"RD_RR_RRstar_OR"</span>])), </span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"author's"</span> <span class="ot">=</span> <span class="fu">unname</span>(bb[<span class="st">"RD_RR_RRstar_OR"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="st">"simulation"</span> <span class="ot">=</span> <span class="fu">unname</span>(<span class="fu">unlist</span>(gridsim[<span class="st">"RD_RR_RRstar_OR"</span>])), </span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"author's"</span> <span class="ot">=</span> <span class="fu">unname</span>(bb[<span class="st">"RD_RR_RRstar_OR"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>simulation   author's 
     0.8444     0.8330 </code></pre>
@@ -1718,7 +1736,7 @@ NONE               0.000 0.0000</code></pre>
 </div>
 <p>We note that the sim adds up correctly to 1 but not the author’s which adds up to 1.051. This is explained on p.&nbsp;72 as a bit of arbitrary allocations. The <span class="citation" data-cites="shanninbrumback2021">Jake Shannin (<a href="references.html#ref-shanninbrumback2021" role="doc-biblioref">2021</a>)</span> paper (caption figure 1) mentions that they do not add to 1 because they include events that <em>are not mutually exclusive</em>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="st">"simulation"</span> <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">unlist</span>(gridsim)), <span class="st">"author's"</span> <span class="ot">=</span> <span class="fu">sum</span>(bb))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="st">"simulation"</span> <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">unlist</span>(gridsim)), <span class="st">"author's"</span> <span class="ot">=</span> <span class="fu">sum</span>(bb))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>simulation   author's 
      1.000      1.051 </code></pre>
@@ -1727,9 +1745,9 @@ NONE               0.000 0.0000</code></pre>
 <p>Actually, this is caused by the <strong>Opposite pairwise events</strong> which cannot be represented in the 4-set Venn diagram. For the purpose of this books we will simply split them between the events that makes them up without consequence on the conclusion.</p>
 <p>The <strong>Opposite pairwise events</strong> are the following</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The events that pair of measures move together but in opposite</span></span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="co"># direction of another pair who also move together</span></span>
-<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="fu">unlist</span>(gridsim[<span class="fu">c</span>(<span class="st">"RD_RR_vs_RRstar_OR"</span>, <span class="st">"RD_RRstar_vs_RR_OR"</span>, <span class="st">"RD_OR_vs_RR_RRstar"</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The events that pair of measures move together but in opposite</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="co"># direction of another pair who also move together</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="fu">unlist</span>(gridsim[<span class="fu">c</span>(<span class="st">"RD_RR_vs_RRstar_OR"</span>, <span class="st">"RD_RRstar_vs_RR_OR"</span>, <span class="st">"RD_OR_vs_RR_RRstar"</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>RD_RR_vs_RRstar_OR RD_RRstar_vs_RR_OR RD_OR_vs_RR_RRstar 
             0.0258             0.0246             0.0000 </code></pre>
@@ -1737,17 +1755,17 @@ NONE               0.000 0.0000</code></pre>
 </div>
 <p>and when we split them between their 2 sub-events we can generate the Venn diagram as follows</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggp_venn_sim</span>(gridsim, <span class="at">n =</span> <span class="dv">1000</span>, </span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">fill_colr =</span> <span class="fu">c</span>(<span class="st">"blue"</span>, <span class="st">"yellow"</span>, <span class="st">"green"</span>, <span class="st">"red"</span>),</span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">title =</span> <span class="st">"Venn diagram of effect measure modifications"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggp_venn_sim</span>(gridsim, <span class="at">n =</span> <span class="dv">1000</span>, </span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>         <span class="at">fill_colr =</span> <span class="fu">c</span>(<span class="st">"blue"</span>, <span class="st">"yellow"</span>, <span class="st">"green"</span>, <span class="st">"red"</span>),</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">title =</span> <span class="st">"Venn diagram of effect measure modifications"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="ch04_measures_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>now for <strong>constrained data</strong></p>
 <div class="cell" data-hash="ch04_measures_cache/html/ch04_gridsim_const_c3c366e4409e46f660758d5705b02b01">
-<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>gridsim_const <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">mc_beta_effect_measures</span>(<span class="at">shape1 =</span> <span class="dv">1</span>, <span class="at">shape2 =</span> <span class="dv">1</span>, <span class="at">nrep =</span> <span class="dv">5000</span>,</span>
-<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>                                <span class="at">constrained =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>gridsim_const <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">mc_beta_effect_measures</span>(<span class="at">shape1 =</span> <span class="dv">1</span>, <span class="at">shape2 =</span> <span class="dv">1</span>, <span class="at">nrep =</span> <span class="dv">5000</span>,</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>                                <span class="at">constrained =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Grid of  1  parameter constellations to be evaluated. 
  
@@ -1770,7 +1788,7 @@ socketHosts, : Unknown option on commandline: --file</code></pre>
 </div>
 <p>which gives the vector of percentages</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unlist</span>(gridsim_const)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unlist</span>(gridsim_const)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>             RD_RR          RD_RRstar              RD_OR          RR_RRstar 
         0.00000000         0.00000000         0.00000000         0.00000000 
@@ -1784,21 +1802,21 @@ RD_OR_vs_RR_RRstar       RD_RR_RRstar           RD_RR_OR       RD_RRstar_OR
 </div>
 <p>and comparing to the author’s results</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>bb_const <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"RD_RR"</span> <span class="ot">=</span> <span class="fl">0.053</span>, <span class="st">"RD_RRstar"</span> <span class="ot">=</span> <span class="fl">0.053</span>, <span class="st">"RD_OR"</span> <span class="ot">=</span> <span class="fl">0.053</span>, </span>
-<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RR_RRstar"</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">"RR_OR"</span> <span class="ot">=</span> <span class="fl">0.053</span>, <span class="st">"RRstar_OR"</span> <span class="ot">=</span> <span class="fl">0.0</span>,</span>
-<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RR_vs_RRstar_OR"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
-<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RRstar_vs_RR_OR"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
-<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_OR_vs_RR_RRstar"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
-<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RR_RRstar"</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">"RD_RR_OR"</span> <span class="ot">=</span> <span class="fl">0.114</span>, </span>
-<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RRstar_OR"</span> <span class="ot">=</span> <span class="fl">0.114</span>, <span class="st">"RR_RRstar_OR"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
-<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RR_RRstar_OR"</span> <span class="ot">=</span> <span class="fl">0.667</span>, <span class="st">"NONE"</span> <span class="ot">=</span> <span class="dv">0</span>)</span>
-<span id="cb55-9"><a href="#cb55-9" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(bb_const)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>bb_const <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"RD_RR"</span> <span class="ot">=</span> <span class="fl">0.053</span>, <span class="st">"RD_RRstar"</span> <span class="ot">=</span> <span class="fl">0.053</span>, <span class="st">"RD_OR"</span> <span class="ot">=</span> <span class="fl">0.053</span>, </span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RR_RRstar"</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">"RR_OR"</span> <span class="ot">=</span> <span class="fl">0.053</span>, <span class="st">"RRstar_OR"</span> <span class="ot">=</span> <span class="fl">0.0</span>,</span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RR_vs_RRstar_OR"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RRstar_vs_RR_OR"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_OR_vs_RR_RRstar"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RR_RRstar"</span> <span class="ot">=</span> <span class="dv">0</span>, <span class="st">"RD_RR_OR"</span> <span class="ot">=</span> <span class="fl">0.114</span>, </span>
+<span id="cb57-7"><a href="#cb57-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RRstar_OR"</span> <span class="ot">=</span> <span class="fl">0.114</span>, <span class="st">"RR_RRstar_OR"</span> <span class="ot">=</span> <span class="dv">0</span>,</span>
+<span id="cb57-8"><a href="#cb57-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"RD_RR_RRstar_OR"</span> <span class="ot">=</span> <span class="fl">0.667</span>, <span class="st">"NONE"</span> <span class="ot">=</span> <span class="dv">0</span>)</span>
+<span id="cb57-9"><a href="#cb57-9" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(bb_const)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1.107</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>comp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">bb =</span> <span class="fu">round</span>(bb_const, <span class="dv">4</span>), </span>
-<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">sim =</span> <span class="fu">round</span>(<span class="fu">unlist</span>(gridsim_const), <span class="dv">4</span>))</span>
-<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>comp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>comp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">bb =</span> <span class="fu">round</span>(bb_const, <span class="dv">4</span>), </span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">sim =</span> <span class="fu">round</span>(<span class="fu">unlist</span>(gridsim_const), <span class="dv">4</span>))</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>comp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                      bb    sim
 RD_RR              0.053 0.0000
@@ -1820,8 +1838,8 @@ NONE               0.000 0.0000</code></pre>
 </div>
 <p>The results from the Monte Carlo simulation with the constrained data agree the author’s result.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="st">"simulation"</span> <span class="ot">=</span> <span class="fu">unname</span>(<span class="fu">unlist</span>(gridsim_const[<span class="st">"RD_RR_RRstar_OR"</span>])),</span>
-<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"author's"</span> <span class="ot">=</span> <span class="fu">unname</span>(bb_const[<span class="st">"RD_RR_RRstar_OR"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="st">"simulation"</span> <span class="ot">=</span> <span class="fu">unname</span>(<span class="fu">unlist</span>(gridsim_const[<span class="st">"RD_RR_RRstar_OR"</span>])),</span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"author's"</span> <span class="ot">=</span> <span class="fu">unname</span>(bb_const[<span class="st">"RD_RR_RRstar_OR"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>simulation   author's 
  0.6726239  0.6670000 </code></pre>
@@ -1829,9 +1847,9 @@ NONE               0.000 0.0000</code></pre>
 </div>
 <p>Again the <strong>Opposite pairwise events</strong> cannot be represented in the 4-set Venn diagram.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The events that pair of measures move together but in opposite</span></span>
-<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a><span class="co"># direction of another pair who also move together</span></span>
-<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a><span class="fu">unlist</span>(gridsim_const[<span class="fu">c</span>(<span class="st">"RD_RR_vs_RRstar_OR"</span>, <span class="st">"RD_RRstar_vs_RR_OR"</span>, <span class="st">"RD_OR_vs_RR_RRstar"</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The events that pair of measures move together but in opposite</span></span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a><span class="co"># direction of another pair who also move together</span></span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a><span class="fu">unlist</span>(gridsim_const[<span class="fu">c</span>(<span class="st">"RD_RR_vs_RRstar_OR"</span>, <span class="st">"RD_RRstar_vs_RR_OR"</span>, <span class="st">"RD_OR_vs_RR_RRstar"</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>RD_RR_vs_RRstar_OR RD_RRstar_vs_RR_OR RD_OR_vs_RR_RRstar 
         0.05117790         0.05199025         0.00000000 </code></pre>
@@ -1839,10 +1857,10 @@ NONE               0.000 0.0000</code></pre>
 </div>
 <p>but if we do it as mentioned above then we can show a Venn diagram as follows</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="co"># This is a custom function using the venn package</span></span>
-<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggp_venn_sim</span>(gridsim_const,</span>
-<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">fill_colr =</span> <span class="fu">c</span>(<span class="st">"cyan"</span>, <span class="st">"gold"</span>, <span class="st">"springgreen"</span>, <span class="st">"hotpink"</span>),</span>
-<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">title =</span> <span class="st">"Venn diagram for constrained data"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="co"># This is a custom function using the venn package</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggp_venn_sim</span>(gridsim_const,</span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">fill_colr =</span> <span class="fu">c</span>(<span class="st">"cyan"</span>, <span class="st">"gold"</span>, <span class="st">"springgreen"</span>, <span class="st">"hotpink"</span>),</span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">title =</span> <span class="st">"Venn diagram for constrained data"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="ch04_measures_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -1855,9 +1873,9 @@ NONE               0.000 0.0000</code></pre>
 <p>We use a parametric Monte Carlo simulation using the beta distribution to evaluate the effect of the distribution assumption on the effect-measure modifications.</p>
 <p>We run the Monte-Carlo simulation with 5000 repetitions, a grid of <code>shape1</code> and <code>shape2</code> parameters for the Beta distribution and no constraint. Namely <code>mc_beta_effect_measures(shape1 = c(0.5, 1, 3, 5, 7), shape2 = c(0.5, 1, 3, 5, 7), nrep = 5000)</code></p>
 <div class="cell" data-hash="ch04_measures_cache/html/ch04_priorsim_7509fb050ca7e2f481ae701e06979054">
-<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>priorsim <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">mc_beta_effect_measures</span>(<span class="at">shape1 =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>),</span>
-<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">shape2 =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>),</span>
-<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">nrep =</span> <span class="dv">5000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>priorsim <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">mc_beta_effect_measures</span>(<span class="at">shape1 =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>),</span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">shape2 =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>),</span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">nrep =</span> <span class="dv">5000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Grid of  25  parameter constellations to be evaluated. 
  
@@ -2100,7 +2118,7 @@ socketHosts, : Unknown option on commandline: --file</code></pre>
 <p>Also note that for large <span class="math inline">\(shape1 = shape2 = \text{large number}\)</span> the beta distribution is similar to the normal distribution with a mean of <span class="math inline">\(shape1 / (shape1 + shape2)\)</span>. The simulation shows that in that case the percentage of measures moving in the same directions is nearing 100%. See for example when <span class="math inline">\(shape1 = shape2 = 7\)</span> in the matrix of results from the sim.</p>
 <p>here is the matrix of percentage of times that all measures move in the same direction, i.e.&nbsp;the event <code>RD_RR_RRstar_OR</code></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(priorsim[[<span class="st">"RD_RR_RRstar_OR"</span>]], <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(priorsim[[<span class="st">"RD_RR_RRstar_OR"</span>]], <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       s1=0.5 s1=1 s1=3 s1=5 s1=7
 s2=0.5   0.78 0.81 0.83 0.83 0.83
@@ -2112,16 +2130,16 @@ s2=7     0.83 0.86 0.91 0.93 0.93</code></pre>
 </div>
 <p>and to show as a heatmap</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggp_betasim</span>(priorsim, <span class="at">var =</span> <span class="st">"RD_RR_RRstar_OR"</span>, </span>
-<span id="cb118-2"><a href="#cb118-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">colr =</span> <span class="fu">list</span>(<span class="st">"low"</span> <span class="ot">=</span> <span class="st">"deepskyblue1"</span>, <span class="st">"high"</span> <span class="ot">=</span> <span class="st">"deepskyblue4"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb120"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggp_betasim</span>(priorsim, <span class="at">var =</span> <span class="st">"RD_RR_RRstar_OR"</span>, </span>
+<span id="cb120-2"><a href="#cb120-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">colr =</span> <span class="fu">list</span>(<span class="st">"low"</span> <span class="ot">=</span> <span class="st">"deepskyblue1"</span>, <span class="st">"high"</span> <span class="ot">=</span> <span class="st">"deepskyblue4"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="ch04_measures_files/figure-html/unnamed-chunk-32-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>and comparing with the author</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb119"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="st">"simulation"</span> <span class="ot">=</span> priorsim[[<span class="st">"RD_RR_RRstar_OR"</span>]][<span class="st">"s2=1"</span>, <span class="st">"s1=1"</span>], </span>
-<span id="cb119-2"><a href="#cb119-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"author's"</span> <span class="ot">=</span> <span class="fu">unname</span>(bb[<span class="st">"RD_RR_RRstar_OR"</span>])), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb121"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="st">"simulation"</span> <span class="ot">=</span> priorsim[[<span class="st">"RD_RR_RRstar_OR"</span>]][<span class="st">"s2=1"</span>, <span class="st">"s1=1"</span>], </span>
+<span id="cb121-2"><a href="#cb121-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"author's"</span> <span class="ot">=</span> <span class="fu">unname</span>(bb[<span class="st">"RD_RR_RRstar_OR"</span>])), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>simulation   author's 
      0.837      0.833 </code></pre>
@@ -2129,16 +2147,16 @@ s2=7     0.83 0.86 0.91 0.93 0.93</code></pre>
 </div>
 <p>We can see that the range is wide and should be considered.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb121"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a><span class="fu">range</span>(priorsim[[<span class="st">"RD_RR_RRstar_OR"</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb123"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a><span class="fu">range</span>(priorsim[[<span class="st">"RD_RR_RRstar_OR"</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.7848 0.9302</code></pre>
 </div>
 </div>
 <p>Now we do it with constrained data</p>
 <div class="cell" data-hash="ch04_measures_cache/html/ch04_priorsim_const_54a3c43846ff9c5682c043f48beb1be9">
-<div class="sourceCode cell-code" id="cb123"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a>priorsim_const <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">mc_beta_effect_measures</span>(<span class="at">shape1 =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>),</span>
-<span id="cb123-2"><a href="#cb123-2" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">shape2 =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>),</span>
-<span id="cb123-3"><a href="#cb123-3" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">nrep =</span> <span class="dv">5000</span>, <span class="at">constrained =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb125"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb125-1"><a href="#cb125-1" aria-hidden="true" tabindex="-1"></a>priorsim_const <span class="ot">&lt;-</span> fciR<span class="sc">::</span><span class="fu">mc_beta_effect_measures</span>(<span class="at">shape1 =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>),</span>
+<span id="cb125-2"><a href="#cb125-2" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">shape2 =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>),</span>
+<span id="cb125-3"><a href="#cb125-3" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">nrep =</span> <span class="dv">5000</span>, <span class="at">constrained =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Grid of  25  parameter constellations to be evaluated. 
  
@@ -2376,17 +2394,17 @@ socketHosts, : Unknown option on commandline: --file</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb175"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb175-1"><a href="#cb175-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggp_betasim</span>(priorsim_const, <span class="at">var =</span> <span class="st">"RD_RR_RRstar_OR"</span>,</span>
-<span id="cb175-2"><a href="#cb175-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">colr =</span> <span class="fu">list</span>(<span class="st">"low"</span> <span class="ot">=</span> <span class="st">"lightsalmon1"</span>, <span class="st">"high"</span> <span class="ot">=</span> <span class="st">"lightsalmon4"</span>),</span>
-<span id="cb175-3"><a href="#cb175-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">title =</span> <span class="st">"Monte Carlo simulation. Constrained data."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb177"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb177-1"><a href="#cb177-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggp_betasim</span>(priorsim_const, <span class="at">var =</span> <span class="st">"RD_RR_RRstar_OR"</span>,</span>
+<span id="cb177-2"><a href="#cb177-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">colr =</span> <span class="fu">list</span>(<span class="st">"low"</span> <span class="ot">=</span> <span class="st">"lightsalmon1"</span>, <span class="st">"high"</span> <span class="ot">=</span> <span class="st">"lightsalmon4"</span>),</span>
+<span id="cb177-3"><a href="#cb177-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">title =</span> <span class="st">"Monte Carlo simulation. Constrained data."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="ch04_measures_files/figure-html/unnamed-chunk-36-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>and comparing with the author</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb176"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb176-1"><a href="#cb176-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="st">"simulation"</span> <span class="ot">=</span> priorsim_const[[<span class="st">"RD_RR_RRstar_OR"</span>]][<span class="st">"s2=1"</span>, <span class="st">"s1=1"</span>], </span>
-<span id="cb176-2"><a href="#cb176-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"author's"</span> <span class="ot">=</span> <span class="fu">unname</span>(bb_const[<span class="st">"RD_RR_RRstar_OR"</span>])), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb178"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb178-1"><a href="#cb178-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="st">"simulation"</span> <span class="ot">=</span> priorsim_const[[<span class="st">"RD_RR_RRstar_OR"</span>]][<span class="st">"s2=1"</span>, <span class="st">"s1=1"</span>], </span>
+<span id="cb178-2"><a href="#cb178-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"author's"</span> <span class="ot">=</span> <span class="fu">unname</span>(bb_const[<span class="st">"RD_RR_RRstar_OR"</span>])), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>simulation   author's 
      0.670      0.667 </code></pre>
@@ -2394,7 +2412,7 @@ socketHosts, : Unknown option on commandline: --file</code></pre>
 </div>
 <p>and the range is even larger and therefore more significant.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb178"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb178-1"><a href="#cb178-1" aria-hidden="true" tabindex="-1"></a><span class="fu">range</span>(priorsim_const[[<span class="st">"RD_RR_RRstar_OR"</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb180"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb180-1"><a href="#cb180-1" aria-hidden="true" tabindex="-1"></a><span class="fu">range</span>(priorsim_const[[<span class="st">"RD_RR_RRstar_OR"</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.5811623 0.8613429</code></pre>
 </div>

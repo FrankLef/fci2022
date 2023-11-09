@@ -1,0 +1,202 @@
+# Difference-in-Differences Estimators {#did}
+
+```{r }
+library(conflicted)
+library(dplyr)
+library(fciR)
+options(dplyr.summarise.inform = FALSE)
+conflicts_prefer(dplyr::filter)
+```
+
+
+## Difference-in-Differences (DiD) Estimators
+
+### DiD Estimator with a Linear Model
+
+> The method relies on consistency as well as assumption A1:
+
+$$
+\begin{align*}
+&E(Y_1(0) \mid A=1) - E(Y_1(0) \mid A=1) = \\
+&E(Y_0(0) \mid A=1) - E(Y_0(0) \mid A=1)
+\end{align*}
+$$
+
+That assumption is interpreted as : If assume that no treatment was applied in "year" 1 (nothing happened in year 1) than we have the same results as in the base "year".
+
+> also called **additive equi-confounding** \[...\]. The target of estimation is the linear ATT presented in chapter 6 as a risk difference
+
+$$
+\text{Linear ATT:} \: E(Y_1(1) - Y_1(0) \mid A=1)
+$$ 
+
+which is interpreted as \*what is the the average difference between $Y_1(1)$ and $Y_1(0)$ if they all treated. For the example of the bank's NIM, what is the average difference between the banks' NIM in NIRP ad non-NIRP economy assuming they are all subjected to the NIRP policy, that is wihout the impact of the NIRP policy.
+
+and we have
+
+$$
+\begin{align*}
+& E(Y_1(1) - Y_1(0)) \mid A=1) = \\
+& E(Y_1(1) \mid A=1) - E(Y_1(0) \mid A=1) = \\
+& [E(Y_1(1) \mid A=1) - E(Y_1(0) \mid A=1)] - [E(Y_1(0) \mid A=0) - E(Y_1(0) \mid A=0)] = \\
+& [E(Y_1(1) \mid A=1) - E(Y_1(0) \mid A=0)] - [E(Y_1(0) \mid A=1) - E(Y_1(0) \mid A=0)] = \\
+&\text{consistency assumption} \\
+& [E(Y_1 \mid A=1) - E(Y_1 \mid A=0)] - [E(Y_1(0) \mid A=1) - E(Y_1(0) \mid A=0)] = \\
+&\text{assumption A1, additive equi-confounding} \\
+&\text{i.e. assuming that if nothing happens in year 1, then we can use the results of year 0} \\
+& [E(Y_1 \mid A=1) - E(Y_1 \mid A=0)] - [E(Y_0 \mid A=1) - E(Y_0 \mid A=0)]
+\end{align*}
+$$
+
+> we can therefore estimate the linear ATT via the difference in differences of averages
+
+$$
+\begin{align*}
+&[\hat{E}(Y_1 \mid A=1) - \hat{E}(Y_1 \mid A=0)] - [\hat{E}(Y_0 \mid A=1) - \hat{E}(Y_0 \mid A=0)]= \\
+&[\hat{E}(Y_1 \mid A=1) - \hat{E}(Y_0 \mid A=1)] - [\hat{E}(Y_1 \mid A=0) - \hat{E}(Y_0 \mid A=0)]= \\
+&[\hat{E}(Y_1 - Y_0 \mid A=1)] - [\hat{E}(Y_1 - Y_0 \mid A=0)]
+\end{align*}
+$$
+
+> We can also compute the DiD via the linear model
+
+$$
+E(Y_t \mid A) = \alpha_0 + \alpha_1 t + \alpha_2 A + \beta A * t
+$$
+
+and therefore
+
+$$
+\begin{align*}
+\beta &= [E(Y_1 \mid A=1) - E(Y_0 \mid A=1)] - [E(Y_1 \mid A=0) - E(Y_0 \mid A=0)] \\
+&= (\alpha_0 + \alpha_1 + \alpha_2 + \beta) - (\alpha_0 + \alpha_2) - 
+((\alpha_0 + \alpha_2) - (\alpha_0))
+\end{align*}
+$$
+
+> As we can estimate $E(Y(1) \mid A=1)$ directly via $E(Y_1 \mid A=1)$, we can also recover $E(Y(0) \mid A=1)$ via $E(Y_1 \mid A=1) - \beta$
+
+because from above we have
+
+$$
+\begin{align*}
+\beta &= E(Y_1(1) - Y_1(0)) \mid A=1) \\
+&= E(Y_1(1) \mid A=1) - E(Y_1(0) \mid A=1) \\
+&= E(Y_1 \mid A=1) - E(Y_1(0) \mid A=1) \\
+&\therefore \\
+E(Y_1(0) \mid A=1)& = E(Y_1 \mid A=1) - \beta
+\end{align*}
+$$
+
+### DiD Estimator with a Loglinear Model
+
+> The method relies on consistency as well as assumption A2:
+
+$$
+\begin{align*}
+\frac{E(Y_1(0) \mid A=1)}{E(Y_1(0) \mid A=1)} =
+\frac{E(Y_0(0) \mid A=1)}{E(Y_0(0) \mid A=1)}
+\end{align*}
+$$
+
+### DiD Estimator with a Logistic Model
+
+> The method relies on consistency as well as assumption A3:
+
+$$
+\begin{align*}
+logit(E(Y_1(0) \mid A=1)) - logit(E(Y_1(0) \mid A=1)) =
+logit(E(Y_0(0) \mid A=1)) - logit(E(Y_0(0) \mid A=1))
+\end{align*}
+$$
+
+## Comparison with Standardization
+
+The functions used for DID estimations are `fciR::did_linear()`, `fciR::did_loglinear` and `fciR::logistic`.
+
+### `doublewhatifdat`
+
+The DiD estimator with the linear model
+
+```{r }
+#| label: ch07_dwhatif_did_lin
+#| cache: true
+dwhatif.did.lin <- fciR::boot_est(
+    doublewhatifdat, func = fciR::did_linear,
+    times = 100, alpha = 0.05, transf = "exp",
+    terms = c("EY0A1", "EY1", "RD", "RR", "RR*", "OR"),
+    formula = VL1 ~ A + VL0, exposure.name = "A", confound.names = "VL0")
+```
+
+The DiD estimator with the loglinear model
+
+```{r }
+#| label: ch07_dwhatif_did_loglin
+#| cache: true
+dwhatif.did.loglin <- fciR::boot_est(
+    doublewhatifdat, func = fciR::did_loglinear,
+    times = 100, alpha = 0.05, transf = "exp",
+    terms = c("EY0A1", "EY1", "RD", "RR", "RR*", "OR"),
+    formula = VL1 ~ A + VL0, exposure.name = "A", confound.names = "VL0")
+```
+
+The DiD estimator with the logistic model
+
+```{r }
+#| label: ch07_dwhatif_did_logit
+#| cache: true
+dwhatif.did.logit <- fciR::boot_est(
+    doublewhatifdat, func = fciR::did_logistic,
+    times = 100, alpha = 0.05, transf = "exp",
+    terms = c("EY0A1", "EY1", "RD", "RR", "RR*", "OR"),
+    formula = VL1 ~ A + VL0, exposure.name = "A", confound.names = "VL0")
+```
+
+verify the results
+
+```{r}
+#| label: ch07_fci_tbl_07_02
+data("fci_tbl_07_02", package = "fciR")
+bb_dwhatif <- fci_tbl_07_02
+bb_dwhatif
+```
+
+```{r}
+#| label: tbl-ch07_02
+#| tbl-cap: Table 7.2
+#| out-width: "100%"
+gt_measures_rowgrp(
+    bb_dwhatif, 
+    rowgroup = "term",
+    rowname = "model",
+    title = paste("Table 7.2", "Double What-If Study"), 
+    subtitle = paste("Difference-in-Differences Estimation of the ATT",
+                     sep = "<br>")
+    )
+```
+
+and the results using the `fciR` package are identical.
+
+```{r}
+tbl_7.2 <- rbind(
+  data.frame(
+    model = "Linear",
+    dwhatif.did.lin), 
+  data.frame(
+    model = "Loglinear",
+    dwhatif.did.loglin),
+  data.frame(
+    model = "Logistic",
+    dwhatif.did.logit))
+gt_measures_rowgrp(tbl_7.2,
+    rowgroup = "term",
+    rowname = "model",
+    title = paste("Table 7.2<em>(by FL)</em>", "Double What-If Study", sep = "<br>"), 
+    subtitle = paste("Difference-in-Differences Estimation of the ATT",
+                     sep = "<br>")
+  )
+fciR::ggp_measures_groups(tbl_7.2, group = "model", 
+                          title = paste("Table 7.2", "Double What-If Study"),
+                          subtitle = paste("Difference-in-Differences Estimation of the ATT",
+                                     sep = "<br>"))
+```

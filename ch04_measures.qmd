@@ -1,9 +1,12 @@
 # Effect-Measure Modification and Causal Interaction {#measures}
 
 ```{r}
+library(conflicted)
 library(fciR, quietly = TRUE)
 library(tidyr, quietly = TRUE)
 library(ggvenn, quietly = TRUE)
+options(dplyr.summarise.inform = FALSE)
+conflicts_prefer(dplyr::filter)
 ```
 
 
@@ -22,7 +25,7 @@ source(file = file.path(dir_lib, "ggp_betasim.R"),
 
 Get the data.frame for *RECOVERY* trial
 
-```{r echo=TRUE}
+```{r}
 data("recovery", package = "fciR")
 ```
 

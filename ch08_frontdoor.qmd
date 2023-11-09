@@ -1,0 +1,144 @@
+# Front-Door Method {#frontdoor}
+
+```{r}
+library(conflicted)
+library(dplyr)
+library(ggdag)
+library(patchwork)
+library(ggplot2)
+library(fciR)
+options(dplyr.summarise.inform = FALSE)
+conflicts_prefer(dplyr::filter)
+```
+
+
+## Motivation
+
+```{r }
+#| label: ch08_scm_8.1
+#| warning: false
+scm_8.1 <- list()
+scm_8.1 <- within(scm_8.1, {
+  coords <- list(
+    x = c(A = 1, S = 2, U = 2, Y = 3),
+    y = c(A = 1, S = 1, U = 2, Y = 1))
+  dag <- dagify(
+    A ~ U,
+    S ~ A,
+    Y ~ S + U,
+    coords = coords)
+
+  plot <- fciR::ggp_dag(dag)
+})
+```
+
+```{r}
+#| label: fig-ch08_scm_8.1
+#| fig-align: 'center'
+#| fig-cap: Front-door Causal DAG
+#| out-width: "60%"
+#| echo: false
+scm_8.1$plot
+```
+
+> When $S$ is a surrogate marker
+
+$$
+\begin{align*}
+&\text{by double expectation rule} \\
+E(Y \mid A) &= E_{S \mid A}(E(Y \mid A)) \\
+&\text{by conditional expectation} \\
+&= \sum_s E(Y \mid S=s, A) P(S=s \mid A) \\
+&\text{because } Y \perp\!\!\!\perp A \mid S \\
+&= \sum_s E(Y \mid S=s) P(S=s \mid A) \\
+&\text{since there are no confounder for the effect of A on Y} \\
+E(Y(a)) = E(Y \mid A=a) &=  \sum_s E(Y \mid S=s) P(S=s \mid A=a)
+\end{align*}
+$$
+
+## Theory and Method
+
+Using (8.1) from above
+
+$$
+\begin{align*}
+E(Y(a)) = E(Y \mid A=a) &=  \sum_s E(Y \mid S=s) P(S=s \mid A=a) \\
+&\text{and with backdoor standardization we have that} \\
+&E(Y \mid S=s) = \sum_{a^\prime} E(Y \mid S=s, A=a^\prime)P(A = a^\prime) \\
+\therefore \\
+E(Y(a)) = E(Y \mid A=a) &=  \sum_s P(S=s \mid A=a) \left[ \sum_{a^\prime} E(Y \mid S=s, A=a^\prime)P(A = a^\prime) \right] \\
+\end{align*}
+$$
+
+## Simulated Example
+
+```{r}
+#| label: ch08_sim1
+sim1 <- function(n = 1e4, seed = 555) {
+  set.seed(seed)
+  # Generate the potential outcome Y(.,0) and Y(.,1)
+  Ydot0 <- rbinom(n, size = 1, prob = 0.05)
+  Ydot1 <- rbinom(n, size = 1, prob = 0.2)
+  # let A depend on Y(.,1)
+  probA <- (1 - Ydot1) * 0.1 + Ydot1 * 0.8
+  A <- rbinom(n, size = 1, prob = probA)
+  # Generate the potential outcome S(0) and S(1)
+  S0 <- rbinom(n, size = 1, prob = 0.05)
+  S1 <- rbinom(n, size = 1, prob = 0.9)
+  # S is a function of S0, S1 and A
+  S <- (1 - A) * S0 + A * S1
+  # Y is a function of Y(., 0) and Y(., 1) and S
+  Y <- (1 - S) * Ydot0 + S * Ydot1
+  data.frame(cbind(A, S, Y, Ydot0, Ydot1))
+}
+```
+
+```{r}
+#| label: ch08_sim1.front
+sim1_df <- sim1()
+sim1.front <- fciR::frontdr_np(sim1_df, formula = Y ~ A + S,
+                               exposure.name = "A", surrogate.name = "S")
+sim1.front
+```
+
+and we compare the results to the author's
+
+```{r}
+sim1.EY0 <- sim1.front$estimate[sim1.front$term == "EY0"]
+sim1.EY1 <- sim1.front$estimate[sim1.front$term == "EY1"]
+stopifnot(abs(sim1.EY0 - 0.055847) < 1e-4,
+          abs(sim1.EY1 - 0.18537) < 1e-4)
+```
+
+and we can estimates the confidence intervals using the usual bootstrapping.
+
+```{r }
+#| label: ch08_sim1_np
+#| cache: true
+message("this takes 1 sec., use cache")
+sim1.np <- fciR::boot_est(
+    sim1_df, fciR::frontdr_np, times = 100, alpha = 0.05,
+    terms = c("EY0", "EY1", "RD", "RR", "RR*", "OR"),
+    formula = Y ~ A + S, exposure.name = "A", surrogate.name = "S")
+```
+
+```{r }
+#| label: fig-ch08_sim1_np
+#| fig-cap: "Chapter 8: Simulated Example"
+df <- sim1.np
+tbl <- fciR::gt_measures(df, 
+            title = "Chapter 8: Simulated Example", 
+            subtitle = paste("Front-Door Method Standardized Estimates"))
+p <- fciR::ggp_measures(df,
+                   title = NULL,
+                   subtitle = NULL,
+                   vline = list(colors = c("lightseagreen", "violet"),
+                                      linetype = "solid", size = 3, alpha = 0.5),
+                   pointrange = list(size = 1, fatten = 2),
+                   text = list(size = 3, color = "navy", digits = 2),
+                   text_size = list(title = 0.9, y_axis = 0.9))
+tbl <- fciR::gt2ggp(tbl)
+p + tbl + plot_annotation(title = "Chapter 8: Simulated Example",
+                          subtitle = "Standardized Estimates Using the Front-door Method") &
+  theme(title = element_text(color = "midnightblue", size = rel(0.9)))
+```

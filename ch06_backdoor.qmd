@@ -1,12 +1,14 @@
 # Backdoor Method via Standardization {#backdoor}
 
 ```{r}
+library(conflicted)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(patchwork)
 library(fciR)
 options(dplyr.summarise.inform = FALSE)
+conflicts_prefer(dplyr::filter)
 ```
 
 

@@ -1,6 +1,7 @@
 # Causal Directed Acyclic Graphs {#dag}
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r}
+library(conflicted)
 library(fciR)
 library(tidyr)
 library(dplyr)
@@ -8,14 +9,10 @@ library(ggdag)
 library(dagitty)
 library(ggplot2)
 library(simpr)
+options(dplyr.summarise.inform = FALSE)
+conflicts_prefer(dplyr::filter)
 ```
 
-```{r include=FALSE}
-# directory of data files
-dir_data <- file.path(getwd(), "data")
-# directory for functions
-dir_lib <- file.path(getwd(), "lib")
-```
 
 We use the `dagitty` and `ggdag` packages to analyse the DAG and plot them. 
 We also use the `simpr` package from now on to perform the simulations.
