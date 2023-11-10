@@ -1,0 +1,446 @@
+# Instrumental Variables {#instrument}
+
+```{r }
+library(conflicted)
+library(rsample)
+library(dplyr)
+library(ggdag)
+library(patchwork)
+library(ggplot2)
+library(fciR)
+options(dplyr.summarise.inform = FALSE)
+conflicts_prefer(dplyr::filter)
+```
+
+
+
+```{r}
+#| label: ch09_scm_9.1
+scm_9.1 <- list()
+scm_9.1 <- within(scm_9.1, {
+  coords <- list(
+    x = c(`T` = 1, A = 2, U = 3, Y = 4),
+    y = c(`T` = 1, A = 1, U = 2, Y = 1))
+  dag <- dagify(
+    A ~ `T` + U,
+    Y ~ A + U,
+    coords = coords)
+
+  plot <- fciR::ggp_dag(dag)
+})
+```
+
+```{r }
+#| label: fig-ch09_scm_9.1
+#| fig-cap: "Instrumental Variable for the Effect of A on Y"
+#| out-width: "60%"
+#| fig-align: 'center'
+scm_9.1$plot
+```
+
+> We enlist the following notation for this chapter. Let $Y(t,a)$ be the potential outcome for $Y$ assuming we set $T=t$ and then $A=a$.
+
+-   We assume consistency $E(Y(t) \mid T=t)= E(Y \mid T=t$)
+-   We assume exclusion $Y(t,a)=Y(a)$
+
+Lets say that participants to treatment $T$ may comply or not and let $A$ be the treatment actually taken. That is $A=1$ means that the treatment was taken by the participant. $A$ is therefore a post-randomization event.
+
+When $A$ does not equal $T$ there is 2 historical methods:
+
+1.  *as-treated*: Compare \$E(Y \mid A=1) with \$E(Y \mid A=0)
+2.  *per-protocol*: We let $Z=1$ if $A=T$ and use ordinary stratification on $Z=1$ to compare $E(Y \mid T=1, Z=1)$ with $E(Y \mid T=0, Z=1)$
+
+$Z=1$ is not a randomization event since it uses observed measurements after they occur. As a result $Z$ *cannot be expected to balance across 2 treatments groups*. For example sicker patients could alwyas comply but healthy ones might. In thsi case we have $T=1, A=1$ for the sicker patient but the healthy patients would be a mix of $T=1, A-1$ and $T=1, A=0$.
+
+> For these reasons, many studies rely on the *intent-to-treat effect* (ITT) $E(Y \mid T=1) - E(Y \mid T=0)$. This equates to the causal effect
+
+$$
+ITT = E(Y(1,A(1))) -  E(Y, A(0, 0)))
+$$
+
+## Complier Average Causal Effect and Principal Stratification
+
+### Principal Stratification
+
+> Principal stratification classifies participants according to the potential occurence of a *post-randomization event*. We define 4 principal strata of participants according tottheir potential outcome $A(t)$.
+
+1.  *never-taker*: $A(0)=A(1)=0$. Will not take the treatment regardless of randomized assignment.
+2.  *always-taker*: $A(0)=A(1)=1$. Will not take the treatment regardless of randomized assignment.
+3.  *complier*: $A(0)=0, A(1)=1$, i.e. $A(t)=t$. Will take the treatment as required.
+4.  *defier*: $A(0)=1, A(1)=0$, i.e. $A(t)=1-t$. Will refuse to take the treatment as required.
+
+Let $C$ indicate a complier, i.e. that $A(t)=t$. Then since
+
+(a) $T$ is a randomized, i.e. $Y \perp\!\!\!\perp T \mid C$
+(b) $C$ is a pre-randomization variable, i.e. $T \perp\!\!\!\perp C$
+(c) $Y(t,a) = Y(a)$
+
+it is reasonable to assume
+
+$$
+Y(a) \perp\!\!\!\perp T \mid C
+$$
+
+### Complier Average Causal Effect
+
+The *complier average causal effect* (CACE) is defined as the average effect of treatment (ATT) in the compliers. That is
+
+$$
+\begin{align*}
+CACE &= E(Y(1) \mid C=1) - E(Y(0) \mid C=1) \\
+&= E(Y \mid T=1, C=1) - E(Y \mid T=0, C=1)
+\end{align*}
+$$
+
+The equation shows CACE as a stratified treatment effct, but $C=1$ defines a principal stratum instead of an ordinary one.
+
+We can estimate CACE assuming exclusion and *no defiers*. Assuming no defiers implies
+
+$$
+E(Y \mid T=1, C=0) = E(Y \mid T=0, C=0)
+$$
+
+because no defiers implies that $C=0$ includes only *never-takers* and *always-takers* and these 2 groups act the same way regardless of what $T$ is. In addition, exclusion ensures that randomization of $T$ cannot affect the outcome of the never-takers and always-takers since $Y \perp\!\!\!\perp T \mid A$.
+
+Then, **assuming no defiers** we can say the
+
+$$
+E(Y \mid T=1) = E(Y \mid T=1, C=1)P(C=1) + E(Y \mid T=1, C=0)(1-P(C=1))
+$$ 
+
+and
+
+$$
+E(Y \mid T=0) = E(Y \mid T=0, C=1)P(C=1) + E(Y \mid T=0, C=0)(1-P(C=1))
+$$ 
+
+and therefore
+
+$$
+\begin{align*}
+E(Y \mid T=1) - E(Y \mid T=0) &= E(Y \mid T=1, C=1)P(C=1) + E(Y \mid T=1, C=0)(1-P(C=1)) - \left[ E(Y \mid T=0, C=1)P(C=1) + E(Y \mid T=0, C=0)(1-P(C=1)) \right] \\
+\frac{E(Y \mid T=1) - E(Y \mid T=0)}{P(C=1)} &= E(Y \mid T=1, C=1) + \frac{E(Y \mid T=1, C=0)}{P(C=1)} - E(Y \mid T=1, C=0) - \left[ E(Y \mid T=0, C=1) + 
+\frac{E(Y \mid T=0, C=0)}{P(C=1)} - E(Y \mid T=0, C=0) \right] \\
+\end{align*}
+$$ 
+
+and since from above we know that
+
+$$
+E(Y \mid T=1, C=0) = E(Y \mid T=0, C=0)
+$$
+
+then
+
+$$
+\begin{align*}
+\frac{E(Y \mid T=1) - E(Y \mid T=0)}{P(C=1)} = E(Y \mid T=1, C=1) - E(Y \mid T=1, C=0)
+\end{align*}
+$$
+
+and to find $P(C=1)$ since *we assume no defiers* then we know that
+
+$$
+P(C=1) + P(A=0 \mid T=1) + P(A=1 \mid T=0) = 1
+$$
+
+and therefore
+
+$$
+\begin{align*}
+&\text{assuming no defiers} \\
+P(C=1) &= 1 - P(A=0 \mid T=1) + P(A=1 \mid T=0) \\
+&= P(A=1 \mid T=1) + P(A=1 \mid T=0)
+\end{align*}
+$$ 
+
+and putting it together we obtain
+
+$$
+\begin{align*}
+\text{CACE} &= E(Y \mid T=1, C=1) - E(Y \mid T=1, C=0) \\
+&= \frac{E(Y \mid T=1) - E(Y \mid T=0)}{P(A=1 \mid T=1) + P(A=1 \mid T=0)} \\
+&= \frac{ITT}{P(A=1 \mid T=1) + P(A=1 \mid T=0)}
+\end{align*}
+$$
+
+## Average Effect of Treatment on the Treated and Structural Nested mean Models
+
+> A drawback of the CACE is that it applies only to the compliers, a subgroup of the population that we cannot even identify.
+
+Another way to do it is to use the average effect of treatment on the treated
+
+$$
+\text{ATT} = E(Y(1) - Y(0) \mid A=1) = E(Y - Y(0) \mid A=1)
+$$
+
+> To estimate the ATT using the instrumental variable, $T$, we introduce structural nested mean models.
+
+The linear structural nested mean model is
+
+$$
+E(Y - Y(0) \mid A, T) = A \beta
+$$
+
+$Y-Y(0)$ is assumed to be mean indedpendent of $T$ given $A$, that is $E(Y-Y(0) \mid A, T) = E(Y-Y(0) \mid A)$ (see p. 22). This therefore implies that there is no defiers as they create a dependency on $T$. It also implies that \*any effect modifiers of $Y-Y(0)$ is balanced across $T=0$ and $T=1$ groups.
+
+The non-causal linear model is using $\overrightarrow{D}=\left[1, A, T, A \cdot T \right]$ which is a function of $A$ and $T$
+
+$$
+E(Y \mid A,T)=D \eta
+$$
+
+therefore
+
+$$
+D \eta - A \beta = E(Y(0) \mid A, T)
+$$ and so
+
+$$
+E_{A \mid T} (D \eta - A \beta) = E(Y(0) \mid A, T)
+$$
+
+The solution for $\eta$ is found using the method of chapter 2, section 2.3.
+
+$$
+\sum_{n=1}^n (1,T_i)^T(D_i \hat{\eta} -A_i \beta - \alpha) = 0
+$$
+
+and for $\alpha$ and $\beta$ we use instrumental variable regression which can be done with the `ivreg` function from the package `AER`.
+
+$$
+\sum_{n=1}^n (1,T_i)^T(Y_i^* - A_i^* \beta - \alpha) = 0
+$$
+
+## Examples
+
+### What-If Study
+
+```{r}
+#| label: ch09_whatifdat
+data("whatifdat", package = "fciR")
+whatif <- whatifdat
+round(prop.table(xtabs(data = whatif, formula = ~ `T` + A), margin = 1), 2)
+rm(whatifdat)
+```
+
+and the **function as found on p. 164 is modified to allow the bootstrapping with many iterations by setting IV to `NA` where the denominator is too small**.
+
+```{r}
+#| label: ch09_func_instr_vars
+func_instr_vars <- function(data, formula = Y ~ A  + `T`, exposure.name = "A",
+                       instrument.name = "T", tol = .Machine$double.eps^0.5) {
+  outcome.name <- all.vars(formula)[[1]]
+  
+  # estimate the ITT
+  dat0 <- data[, instrument.name] == 0
+  dat1 <- data[, instrument.name] == 1
+  ITT <- mean(data[dat1, outcome.name]) - mean(data[dat0, outcome.name])
+  
+  # estimate the denominator of the CAE and ATT with equation (9.5)
+  denom <- mean(data[dat1, exposure.name]) - mean(data[dat0, exposure.name])
+  msg <- sprintf("The variable \'%s\' is a weak instrument. Typically, no analysis
+  should done with a weak instrument.", instrument.name)
+  assertthat::assert_that(abs(denom) >= tol, msg = msg)
+  IV <- ITT / denom
+  out <- c("ITT" = ITT, "IV" = IV)
+  # output that can be used by rsample::bootstraps
+  data.frame(
+    term = names(out),
+    estimate = out,
+    std.err = NA_real_
+  )
+  } 
+```
+
+with the results
+
+```{r}
+#| label: ch09_whatif.est
+whatif.est <- func_instr_vars(whatif, formula = Y ~ A + `T`, 
+                              exposure.name = "A", instrument.name = "T")
+stopifnot(all(abs(whatif.est$estimate - c(0.007352941, 0.27777778)) < 1e-6))
+whatif.est
+```
+
+and using only 100 boots to estimate the CI we can use `instr_vars` from `fciR` which gives the correct result
+
+```{r}
+fciR::instr_vars(whatif, formula = Y ~ A + `T`, exposure.name = "A",
+                 instrument.name = "T")
+```
+
+but it is difficult to replicate in bootstrapping . . . this is the closest found using `seed = 514229` which has wide intervals. **But this result is obtained by playing with the seed.**
+
+```{r}
+#| label: ch09_whatif.out
+#| cache: true
+set.seed(514229)  # fibonacci prime
+whatif.out <- whatif |>
+  rsample::bootstraps(times = 100, apparent = FALSE) |>
+  mutate(results = purrr::map(.data$splits, function(x) {
+    dat <- rsample::analysis(x)
+    func_instr_vars(dat, formula = Y ~ A + `T`, exposure.name = "A",
+                     instrument.name = "T", tol = 1e-6)})) |>
+  rsample::int_pctl(.data$results, alpha = 0.05)
+whatif.out
+```
+
+and we can also do it usually `fciR::instr_vars()`.
+
+```{r}
+whatif.out <- fciR::boot_est(
+  whatif, fciR::instr_vars, times = 100, seed = 514229, alpha = 0.05,
+  transf = "identity", terms = NULL, 
+  formula = Y ~ A + `T`, exposure.name = "A", instrument.name = "T")
+whatif.out
+```
+
+### Double What-if Study
+
+```{r}
+#| label: ch09_doublewhatifdat
+data("doublewhatifdat", package = "fciR")
+dwhatif <- doublewhatifdat
+```
+
+We compute the estimator for the linear, loglinear and logistic SNMM using the Double What-If Study. The functions are in the `fciR` package and can be consulted as usual by using `F2` on the function.
+
+The `jacknife` function from the package `resample` is replaced by using the `loo_cv` from the `rsample` package. This function creates n sets of data, with n being the nb of rows in the data, where 1 row is left out for every set. This is the same as a jackknife.
+
+Using the `rsample` package offers a more versatile and modern way of working with R as it is the tidyverse way of coding. In addition, the author of `resample` mentions that he has stopped maintaining the resample package and recommends using `rsample`.
+
+See [STA 430](http://campus.murraystate.edu/academic/faculty/cmecklin/STA430/_book/the-jackknife-and-the-bootstrap.html) for an easy to understand explanation on how to compute the standard error of a jackknife.
+
+```{r}
+#| label: ch09_dwhatif.instr.lin
+dwhatif.instr.lin <- fciR::instr_linear(dwhatif, formula = VL1 ~ A * `T`,
+                                       exposure.name = "A", instrument.name = "T")
+dwhatif.instr.lin
+```
+
+and we use a jackknife as discussed above. Since the confidence interval for the standard error is custom-made, we test it with the `mtcars` data set as follows.
+
+```{r}
+#| label: ch09_func_jack_ci
+# the function to compute the standard error and confidence interval
+func_jack_ci <- function(x, alpha = 0.05) {
+  n <- length(x)
+  nsample <- n - 1
+  m <- mean(x)
+  v <- (nsample / n) * sum((x - m)^2)
+  se <- sqrt(v)
+  ci <- qt(1 - alpha, df = nsample)
+  c(".lower" = m - ci * se, ".estimate" = m, ".upper" = m + ci * se)
+}
+
+mtcars.jack <- sapply(seq_along(mtcars$mpg), FUN = function(i) {
+  x <- mtcars$mpg[-i]
+  func_jack_ci(x)
+})
+```
+
+The functions are found in the `fciR` package as `jack_run` and `jack_est`. `fciR::jack_run` is the workhorse, just like `fciR::boot_run`. `jack_est` compute the inverse just like `boot_est` does.
+
+```{r}
+#| label: ch09_func_jack_run
+func_jack_run <- function(data, func, alpha = 0.05, ...) {
+  
+  # get the leave-one-out samples
+  the_samples <- rsample::loo_cv(data)
+
+  # estimates the effect measures
+  the_results <- purrr::map_dfr(.x = the_samples$splits, .f = function(x) {
+    dat <- rsample::analysis(x)
+    df <- func(dat, ...)
+    out <- c(df$estimate)
+    names(out) <- df$term
+    out
+  })
+  
+  # compute the confidence interval for each term
+  out <- purrr::map_dfr(.x = the_results, .f = ~func_jack_ci(., alpha = alpha), .id = "term")
+  
+  # create the output dataframe
+  data.frame(
+    out,
+    ".alpha" = alpha,
+    ".method" = "qt"
+  )
+}
+```
+
+```{r}
+df <- func_jack_run(data = dwhatif, 
+                    func = fciR::instr_linear, alpha = 0.05,
+                    formula = VL1 ~ A * `T`, exposure.name = "A",
+                    instrument.name = "T")
+df
+```
+
+The `jack_est` function to do the full jackknife in one function is included in the `fci` package and can be used as follows.
+
+First with the linear model
+
+```{r }
+#| label: ch09_dwatif_instr_lin
+#| cache: true
+dwhatif.instr.lin <- fciR::jack_est(data = dwhatif, 
+                                    func = fciR::instr_linear, alpha = 0.05,
+                 transf = "identity",
+                 VL1 ~ A * `T`, exposure.name = "A",
+                 instrument.name = "T")
+dwhatif.instr.lin
+```
+
+then the loglinear model
+
+```{r }
+#| label: ch09_dwatif_instr_loglin
+#| cache: true
+dwhatif.instr.loglin <- fciR::jack_est(
+  data = dwhatif, func = fciR::instr_loglinear, alpha = 0.05,
+  transf = "identity", formula = VL1 ~ A * `T`, exposure.name = "A", instrument.name = "T")
+dwhatif.instr.loglin
+```
+
+an the logistic model
+
+```{r }
+#| label: ch09_dwatif_instr_logit
+#| cache: true
+dwhatif.instr.logit <- fciR::jack_est(data = dwhatif, func = fciR::instr_logistic, alpha = 0.05,
+                 transf = "identity",
+                 formula = VL1 ~ A * `T`, exposure.name = "A", instrument.name = "T")
+dwhatif.instr.logit
+```
+
+which gives us the following result,
+
+```{r }
+#| label: tbl-ch09_01
+#| tbl-cap: "Table 9.1"
+#| out-width: "100%"
+tbl_9.1 <- rbind(
+  data.frame(
+    model = "Linear",
+    dwhatif.instr.lin),
+  data.frame(
+    model = "Loglinear",
+    dwhatif.instr.loglin),
+  data.frame(
+    model = "Logistic",
+    dwhatif.instr.logit)) |>
+  filter(term != "beta")
+gt_measures_rowgrp(tbl_9.1,
+    rowgroup = "term",
+    rowname = "model",
+    title = paste("Table 9.1<em>(by FL)</em>", "Double What-If Study", 
+                  sep = "<br>"),
+    subtitle = paste("Instrumental Variables Analysis", sep = "<br>")
+  )
+```
+
+The difference in confidence intervals is because the author uses 
+`1.96 = round(qnorm(0.95), 2)` whereas `fciR::jack_est` uses an estimate 
+confidence interval. See `jack_ci` code for details.

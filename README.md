@@ -19,21 +19,23 @@ Many thanks to Babette A. Brumback for a book full of amazing observations, tric
 For data processing and analysis the following packages are used
 
 | Package                                                               | Comment                                     |
-|-------------------------|----------------------------------------------|
+|--------------------------|----------------------------------------------|
 | [fciR](https://github.com/FrankLef/fciR)                              | Companion R package for this book           |
 | [conflicted](https://conflicted.r-lib.org)                            | Manage conflict resolution amongst packages |
 | [tidyverse](https://www.tidyverse.org)                                | Tidyverse is the favored coding way         |
 | [skimr](https://docs.ropensci.org/skimr/)                             | Summary statistics                          |
 | [modelr](https://modelr.tidyverse.org)                                | Create elegant pipelines when modelling     |
 | [simpr](https://statisfactions.github.io/simpr/)                      | Generate simulated data                     |
+| [rsample](https://rsample.tidymodels.org)                             | Resampling and bootstraps                   |
 | [MonteCarlo](https://github.com/FunWithR/MonteCarlo)                  | Monte Carlo simulation                      |
 | [geepack](https://cran.r-project.org/web/packages/geepack/index.html) | Generalized estimating equations solver     |
-| [rsample](https://rsample.tidymodels.org)                             | Resampling and bootstraps                   |
+| [Matching](https://github.com/JasjeetSekhon/Matching) | Multivariate and Propensity Score Matching Software for Causal Inference. See chapter 10. |
+
 
 For plotting, graphs and tables these packages are used
 
 | Package                                                             | Comment                                          |
-|-------------------------|----------------------------------------------|
+|--------------------------|----------------------------------------------|
 | [ggplot](https://ggplot2.tidyverse.org)                             | Create graphics based on the grammar of graphics |
 | [ggdag](https://github.com/r-causal/ggdag)                          | Causal directed acyclic graphs                   |
 | [tidygraph](https://tidygraph.data-imaginist.com)                   | Graphs and networks manipulation                 |

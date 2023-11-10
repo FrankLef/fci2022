@@ -26,9 +26,11 @@ For data processing and analysis the following packages are used
 | [skimr](https://docs.ropensci.org/skimr/)                             | Summary statistics                          |
 | [modelr](https://modelr.tidyverse.org)                                | Create elegant pipelines when modelling     |
 | [simpr](https://statisfactions.github.io/simpr/)                      | Generate simulated data                     |
+| [rsample](https://rsample.tidymodels.org)                             | Resampling and bootstraps |
 | [MonteCarlo](https://github.com/FunWithR/MonteCarlo)                  | Monte Carlo simulation                      |
 | [geepack](https://cran.r-project.org/web/packages/geepack/index.html) | Generalized estimating equations solver     |
-| [rsample](https://rsample.tidymodels.org)                             | Resampling and bootstraps                   |
+| [Matching](https://github.com/JasjeetSekhon/Matching) | Multivariate and Propensity Score Matching Software for Causal Inference. See chapter 10. |
+
 
 For plotting, graphs and tables these packages are used
 

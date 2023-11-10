@@ -228,6 +228,18 @@ div.csl-indent {
  <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Front-Door Method</span></span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch09_instrument.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Instrumental Variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ch10_propensity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Propensity-Score Methods</span></span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item">
@@ -373,26 +385,26 @@ Attaching package: 'dplyr'</code></pre>
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>recovery.out</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 18 × 6
-   term       .lower .estimate  .upper .alpha .method   
-   &lt;chr&gt;       &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;     
- 1 EYT0.M0    0.769    0.784    0.797    0.05 percentile
- 2 EYT0.M1    0.556    0.592    0.620    0.05 percentile
- 3 EYT0.diff -0.233   -0.191   -0.157    0.05 percentile
- 4 EYT1.M0    0.776    0.793    0.809    0.05 percentile
- 5 EYT1.M1    0.682    0.732    0.769    0.05 percentile
- 6 EYT1.diff -0.113   -0.0612  -0.0144   0.05 percentile
- 7 RD.M0     -0.0120   0.00915  0.0329   0.05 percentile
- 8 RD.M1      0.0713   0.139    0.200    0.05 percentile
- 9 RD.diff    0.0533   0.130    0.196    0.05 percentile
-10 RR.M0      0.985    1.01     1.04     0.05 percentile
-11 RR.M1      1.11     1.24     1.36     0.05 percentile
-12 RR.diff    1.09     1.22     1.34     0.05 percentile
-13 RR*.M0     0.945    1.04     1.17     0.05 percentile
-14 RR*.M1     1.23     1.52     1.84     0.05 percentile
-15 RR*.diff   1.12     1.46     1.85     0.05 percentile
-16 OR.diff    1.23     1.78     2.49     0.05 percentile
-17 OR.M0      0.931    1.06     1.22     0.05 percentile
-18 OR.M1      1.37     1.88     2.49     0.05 percentile</code></pre>
+   term       .lower .estimate   .upper .alpha .method   
+   &lt;chr&gt;       &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;     
+ 1 EYT0.M0    0.769     0.785   0.797     0.05 percentile
+ 2 EYT0.M1    0.558     0.591   0.626     0.05 percentile
+ 3 EYT0.diff -0.232    -0.194  -0.151     0.05 percentile
+ 4 EYT1.M0    0.773     0.795   0.813     0.05 percentile
+ 5 EYT1.M1    0.698     0.735   0.774     0.05 percentile
+ 6 EYT1.diff -0.104    -0.0595 -0.00404   0.05 percentile
+ 7 RD.M0     -0.0150    0.0101  0.0342    0.05 percentile
+ 8 RD.M1      0.0955    0.144   0.195     0.05 percentile
+ 9 RD.diff    0.0776    0.134   0.191     0.05 percentile
+10 RR.M0      0.981     1.01    1.04      0.05 percentile
+11 RR.M1      1.16      1.24    1.35      0.05 percentile
+12 RR.diff    1.13      1.23    1.34      0.05 percentile
+13 RR*.M0     0.933     1.05    1.18      0.05 percentile
+14 RR*.M1     1.33      1.55    1.83      0.05 percentile
+15 RR*.diff   1.19      1.48    1.85      0.05 percentile
+16 OR.diff    1.36      1.81    2.43      0.05 percentile
+17 OR.M0      0.915     1.06    1.23      0.05 percentile
+18 OR.M1      1.54      1.93    2.44      0.05 percentile</code></pre>
 </div>
 </div>
 <p>verify the results with the author’s on p.&nbsp;65.</p>
@@ -433,23 +445,23 @@ Attaching package: 'dplyr'</code></pre>
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">subtitle =</span> <span class="st">"Effect-measure Modification"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
-<div id="zuhjclqjti" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#zuhjclqjti table {
+<div id="dihduuobly" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#dihduuobly table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#zuhjclqjti thead, #zuhjclqjti tbody, #zuhjclqjti tfoot, #zuhjclqjti tr, #zuhjclqjti td, #zuhjclqjti th {
+#dihduuobly thead, #dihduuobly tbody, #dihduuobly tfoot, #dihduuobly tr, #dihduuobly td, #dihduuobly th {
   border-style: none;
 }
 
-#zuhjclqjti p {
+#dihduuobly p {
   margin: 0;
   padding: 0;
 }
 
-#zuhjclqjti .gt_table {
+#dihduuobly .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -475,12 +487,12 @@ Attaching package: 'dplyr'</code></pre>
   border-left-color: #D3D3D3;
 }
 
-#zuhjclqjti .gt_caption {
+#dihduuobly .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#zuhjclqjti .gt_title {
+#dihduuobly .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: bold;
@@ -492,7 +504,7 @@ Attaching package: 'dplyr'</code></pre>
   border-bottom-width: 0;
 }
 
-#zuhjclqjti .gt_subtitle {
+#dihduuobly .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: bold;
@@ -504,7 +516,7 @@ Attaching package: 'dplyr'</code></pre>
   border-top-width: 0;
 }
 
-#zuhjclqjti .gt_heading {
+#dihduuobly .gt_heading {
   background-color: #DCDCDC;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -516,13 +528,13 @@ Attaching package: 'dplyr'</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#zuhjclqjti .gt_bottom_border {
+#dihduuobly .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#zuhjclqjti .gt_col_headings {
+#dihduuobly .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -537,7 +549,7 @@ Attaching package: 'dplyr'</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#zuhjclqjti .gt_col_heading {
+#dihduuobly .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -557,7 +569,7 @@ Attaching package: 'dplyr'</code></pre>
   overflow-x: hidden;
 }
 
-#zuhjclqjti .gt_column_spanner_outer {
+#dihduuobly .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -569,15 +581,15 @@ Attaching package: 'dplyr'</code></pre>
   padding-right: 4px;
 }
 
-#zuhjclqjti .gt_column_spanner_outer:first-child {
+#dihduuobly .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#zuhjclqjti .gt_column_spanner_outer:last-child {
+#dihduuobly .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#zuhjclqjti .gt_column_spanner {
+#dihduuobly .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -589,11 +601,11 @@ Attaching package: 'dplyr'</code></pre>
   width: 100%;
 }
 
-#zuhjclqjti .gt_spanner_row {
+#dihduuobly .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#zuhjclqjti .gt_group_heading {
+#dihduuobly .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -619,7 +631,7 @@ Attaching package: 'dplyr'</code></pre>
   text-align: left;
 }
 
-#zuhjclqjti .gt_empty_group_heading {
+#dihduuobly .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -634,15 +646,15 @@ Attaching package: 'dplyr'</code></pre>
   vertical-align: middle;
 }
 
-#zuhjclqjti .gt_from_md > :first-child {
+#dihduuobly .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#zuhjclqjti .gt_from_md > :last-child {
+#dihduuobly .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#zuhjclqjti .gt_row {
+#dihduuobly .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -661,7 +673,7 @@ Attaching package: 'dplyr'</code></pre>
   overflow-x: hidden;
 }
 
-#zuhjclqjti .gt_stub {
+#dihduuobly .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -674,7 +686,7 @@ Attaching package: 'dplyr'</code></pre>
   padding-right: 5px;
 }
 
-#zuhjclqjti .gt_stub_row_group {
+#dihduuobly .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -688,15 +700,15 @@ Attaching package: 'dplyr'</code></pre>
   vertical-align: top;
 }
 
-#zuhjclqjti .gt_row_group_first td {
+#dihduuobly .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#zuhjclqjti .gt_row_group_first th {
+#dihduuobly .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#zuhjclqjti .gt_summary_row {
+#dihduuobly .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -706,16 +718,16 @@ Attaching package: 'dplyr'</code></pre>
   padding-right: 5px;
 }
 
-#zuhjclqjti .gt_first_summary_row {
+#dihduuobly .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#zuhjclqjti .gt_first_summary_row.thick {
+#dihduuobly .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#zuhjclqjti .gt_last_summary_row {
+#dihduuobly .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -725,7 +737,7 @@ Attaching package: 'dplyr'</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#zuhjclqjti .gt_grand_summary_row {
+#dihduuobly .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -735,7 +747,7 @@ Attaching package: 'dplyr'</code></pre>
   padding-right: 5px;
 }
 
-#zuhjclqjti .gt_first_grand_summary_row {
+#dihduuobly .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -745,7 +757,7 @@ Attaching package: 'dplyr'</code></pre>
   border-top-color: #D3D3D3;
 }
 
-#zuhjclqjti .gt_last_grand_summary_row_top {
+#dihduuobly .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -755,11 +767,11 @@ Attaching package: 'dplyr'</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#zuhjclqjti .gt_striped {
+#dihduuobly .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#zuhjclqjti .gt_table_body {
+#dihduuobly .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -768,7 +780,7 @@ Attaching package: 'dplyr'</code></pre>
   border-bottom-color: #D3D3D3;
 }
 
-#zuhjclqjti .gt_footnotes {
+#dihduuobly .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -782,7 +794,7 @@ Attaching package: 'dplyr'</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#zuhjclqjti .gt_footnote {
+#dihduuobly .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -791,7 +803,7 @@ Attaching package: 'dplyr'</code></pre>
   padding-right: 5px;
 }
 
-#zuhjclqjti .gt_sourcenotes {
+#dihduuobly .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -805,7 +817,7 @@ Attaching package: 'dplyr'</code></pre>
   border-right-color: #D3D3D3;
 }
 
-#zuhjclqjti .gt_sourcenote {
+#dihduuobly .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -813,63 +825,63 @@ Attaching package: 'dplyr'</code></pre>
   padding-right: 5px;
 }
 
-#zuhjclqjti .gt_left {
+#dihduuobly .gt_left {
   text-align: left;
 }
 
-#zuhjclqjti .gt_center {
+#dihduuobly .gt_center {
   text-align: center;
 }
 
-#zuhjclqjti .gt_right {
+#dihduuobly .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#zuhjclqjti .gt_font_normal {
+#dihduuobly .gt_font_normal {
   font-weight: normal;
 }
 
-#zuhjclqjti .gt_font_bold {
+#dihduuobly .gt_font_bold {
   font-weight: bold;
 }
 
-#zuhjclqjti .gt_font_italic {
+#dihduuobly .gt_font_italic {
   font-style: italic;
 }
 
-#zuhjclqjti .gt_super {
+#dihduuobly .gt_super {
   font-size: 65%;
 }
 
-#zuhjclqjti .gt_footnote_marks {
+#dihduuobly .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#zuhjclqjti .gt_asterisk {
+#dihduuobly .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#zuhjclqjti .gt_indent_1 {
+#dihduuobly .gt_indent_1 {
   text-indent: 5px;
 }
 
-#zuhjclqjti .gt_indent_2 {
+#dihduuobly .gt_indent_2 {
   text-indent: 10px;
 }
 
-#zuhjclqjti .gt_indent_3 {
+#dihduuobly .gt_indent_3 {
   text-indent: 15px;
 }
 
-#zuhjclqjti .gt_indent_4 {
+#dihduuobly .gt_indent_4 {
   text-indent: 20px;
 }
 
-#zuhjclqjti .gt_indent_5 {
+#dihduuobly .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -904,47 +916,47 @@ Attaching package: 'dplyr'</code></pre>
   </thead>
   <tbody class="gt_table_body">
     <tr><td headers="Estimator" class="gt_row gt_center">EYT0</td>
-<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.784</td>
+<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.785</td>
 <td headers="M0_CI" class="gt_row gt_center">(0.769, 0.797)</td>
-<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.592</td>
-<td headers="M1_CI" class="gt_row gt_center">(0.556, 0.620)</td>
-<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.191</td>
-<td headers="diff_CI" class="gt_row gt_center">(-0.233, -0.157)</td></tr>
+<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.591</td>
+<td headers="M1_CI" class="gt_row gt_center">(0.558, 0.626)</td>
+<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.194</td>
+<td headers="diff_CI" class="gt_row gt_center">(-0.232, -0.151)</td></tr>
     <tr><td headers="Estimator" class="gt_row gt_center gt_striped">EYT1</td>
-<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.793</td>
-<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.776, 0.809)</td>
-<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.732</td>
-<td headers="M1_CI" class="gt_row gt_center gt_striped">(0.682, 0.769)</td>
-<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.061</td>
-<td headers="diff_CI" class="gt_row gt_center gt_striped">(-0.113, -0.014)</td></tr>
+<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.795</td>
+<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.773, 0.813)</td>
+<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.735</td>
+<td headers="M1_CI" class="gt_row gt_center gt_striped">(0.698, 0.774)</td>
+<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.059</td>
+<td headers="diff_CI" class="gt_row gt_center gt_striped">(-0.104, -0.004)</td></tr>
     <tr><td headers="Estimator" class="gt_row gt_center">RD</td>
-<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.009</td>
-<td headers="M0_CI" class="gt_row gt_center">(-0.012, 0.033)</td>
-<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.139</td>
-<td headers="M1_CI" class="gt_row gt_center">(0.071, 0.200)</td>
-<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.130</td>
-<td headers="diff_CI" class="gt_row gt_center">(0.053, 0.196)</td></tr>
+<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.010</td>
+<td headers="M0_CI" class="gt_row gt_center">(-0.015, 0.034)</td>
+<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.144</td>
+<td headers="M1_CI" class="gt_row gt_center">(0.095, 0.195)</td>
+<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.134</td>
+<td headers="diff_CI" class="gt_row gt_center">(0.078, 0.191)</td></tr>
     <tr><td headers="Estimator" class="gt_row gt_center gt_striped">RR</td>
-<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.012</td>
-<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.985, 1.042)</td>
-<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.235</td>
-<td headers="M1_CI" class="gt_row gt_center gt_striped">(1.115, 1.357)</td>
-<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.221</td>
-<td headers="diff_CI" class="gt_row gt_center gt_striped">(1.091, 1.344)</td></tr>
+<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.013</td>
+<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.981, 1.044)</td>
+<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.245</td>
+<td headers="M1_CI" class="gt_row gt_center gt_striped">(1.156, 1.346)</td>
+<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.229</td>
+<td headers="diff_CI" class="gt_row gt_center gt_striped">(1.129, 1.340)</td></tr>
     <tr><td headers="Estimator" class="gt_row gt_center">RR*</td>
-<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.045</td>
-<td headers="M0_CI" class="gt_row gt_center">(0.945, 1.171)</td>
-<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.524</td>
-<td headers="M1_CI" class="gt_row gt_center">(1.232, 1.837)</td>
-<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.459</td>
-<td headers="diff_CI" class="gt_row gt_center">(1.125, 1.853)</td></tr>
+<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.050</td>
+<td headers="M0_CI" class="gt_row gt_center">(0.933, 1.179)</td>
+<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.549</td>
+<td headers="M1_CI" class="gt_row gt_center">(1.327, 1.827)</td>
+<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.476</td>
+<td headers="diff_CI" class="gt_row gt_center">(1.193, 1.849)</td></tr>
     <tr><td headers="Estimator" class="gt_row gt_center gt_striped">OR</td>
-<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.057</td>
-<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.931, 1.220)</td>
-<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.882</td>
-<td headers="M1_CI" class="gt_row gt_center gt_striped">(1.373, 2.490)</td>
-<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.781</td>
-<td headers="diff_CI" class="gt_row gt_center gt_striped">(1.227, 2.490)</td></tr>
+<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.063</td>
+<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.915, 1.231)</td>
+<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.928</td>
+<td headers="M1_CI" class="gt_row gt_center gt_striped">(1.539, 2.439)</td>
+<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.813</td>
+<td headers="diff_CI" class="gt_row gt_center gt_striped">(1.362, 2.426)</td></tr>
   </tbody>
   <tfoot class="gt_sourcenotes">
     <tr>
@@ -1097,23 +1109,23 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
 <span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">subtitle =</span> <span class="st">"Effect-measure Modification"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
-<div id="rpblitfkms" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#rpblitfkms table {
+<div id="aghuplziut" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#aghuplziut table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#rpblitfkms thead, #rpblitfkms tbody, #rpblitfkms tfoot, #rpblitfkms tr, #rpblitfkms td, #rpblitfkms th {
+#aghuplziut thead, #aghuplziut tbody, #aghuplziut tfoot, #aghuplziut tr, #aghuplziut td, #aghuplziut th {
   border-style: none;
 }
 
-#rpblitfkms p {
+#aghuplziut p {
   margin: 0;
   padding: 0;
 }
 
-#rpblitfkms .gt_table {
+#aghuplziut .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1139,12 +1151,12 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   border-left-color: #D3D3D3;
 }
 
-#rpblitfkms .gt_caption {
+#aghuplziut .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#rpblitfkms .gt_title {
+#aghuplziut .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: bold;
@@ -1156,7 +1168,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   border-bottom-width: 0;
 }
 
-#rpblitfkms .gt_subtitle {
+#aghuplziut .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: bold;
@@ -1168,7 +1180,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   border-top-width: 0;
 }
 
-#rpblitfkms .gt_heading {
+#aghuplziut .gt_heading {
   background-color: #DCDCDC;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1180,13 +1192,13 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   border-right-color: #D3D3D3;
 }
 
-#rpblitfkms .gt_bottom_border {
+#aghuplziut .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#rpblitfkms .gt_col_headings {
+#aghuplziut .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1201,7 +1213,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   border-right-color: #D3D3D3;
 }
 
-#rpblitfkms .gt_col_heading {
+#aghuplziut .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1221,7 +1233,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   overflow-x: hidden;
 }
 
-#rpblitfkms .gt_column_spanner_outer {
+#aghuplziut .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1233,15 +1245,15 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   padding-right: 4px;
 }
 
-#rpblitfkms .gt_column_spanner_outer:first-child {
+#aghuplziut .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#rpblitfkms .gt_column_spanner_outer:last-child {
+#aghuplziut .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#rpblitfkms .gt_column_spanner {
+#aghuplziut .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1253,11 +1265,11 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   width: 100%;
 }
 
-#rpblitfkms .gt_spanner_row {
+#aghuplziut .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#rpblitfkms .gt_group_heading {
+#aghuplziut .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1283,7 +1295,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   text-align: left;
 }
 
-#rpblitfkms .gt_empty_group_heading {
+#aghuplziut .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1298,15 +1310,15 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   vertical-align: middle;
 }
 
-#rpblitfkms .gt_from_md > :first-child {
+#aghuplziut .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#rpblitfkms .gt_from_md > :last-child {
+#aghuplziut .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#rpblitfkms .gt_row {
+#aghuplziut .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1325,7 +1337,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   overflow-x: hidden;
 }
 
-#rpblitfkms .gt_stub {
+#aghuplziut .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1338,7 +1350,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   padding-right: 5px;
 }
 
-#rpblitfkms .gt_stub_row_group {
+#aghuplziut .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1352,15 +1364,15 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   vertical-align: top;
 }
 
-#rpblitfkms .gt_row_group_first td {
+#aghuplziut .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#rpblitfkms .gt_row_group_first th {
+#aghuplziut .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#rpblitfkms .gt_summary_row {
+#aghuplziut .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1370,16 +1382,16 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   padding-right: 5px;
 }
 
-#rpblitfkms .gt_first_summary_row {
+#aghuplziut .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#rpblitfkms .gt_first_summary_row.thick {
+#aghuplziut .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#rpblitfkms .gt_last_summary_row {
+#aghuplziut .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1389,7 +1401,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   border-bottom-color: #D3D3D3;
 }
 
-#rpblitfkms .gt_grand_summary_row {
+#aghuplziut .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1399,7 +1411,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   padding-right: 5px;
 }
 
-#rpblitfkms .gt_first_grand_summary_row {
+#aghuplziut .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1409,7 +1421,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   border-top-color: #D3D3D3;
 }
 
-#rpblitfkms .gt_last_grand_summary_row_top {
+#aghuplziut .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1419,11 +1431,11 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   border-bottom-color: #D3D3D3;
 }
 
-#rpblitfkms .gt_striped {
+#aghuplziut .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#rpblitfkms .gt_table_body {
+#aghuplziut .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1432,7 +1444,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   border-bottom-color: #D3D3D3;
 }
 
-#rpblitfkms .gt_footnotes {
+#aghuplziut .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1446,7 +1458,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   border-right-color: #D3D3D3;
 }
 
-#rpblitfkms .gt_footnote {
+#aghuplziut .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1455,7 +1467,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   padding-right: 5px;
 }
 
-#rpblitfkms .gt_sourcenotes {
+#aghuplziut .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1469,7 +1481,7 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   border-right-color: #D3D3D3;
 }
 
-#rpblitfkms .gt_sourcenote {
+#aghuplziut .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1477,63 +1489,63 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   padding-right: 5px;
 }
 
-#rpblitfkms .gt_left {
+#aghuplziut .gt_left {
   text-align: left;
 }
 
-#rpblitfkms .gt_center {
+#aghuplziut .gt_center {
   text-align: center;
 }
 
-#rpblitfkms .gt_right {
+#aghuplziut .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#rpblitfkms .gt_font_normal {
+#aghuplziut .gt_font_normal {
   font-weight: normal;
 }
 
-#rpblitfkms .gt_font_bold {
+#aghuplziut .gt_font_bold {
   font-weight: bold;
 }
 
-#rpblitfkms .gt_font_italic {
+#aghuplziut .gt_font_italic {
   font-style: italic;
 }
 
-#rpblitfkms .gt_super {
+#aghuplziut .gt_super {
   font-size: 65%;
 }
 
-#rpblitfkms .gt_footnote_marks {
+#aghuplziut .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#rpblitfkms .gt_asterisk {
+#aghuplziut .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#rpblitfkms .gt_indent_1 {
+#aghuplziut .gt_indent_1 {
   text-indent: 5px;
 }
 
-#rpblitfkms .gt_indent_2 {
+#aghuplziut .gt_indent_2 {
   text-indent: 10px;
 }
 
-#rpblitfkms .gt_indent_3 {
+#aghuplziut .gt_indent_3 {
   text-indent: 15px;
 }
 
-#rpblitfkms .gt_indent_4 {
+#aghuplziut .gt_indent_4 {
   text-indent: 20px;
 }
 
-#rpblitfkms .gt_indent_5 {
+#aghuplziut .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -1568,47 +1580,47 @@ T:M          0.13200964 0.030881745   4.2746820 0.033074076   3.9913327</code></
   </thead>
   <tbody class="gt_table_body">
     <tr><td headers="Estimator" class="gt_row gt_center">EYT0</td>
-<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.166</td>
-<td headers="M0_CI" class="gt_row gt_center">(0.132, 0.202)</td>
-<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.680</td>
-<td headers="M1_CI" class="gt_row gt_center">(0.617, 0.747)</td>
-<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.514</td>
-<td headers="diff_CI" class="gt_row gt_center">(0.437, 0.604)</td></tr>
+<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.167</td>
+<td headers="M0_CI" class="gt_row gt_center">(0.138, 0.199)</td>
+<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.670</td>
+<td headers="M1_CI" class="gt_row gt_center">(0.601, 0.742)</td>
+<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.503</td>
+<td headers="diff_CI" class="gt_row gt_center">(0.431, 0.571)</td></tr>
     <tr><td headers="Estimator" class="gt_row gt_center gt_striped">EYT1</td>
-<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.082</td>
-<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.053, 0.109)</td>
+<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.083</td>
+<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.053, 0.108)</td>
 <td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.351</td>
-<td headers="M1_CI" class="gt_row gt_center gt_striped">(0.252, 0.447)</td>
-<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.269</td>
-<td headers="diff_CI" class="gt_row gt_center gt_striped">(0.160, 0.366)</td></tr>
+<td headers="M1_CI" class="gt_row gt_center gt_striped">(0.246, 0.484)</td>
+<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.268</td>
+<td headers="diff_CI" class="gt_row gt_center gt_striped">(0.162, 0.392)</td></tr>
     <tr><td headers="Estimator" class="gt_row gt_center">RD</td>
 <td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.084</td>
-<td headers="M0_CI" class="gt_row gt_center">(-0.131, -0.047)</td>
-<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.329</td>
-<td headers="M1_CI" class="gt_row gt_center">(-0.448, -0.205)</td>
-<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.245</td>
-<td headers="diff_CI" class="gt_row gt_center">(-0.365, -0.121)</td></tr>
+<td headers="M0_CI" class="gt_row gt_center">(-0.127, -0.044)</td>
+<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.319</td>
+<td headers="M1_CI" class="gt_row gt_center">(-0.447, -0.191)</td>
+<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">-0.235</td>
+<td headers="diff_CI" class="gt_row gt_center">(-0.336, -0.110)</td></tr>
     <tr><td headers="Estimator" class="gt_row gt_center gt_striped">RR</td>
-<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.489</td>
-<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.299, 0.676)</td>
-<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.511</td>
-<td headers="M1_CI" class="gt_row gt_center gt_striped">(0.370, 0.683)</td>
-<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.045</td>
-<td headers="diff_CI" class="gt_row gt_center gt_striped">(0.630, 1.754)</td></tr>
+<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.493</td>
+<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.338, 0.693)</td>
+<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.517</td>
+<td headers="M1_CI" class="gt_row gt_center gt_striped">(0.370, 0.711)</td>
+<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">1.047</td>
+<td headers="diff_CI" class="gt_row gt_center gt_striped">(0.726, 1.558)</td></tr>
     <tr><td headers="Estimator" class="gt_row gt_center">RR*</td>
-<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.908</td>
-<td headers="M0_CI" class="gt_row gt_center">(0.860, 0.949)</td>
-<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.491</td>
-<td headers="M1_CI" class="gt_row gt_center">(0.390, 0.640)</td>
-<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.541</td>
-<td headers="diff_CI" class="gt_row gt_center">(0.421, 0.708)</td></tr>
+<td headers="M0_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.909</td>
+<td headers="M0_CI" class="gt_row gt_center">(0.865, 0.951)</td>
+<td headers="M1_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.508</td>
+<td headers="M1_CI" class="gt_row gt_center">(0.388, 0.640)</td>
+<td headers="diff_Estimate" class="gt_row gt_center" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.559</td>
+<td headers="diff_CI" class="gt_row gt_center">(0.439, 0.699)</td></tr>
     <tr><td headers="Estimator" class="gt_row gt_center gt_striped">OR</td>
-<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.444</td>
-<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.260, 0.637)</td>
-<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.251</td>
-<td headers="M1_CI" class="gt_row gt_center gt_striped">(0.145, 0.432)</td>
-<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.565</td>
-<td headers="diff_CI" class="gt_row gt_center gt_striped">(0.289, 1.168)</td></tr>
+<td headers="M0_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.448</td>
+<td headers="M0_CI" class="gt_row gt_center gt_striped">(0.294, 0.657)</td>
+<td headers="M1_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.262</td>
+<td headers="M1_CI" class="gt_row gt_center gt_striped">(0.144, 0.454)</td>
+<td headers="diff_Estimate" class="gt_row gt_center gt_striped" style="border-left-width: 1.5px; border-left-style: solid; border-left-color: grey60;">0.585</td>
+<td headers="diff_CI" class="gt_row gt_center gt_striped">(0.359, 1.142)</td></tr>
   </tbody>
   <tfoot class="gt_sourcenotes">
     <tr>

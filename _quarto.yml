@@ -22,6 +22,8 @@ book:
         - ch06_backdoor.qmd
         - ch07_did.qmd
         - ch08_frontdoor.qmd
+        - ch09_instrument.qmd
+        - ch10_propensity.qmd
     - references.qmd
   appendices: 
     - app01_errata.qmd
