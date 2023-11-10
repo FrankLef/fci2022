@@ -1,0 +1,171 @@
+# Precision Variables {#precision}
+
+```{r}
+library(conflicted)
+library(rsample)
+library(dplyr)
+library(patchwork)
+library(ggdag)
+library(ggplot2)
+library(fciR)
+options(dplyr.summarise.inform = FALSE)
+conflicts_prefer(dplyr::filter)
+```
+
+
+## Theory
+
+```{r}
+#| label: ch11_scm_11.1
+#| warning: false
+scm_11.1 <- list()
+scm_11.1 <- within(scm_11.1, {
+  coords <- list(
+    x = c(`T` = 1, V = 1.5, Y = 3),
+    y = c(`T` = 1, V = 1.5, Y = 1))
+  dag <- dagify(
+    Y ~ V + `T`,
+    coords = coords)
+
+  plot <- fciR::ggp_dag(dag)
+})
+```
+
+```{r}
+#| label: ch11_scm_11.2
+#| warning: false
+scm_11.2 <- list()
+scm_11.2 <- within(scm_11.2, {
+  coords <- list(
+    x = c(`T` = 1.5, U = 1, V = 1.5, Y = 3),
+    y = c(`T` = 1, U = 1.5, V = 2, Y = 1))
+  dag <- dagify(
+    V ~ U,
+    Y ~ U + `T`,
+    coords = coords)
+
+  plot <- fciR::ggp_dag(dag)
+})
+```
+
+
+```{r }
+#| label: fig-ch11_scm_11.1
+#| fig-cap: "V is a Precision Variable for Estimating the Effect of T on Y"
+#| fig-align: 'center'
+#| out-width: "60%"
+scm_11.1$plot + scm_11.2$plot
+```
+
+## Examples
+
+This function computes the precision efficiency by comparing the linear fit with and without the precision variable.
+
+```{r}
+#| label: ch11_fnc_precision_eff
+fnc_precision_eff <- function(data, formula, exposure.name, precision.name,
+                              none.name = "None") {
+  # Estimate the effect without the precision variable
+  vars <- all.vars(formula)
+  vars <- vars[vars != precision.name]  # remove the precision variable
+  formula1 <- paste(vars[[1]], vars[[2]], sep = "~")
+  fit_none <- lm(formula = formula1, data = data)
+  # Estimate the effect with the precision variable
+  fit <- lm(formula = formula, data = data)
+  est <- c(coef(fit_none)[2], coef(fit)[2])
+  names(est) <- c(none.name, precision.name)
+  std_err <- c(sqrt(diag(vcov(fit_none)))[2], sqrt(diag(vcov(fit)))[2])
+  # must return a data.frame of tidy results to use with bootstrap later
+  data.frame(
+    term = names(est),
+    estimate = unname(est),
+    std.err = std_err
+  )
+}
+```
+
+This funciton compute the stats obtained from the `fnc_precision_eff` using 
+bootstrapping and output them in a dataframe.
+
+```{r}
+#| label: ch11_fnc_precision_stats
+fnc_precision_stats <- function(data, models, times = 1000, none.name = "None") {
+  for (i in seq_along(models)) {
+    frml <- models[[i]]$formula
+    vars <- models[[i]]$vars
+    
+    # Get the fit for each model
+    fit <- fnc_precision_eff(
+      data, formula = frml,
+      exposure.name = vars["exposure"], precision.name = vars["precision"],
+      none.name = none.name)
+    models[[i]]$fit <- fit
+    
+    # bootstrap the models
+    boot <- fciR::boot_est(
+      data = data,
+      func = fnc_precision_eff,
+      times = times, alpha = 0.05,
+      formula = frml,
+      exposure.name = vars["exposure"], precision.name = vars["precision"])
+    models[[i]]$boot <- boot
+    
+    # create the output for each model
+    models[[i]]$out <- fit |>
+      bind_cols(boot[, c(".lower", ".upper")])
+  }
+  # create the consolidated output
+  out.conso <- lapply(seq_along(models), FUN = function(i) {
+    models[[i]]$out
+    })
+  out.conso <- out.conso |>
+    bind_rows() |>
+    mutate(across(.cols = where(is.numeric), .fns = round, digits = 3)) |>
+    # remove duplicate terms ("None")
+    slice(match(unique(term), term))
+  
+  list("stats" = out.conso, "models" = models)
+  }
+```
+
+### CYT107 Effect
+
+```{r}
+#| echo: false
+warnings("i17dat data set was not found.")
+```
+
+### Double What-If study
+
+```{r}
+#| label: ch11_doublewhatifdat
+data("doublewhatifdat", package = "fciR")
+```
+
+Create the list of models
+
+```{r}
+#| label: ch11_doublewhatifdat.models
+doublewhatifdat.models <- list(
+  "Model VL0" = list(
+    "formula" = VL1 ~ `T` + VL0,
+    "vars" = c("exposure" = "T", "precision" = "VL0")),
+  "Model AD0" = list(
+    "formula" = VL1 ~ `T` + AD0,
+    "vars" = c("exposure" = "T", "precision" = "AD0"))
+  )
+```
+
+and get the stats using the above function
+
+```{r }
+#| label: ch11_doublewhatifdat.prec
+#| cache: true
+doublewhatifdat.prec <- fnc_precision_stats(data = doublewhatifdat,
+                      models = doublewhatifdat.models, 
+                      times = 500)
+```
+
+```{r}
+doublewhatifdat.prec$stats
+```

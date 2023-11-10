@@ -1,0 +1,374 @@
+# Time-Dependent Confounding {#time}
+
+```{r}
+library(conflicted)
+library(rsample)
+library(dplyr)
+library(patchwork)
+library(ggdag)
+library(ggplot2)
+library(fciR)
+options(dplyr.summarise.inform = FALSE)
+conflicts_prefer(dplyr::filter)
+```
+
+
+
+```{r }
+#| label: ch13_scm_13.1
+#| warning: false
+scm_13.1 <- list()
+scm_13.1 <- within(scm_13.1, {
+  the_coords <- list(
+    x = c(A1 = 1, H2 = 2, A2 = 3, U = 3, Y = 4),
+    y = c(A1 = 2, H2 = 2, A2 = 2, U = 3, Y = 1))
+  the_nodes <- c("A1" = "",
+                 "A2" = "",
+                 "H2" = "", 
+                 "U" = "",
+                 "Y" = "")
+  dag <- dagify(
+    H2 ~ A1 + U,
+    A2 ~ H2,
+    Y ~ A1 + A2 + H2 + U,
+    labels = the_nodes,
+    coords = the_coords)
+  
+  text_labels <- c(expression(A[1]), expression(A[2]), expression(H[2]), 
+                   "U", "Y")
+  plot <- fciR::ggp_dag(dag, text_labels = text_labels)
+})
+```
+
+```{r echo=FALSE, fig.align='center', fig.cap="$H_2$ is a Time-Dependent Confounder", warning=FALSE, out.width="80%"}
+#| label: fig-ch13_scm_13.1
+#| fig-cap: "$H_2$ is a Time-Dependent Confounder"
+#| fig-align: 'center'
+#| out-width: "80%"
+scm_13.1$plot
+```
+
+## Marginal Structural Models
+
+Marginal structural models require consistency of four potential outcomes 
+$Y(a_1, a_2)$ for $a_1 = 0, 1$ and $a_2 = 0, 1$.
+
+Sequential randomization is assumed, so
+
+$$
+A_1 \perp\!\!\!\perp Y(a_1, a_2)
+$$ 
+
+and
+
+$$
+A_2 \perp\!\!\!\perp Y(a_1, a_2) \mid A_1, H_2
+$$
+
+To estimate the parameter $\beta = (\beta_0, \beta_1 a_1, \beta_2 a_2, \beta_3 a_1 a_2)$ 
+we use the following
+
+$$
+\begin{align*}
+\text{Given} \, A_1 \perp\!\!\!\perp Y(a_1, a_2) \\
+E(Y(a_1, a_2)) &= E(Y(a_1, a_2) \mid A_1=a_1) \\
+\text{and using double expectation theorem} \\
+&= E_{H_2 \mid A_1 = a_1}(E(Y(a_1, a_2) \mid A_1=a_1, H_2)) \\
+\text{and since } \, A_2 \perp\!\!\!\perp Y(a_1, a_2) \mid A_1, H_2 \\
+&= E_{H_2 \mid A_1 = a_1}(E(Y(a_1, a_2) \mid A_1=a_1, H_2, A_2 = a_2)) \\
+\text{and by consistency} \\
+&= E_{H_2 \mid A_1 = a_1}(E(Y \mid A_1=a_1, H_2, A_2 = a_2)) \\
+\end{align*}
+$$
+
+```{r}
+#| label: ch13_func_time_msm
+func_time_msm <- function(data, outcome.name, exposure.names, confound.names) {
+  # exposure names must be in sequential order as in c("A!", "A2")
+  stopifnot(length(exposure.names) == 2)
+  
+  # estimate the probability of treatment at time 2
+  eformula <- paste(exposure.names[2],
+                    paste(c(exposure.names[1], confound.names), collapse = "*"),
+                    sep = "~")
+  eA1H <- fitted(glm(formula = eformula, data = data, family = "binomial"))
+  # estimate the weights
+  datA2 <- data[, exposure.names[2]]
+  wghts <- (eA1H * datA2 + (1 - eA1H) * (1 - datA2))
+  inv_wghts <- 1 / unname(wghts)
+  # IMPORTANT: Must add the weights to data to avoid error 
+  #            "object 'inv_wghts' not found".
+  data$inv_wghts <- inv_wghts
+  # fit the marginal structural model
+  msmformula <- paste(outcome.name,
+                      paste(exposure.names, collapse = "*"),
+                      sep = "~")
+  msm_fit <- glm(formula = msmformula, data = data, family = "gaussian",
+                 weights = inv_wghts)
+  coefs <- coef(msm_fit)
+  # return contrasts of the MSM parameters
+  out <- c(coefs,
+           sum(coefs[c("A1", "A1:A2")]),
+           sum(coefs[c("A2", "A1:A2")]),
+           sum(coefs[coefs != "(Intercept)"]))
+  names(out) <- c(paste("beta", seq_along(coefs) - 1), 
+                  "beta 1+3", "beta 2+3", "beta 1+2+3")
+  # output compatible with boostrap function
+  data.frame(
+    term = names(out),
+    estimate = unname(out),
+    std.err = NA_real_)
+}
+```
+
+```{r}
+#| label: ch13_cogdat
+data("cogdat", package = "fciR")
+```
+
+```{r}
+#| label: ch13_cogdat.msm
+cogdat.msm <- func_time_msm(cogdat, outcome.name = "Y",
+                            exposure.names = c("A1", "A2"),
+                            confound.names = "H2") |>
+  mutate(estimate = round(estimate, 3))
+  
+cogdat.msm
+```
+
+## Structural Nested Mean Models
+
+Structural nested mean models require consistency of two potential outcomes: 
+$Y_1$ is the potential outcome to treatment with the observed $A_1$ and then 
+treatment with $A_2 = 0$, $Y_0$ is the potential outcome to $A_1 = 0$ 
+followed by $A_2 = 0$.
+
+Sequential randomization is assumed, so
+
+$$
+A_1 \perp\!\!\!\perp Y(a_1, a_2)
+$$ 
+
+and
+
+$$
+A_2 \perp\!\!\!\perp Y(a_1, a_2) \mid A_1, H_2
+$$
+
+```{r}
+#| label: ch13_func_time_snmm
+func_time_snmm <- function(data, outcome.name, exposure.names, confound.names) {
+  # exposure names must be in sequential order as in c("A!", "A2")
+  stopifnot(length(exposure.names) == 2)
+  
+  # fit the saturated model for the second level of the nest
+  nest2_forml <- paste(outcome.name,
+                         paste(c(exposure.names, confound.names), 
+                               collapse = "*"),
+                         sep = "~")
+  # nest2_forml_old <- "Y ~ A1 + H2 + A2 + A1 * H2 + A1 * A2 + H2 * A2 + A1 * H2 * A2"
+  nest2_fit <- lm(formula = nest2_forml, data = data)
+  b2 <- coef(nest2_fit)
+  
+  # estimate the potential outcome of setting A2 to zero
+  datY <- data[, outcome.name]
+  datA1 <- data[, exposure.names[1]]
+  datA2 <- data[, exposure.names[2]]
+  datH2 <- data[, confound.names]
+  Y1hat <- datY - 
+    b2["A2"] * datA2 - 
+    b2["A1:A2"] * datA1 * datA2 -
+    b2["A2:H2"] * datH2 * datA2 -
+    b2["A1:A2:H2"] * datA1 * datH2 * datA2
+  
+  # fit the model for the first level of the nest
+  nest1_fit <- lm(Y1hat ~ datA1)
+  b1 <- coef(nest1_fit)[2]
+  out <- c("B20" = unname(b2["A2"]), 
+           "B20+B22" = sum(b2[c("A2", "A2:H2")]), 
+           "B20+B21" = sum(b2[c("A2", "A1:A2")]),
+           "B20+B21+B22+B23" = sum(b2[c("A2", "A1:A2", "A2:H2", "A1:A2:H2")]),
+           "B1" = unname(b1))
+  # output compatible with boostrap function
+  data.frame(
+    term = names(out),
+    estimate = unname(out),
+    std.err = NA_real_)
+  }
+```
+
+```{r}
+#| label: ch13_cogdat.snmm
+cogdat.snmm <- func_time_snmm(cogdat, outcome.name = "Y", 
+                            exposure.names = c("A1", "A2"), 
+                            confound.names = "H2")
+cogdat.snmm
+```
+
+## Optimal Dynamic Treatment Regimes
+
+This script is called mkcogtab.r in text
+
+```{r}
+#| label: ch13_func_time_odtr_prop
+# this is called mkcogtab.r in text
+func_time_odtr_prop <- function(data, outcome.name, A1, A2, H2) {
+  input.names <- c(A1, A2, H2)
+  data |>
+    dplyr::group_by(across(all_of(input.names))) |>
+    dplyr::summarize(
+      freq = n(),
+      freqy = sum(.data[[outcome.name]]),
+      prop = freqy / freq)
+  }
+```
+
+```{r}
+#| label: ch13_cogdat.tab
+cogdat.tab <- func_time_odtr_prop(cogdat, outcome.name = "Y", 
+                        A1 = "A1", A2 = "A2", H2 = "H2")
+cogdat.tab
+```
+
+```{r}
+#| label: ch13_func_time_odtr_optA2
+func_time_odtr_optA2 <- function(data, A1 = "A1", A2 = "A2", H2 = "H2") {
+  input.names = c(A1, H2)
+  data |>
+    group_by(across(all_of(input.names))) |>
+    mutate(propA2opt = max(prop),
+           A2opt = .data[[A2]][match(propA2opt, prop)]) |>
+    dplyr::relocate(propA2opt, .after = tidyselect::last_col())
+}
+```
+
+```{r}
+#| label: ch13_cogdat.optA2
+cogdat.optA2 <- func_time_odtr_optA2(cogdat.tab, A2 = "A2", A1 = "A1", H2 = "H2")
+cogdat.optA2
+```
+
+```{r}
+#| label: ch13_func_time_odtr_optA1A2
+func_time_odtr_optA1A2 <- function(data, A1 = "A1", A2 = "A2", H2 = "H2")  {
+  optA1A2 <- data |>
+    group_by(.data[[A1]]) |>
+    mutate(nA1 = sum(freq)) |>
+    group_by(across(all_of(c(A1, H2)))) |>
+    mutate(nA1H2 = sum(freq),
+           propA1H2 = nA1H2 / nA1,
+           margA1H2 = propA2opt * propA1H2) |>
+    group_by(across(all_of(c(A1, A2)))) |>
+    summarize(probA1A2 = sum(margA1H2)) |>
+    distinct(.data[[A1]], probA1A2) |>
+    ungroup() |>
+    filter(probA1A2 == max(probA1A2)) |>
+    rename(A1opt = A1,
+           propA1opt = probA1A2) |>
+    identity()
+  optA1A2
+  
+  optA1A2_repeat <- 
+    bind_rows(replicate(nrow(data), optA1A2, simplify = FALSE))
+  
+  data |>
+    bind_cols(optA1A2_repeat) |>
+    identity()
+}
+```
+
+```{r}
+#| label: ch13_cogdat.optA1A2
+cogdat.optA1A2 <- func_time_odtr_optA1A2(cogdat.optA2, 
+                                    A1 = "A1", A2 = "A2", H2 = "H2")
+cogdat.optA1A2
+```
+
+```{r}
+#| label: ch13_func_time_odtr_optimal
+func_time_odtr_optimal <- function(data, A1 = "A1", H2 = "H2") {
+  the_A1opt <- data$A1opt[1]
+  
+  df <- data |>
+    filter(.data[[A1]] == the_A1opt) |>
+    distinct(A1opt, propA1opt, .data[[A1]], .data[[H2]], A2opt, propA2opt)
+  
+  out <- c(
+    "A1opt" = df$A1opt[1],
+    "propA1opt" = df$propA1opt[1],
+    "A2optH20" = df$A2opt[df[, H2] == 0],
+    "propA2optH20" = df$propA2opt[df[, H2] == 0],
+    "A2optH21" = df$A2opt[df[, H2] == 1],
+    "propA2optH21" = df$propA2opt[df[, H2] == 1]
+  )
+  # output compatible with boostrap function
+  data.frame(
+    term = names(out),
+    estimate = unname(out),
+    std.err = NA_real_)
+}
+```
+
+```{r}
+#| label: ch13_cogdat.opt
+cogdat.opt <- func_time_odtr_optimal(cogdat.optA1A2, A1 = "A1", H2 = "H2")
+cogdat.opt
+cogdat.check <- c("A1opt" = 1, "propA1opt" = 0.4633459,
+                  "A2optH20" = 1, "propA2optH20" = 0.5,
+                  "A2optH21" = 0, "propA2optH21" = 0.4210526)
+assertthat::assert_that(all(abs(cogdat.opt$estimate - cogdat.check) < 1e-6),
+                        msg = "results must match text.")
+```
+
+We can do the whole thing with pipes in a wrapper function. We will use it with boostraping.
+
+```{r}
+#| label: ch13_func_time_odtr
+func_time_odtr <- function(data, outcome.name = "Y", 
+                          A1 = "A1", A2 = "A2", H2 = "H2") {
+  data |>
+    func_time_odtr_prop(outcome.name = outcome.name, A1 = A1, A2 = A2, H2 = H2) |>
+    func_time_odtr_optA2(A2 = A2, A1 = A1, H2 = H2) |>
+    func_time_odtr_optA1A2(A1 = A1, A2 = A2, H2 = H2) |>
+    func_time_odtr_optimal(A1 = A1, H2 = H2)
+}
+```
+
+```{r}
+cogdat.opt <- func_time_odtr(cogdat, outcome.name = "Y", 
+                            A1 = "A1", A2 = "A2", H2 = "H2")
+assertthat::assert_that(all(abs(cogdat.opt$estimate - cogdat.check) < 1e-6),
+                        msg = "results must match text.")
+cogdat.opt
+```
+
+```{r}
+#| label: ch13_cogdat_boot
+#| cache: true
+cogdat.boot <- cogdat |>
+    rsample::bootstraps(times = 1000, apparent = FALSE) |>
+    mutate(results = purrr::map(.data$splits, function(df) {
+      dat <- rsample::analysis(df)
+      func_time_odtr(dat, outcome.name = "Y", A1 = "A1", A2 = "A2", H2 = "H2")
+      })) |>
+    rsample::int_pctl(.data$results, alpha = 0.05) |>
+    suppressWarnings()
+```
+
+```{r}
+cogdat.boot
+```
+
+The results are similar to those obtained in the book except for the following:
+
+-   $propA2optH21$ has a narrower range than in the book. This is cause probably caused by the fact that the author compute the variances using 1.96 (normality). Throughout the book, the range obtained by `rsample::int_pctl` has usually been shorter
+-   $propA2optH21$ is very similar to $propA2optH20$ and therefore we do not conclude as he author does that the survival probability decreases if $H_2=1$.
+
+**Important note**: When using the estimate, without boostraping, we get the exact same estimate as the author! Therefore the calculations are correct.
+
+```{r}
+cogdat.opt
+```
+
+So which one is right? The boostraped estimates or the calculated ones? 
+I vote for the boostraped results.

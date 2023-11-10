@@ -24,6 +24,9 @@ book:
         - ch08_frontdoor.qmd
         - ch09_instrument.qmd
         - ch10_propensity.qmd
+        - ch11_precision.qmd
+        - ch12_mediation.qmd
+        - ch13_time.qmd
     - references.qmd
   appendices: 
     - app01_errata.qmd

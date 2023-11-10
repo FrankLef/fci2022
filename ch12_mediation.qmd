@@ -1,0 +1,684 @@
+# Mediation {#mediation}
+
+```{r}
+library(conflicted)
+library(rsample)
+library(dplyr)
+library(patchwork)
+library(ggdag)
+library(ggplot2)
+library(fciR)
+options(dplyr.summarise.inform = FALSE)
+conflicts_prefer(dplyr::filter)
+```
+
+
+
+```{r}
+#| label: ch12_scm_12.1
+#| warning: false
+scm_12.1 <- list()
+scm_12.1 <- within(scm_12.1, {
+  the_coords <- list(
+    x = c(A = 1, H1 = 1.5, H2 = 2.5, H3 = 1.5, M = 2, Y = 3),
+    y = c(A = 2, H1 = 1, H2 = 3, H3 = 3, M = 2, Y = 1))
+  the_nodes <- c("A" = "", 
+                 "H1" = "", 
+                 "H2" = "", 
+                 "H3" = "",
+                 "M" = "",
+                 "Y" = "")
+  dag <- dagify(
+    A ~ H1 + H3,
+    M ~ A + H3 + H2,
+    Y ~ A + H1 + H2 + M,
+    labels = the_nodes,
+    coords = the_coords)
+  
+  text_labels <- c("A",expression(H[1]), expression(H[2]),
+                   expression(H[3]), "M", "Y")
+  plot <- fciR::ggp_dag(dag, text_labels = text_labels)
+})
+```
+
+```{r echo=FALSE, fig.align='center', fig.cap="Causal DAG for Mediation by $M$ of the Effect of $A$ on $Y$", warning=FALSE, out.width="80%"}
+#| label: fig-ch12_scm_12.1
+#| fig-cap: "Causal DAG for Mediation by $M$ of the Effect of $A$ on $Y$"
+#| fig-align: 'center'
+#| out-width: "80%"
+scm_12.1$plot
+```
+
+## Theory
+
+We let
+
+-   $M(a)$ be the potential outcome of the mediator $M$ to assigning treatment $A=a$
+-   $Y(a, m)$ be the potential outcome for the outcome $Y$ to assigning treatment $A=a$ and mediator $M=m$
+-   $Y(a, M(a^*))$ where we assign tretment $A=a$ and then we assign the mediator $M$ to its potential outcome had we assigned treatment $A=a^*$
+
+The *total effect* $TE$ compares the potential outcome for $Y$ to assigning treatment $A=a$ with that of assigning treatment $A=a$.
+
+$$
+TE(a,a^*) = Y(a, M(a)) - Y(a^*, M(a^*))
+$$
+
+The *controlled direct effect* $CDE$ compares the potential outcome to assigning treatment $A=a$ with that of assinging treatment $A=a^*$ while controlling the mediator at $M=m$.
+
+$$
+CDE(a,a^*,m) = Y(a, m) - Y(a^*, m)
+$$ 
+
+and the *controlled indirect effect* $CIE$ is what is left to obtain the total effect $TE$.
+
+$$
+CIE(a, a^*,m)=TE(a,a^*) - CDE(a,a^*,m)
+$$ 
+
+Also another partition, the *natural direct effect* $NDE$ does not control the mediator and lets it assume the value it would naturally take at a controlled level of $A$.
+
+$$
+NDE(a,a^*;a^*) = Y(a, M(a^*)) - Y(a^*, M(a^*))
+$$ 
+
+and the *natural indirect effect* $NIE$ compares the potential outcome to assigning $M=M(a)$ with that of assinging $M=M(a^*)$ while assigning $A=a$.
+
+$$
+NDE(a,a^*;a) = Y(a, M(a)) - Y(a, M(a^*))
+$$ 
+
+and therefore the *total effect* $TE$ can be expressed in two was
+
+$$
+TE = CDE + CIE = NDE + NIE
+$$
+
+We make the four following assumptins about the confounders
+
+**Assumption 1**: There are no unmeasured treatment confounders given $H$ where $H = \{H_1, H_2, H_3 \}$.
+
+$$
+Y(a,m) \perp\!\!\!\perp A \mid H
+$$
+
+**Assumption 2**: There are no unmeasured mediator-outcome confounders given $\{H,A\}$
+
+$$
+Y(a,m) \perp\!\!\!\perp M \mid H, A
+$$
+
+**Assumption 3**: There are no unmeasured treatment-mediator confounders given $H$
+
+$$
+M(a) \perp\!\!\!\perp A \mid H
+$$ 
+
+**Assumption 4**: There are no mediator-outcome confounder affected by treatment, i.e. no arrow from $A$ to $H_2$.
+
+$$
+Y(a,m) \perp\!\!\!\perp M(a^*) \mid H
+$$
+
+### Prove $E(TE(a, a^*) \mid H = h)$
+
+Under assumption 1, the total effect conditional on $H$ is
+
+$$
+E(TE(a, a^*) \mid H = h) = E(Y \mid A=a, H=h) - E(Y \mid A=a^*, H=h)
+$$ 
+
+and the proof is is based on the method of section 3.2, p. 41, with assumption 1 
+$Y(a,m) \perp\!\!\!\perp A \mid H$ being the same as the assumption of 
+*stratified randomized trial* (3.2).
+
+By definition we have that $TE(a, a^*) = Y(a, M(a)) - Y(a^*, M(a^*)$, hence
+
+$$
+\begin{align*}
+E(TE(a, a^*) \mid H = h) &= E(Y(a, M(a)) - Y(a^*, M(a^*)) \mid H = h) \\
+&= E(Y(a, M(a)) \mid H = h) - E(Y(a^*, M(a^*)) \mid H = h)
+\end{align*}
+$$
+
+and by assumption 1
+
+$$
+\begin{align*}
+=E(Y(a, M(a)) \mid A = a, H = h) - E(Y(a^*, M(a^*)) \mid A = a^*, H = h) \\
+\end{align*}
+$$ 
+
+and by the assumption of consistency which implies that 
+$E(Y(a, M(a)) \mid A = a, H = h)= E(Y \mid H = h, A = a)$ and 
+$E(Y(a, M(a)) \mid A = a^*, H = h)= E(Y \mid H = h, A = a^*)$ we obtain
+
+By definition we have that $TE(a, a^*) = Y(a, M(a)) - Y(a^*, M(a^*)$, hence
+
+$$
+\begin{align*}
+=E(Y \mid A = a, H = h) - E(Y \mid A = a^*, H = h) \\
+\end{align*}
+$$
+
+### Prove $E(CDE(a, a^*;m) \mid H = h)$
+
+By definition $CDE(a, a^*;m) = Y(a,m) - Y(a^*, m)$ therefore
+
+$$
+\begin{align*}
+E(CDE(a, a^*;m) \mid H = h) = E(Y(a,m) \mid H = h) - E(Y(a^*, m) \mid H = h)
+\end{align*}
+$$ 
+
+and by assumption 1
+
+$$
+\begin{align*}
+= E(Y(a,m) \mid A = a, H = h) - E(Y(a^*, m) \mid A = a^* H = h)
+\end{align*}
+$$ 
+
+by assumption 2
+
+$$
+\begin{align*}
+= E(Y(a,m) \mid A = a, M = m, H = h) - E(Y(a^*, m) \mid A = a^*, M = m, H = h)
+\end{align*}
+$$
+
+by assumption of consistency
+
+$$
+\begin{align*}
+= E(Y \mid A = a, M = m, H = h) - E(Y \mid A = a^*, M = m, H = h)
+\end{align*}
+$$
+
+### Prove $E(NDE(a, a^* ; a^*) \mid H = h)$
+
+By definition $NDE(a, a^*;a^*) = Y(a,M(a^*) - Y(a^*, M(a^*)$ so
+
+$$
+\begin{align*}
+E(NDE(a, a^*;a^*) \mid H = h) = E(Y(a,M(a^*)) \mid H = h) - E(Y(a^*, M(a^*)) \mid H = h)
+\end{align*}
+$$
+
+now for the part $E(Y(a,M(a^*)) \mid H = h)$ we have
+
+$$
+\begin{align*}
+\text{by the law of total expectations} \\
+E(Y(a,M(a^*)) \mid H = h) &= \sum_m{E(Y(a,M(a^*))\mid M(a^*)=m, H)P(M(a^*)=m \mid H)} \\
+\text{by consistency} \\
+&= \sum_m{E(Y(a,m)\mid M(a^*)=m, H)P(M(a^*)=m \mid H)} \\
+\text{by assumption 3} \\
+&= \sum_m{E(Y(a,m)\mid M(a^*)=m, H)P(M(a^*)=m \mid A = a^*, H)} \\
+\text{by assumption 4} \\
+&= \sum_m{E(Y(a,m)\mid H)P(M(a^*)=m \mid A = a^*, H)} \\
+\text{by assumption 1} \\
+&= \sum_m{E(Y(a,m)\mid A=a, H)P(M(a^*)=m \mid A = a^*, H)} \\
+\text{by consistency} \\
+&= \sum_m{E(Y(a,m)\mid A=a, H)P(M=m \mid A = a^*, H)} \\
+\text{by assumption 2} \\
+&= \sum_m{E(Y(a,m)\mid A=a, M=m, H)P(M=m \mid A = a^*, H)} \\
+\text{by consistency} \\
+&= \sum_m{E(Y \mid A=a, M=m, H)P(M=m \mid A = a^*, H)} \\
+\end{align*}
+$$ 
+
+and we can do the same for the part $E(Y(a^*,M(a^*)) \mid H = h)$.
+
+### Prove $E(NIE(a, a^* ; a^*) \mid H = h)$
+
+By definition $NIE(a, a^*;a^*) = Y(a,M(a)) - Y(a, M(a^*))$ therefore
+
+$$
+\begin{align*}
+E(NIE(a, a^*;a^*) \mid H = h) &= E(Y(a,M(a)) \mid H = h) - E(Y(a, M(a^*)) \mid H = h)
+\end{align*}
+$$ 
+
+and we can use the same method as for $NDE(a, a^*;a^*)$ on each of the 2 right-hand side parts to prove the result.
+
+Using $CDE$ and $CIE$ partition, we can estimate the proportion of the effect that would be eliminated if we fixed the mediator to a level $M=m$.
+
+$$
+PE = \frac{TE-CDE(m)}{TE}
+$$
+
+and using $NDE$ and $NIE$ partition we can estimate the proportion mediated as
+
+$$
+PM =\frac{NIE}{TE}
+$$
+
+The dimension of $H$ will often require parametric methods. The parametric models in that case can be
+
+$$
+\begin{align*}
+E(Y \mid A=a, M = m, H=h) &= \beta_0 + \beta_1 a+ \beta_2 m + \beta_3 a m + \beta_4^T h \\
+E(M \mid A = a, H = h) &= \alpha_0 + \alpha_1 a + \alpha_2^T h
+\end{align*}
+$$ 
+
+and with assumptions 1 through 4 we combine the estimate to obtain
+
+$$
+\begin{align*}
+CDE(a, a^*;m) &= (\beta_1 + \beta_3 m)(a-a^*) \\
+NDE(a, a^*;a^*) &= (\beta_1 + \beta_3 (\alpha_0 + \alpha_1 a + \alpha_2^T E(H)))(a-a^*) \\
+NIE(a, a^*;a) &= (\beta_2 \alpha_1 + \beta_3 \alpha_1 a)(a-a^*)
+\end{align*}
+$$
+
+## Traditional Parametric Methods
+
+Two traditional parametric methods assume the parametric models from above 
+*but without the interaction term*, that is $\beta_3=0$.
+
+### Product method
+
+Letting $a=1$ and $a^*=0$, the $NIE$ is estimated by $\hat{\beta_2} \hat{\alpha_1}$.
+
+### Difference method
+
+Estimate $NIE$ by comparing the coefficient of $a$ in
+
+$$
+\begin{align*}
+E(Y \mid A=a, H=h) = \beta_0 + \beta_1 a+ \beta_2 (\alpha_0 +\alpha_1 a + \alpha_2^T h) + \beta_4^T h
+\end{align*}
+$$ 
+
+which equals $\beta_1 + \beta_2 \alpha_1$ to the coeficient of $a$ in
+
+$$
+\begin{align*}
+E(Y \mid A=a, M=m, H=h) = \beta_0 + \beta_1 a + \beta_2 m + \beta_4^T h
+\end{align*}
+$$ 
+
+which equals $\beta_1$.
+
+The idea is to see if the coefficient $\beta_1 + \beta_2 \alpha_1$ is significantly reduced by adding $M$ to the regression.
+
+### Example
+
+```{r}
+#| label: ch12_gss
+data("gss", package = "fciR")
+gssmed <- gss |>
+  dplyr::select(c("trump", "gthsedu", "magthsedu", "white", "female", "gt65",
+                  "conservative")) |>
+  tidyr::drop_na()
+assertthat::assert_that(nrow(gssmed) == 2084)
+```
+
+and we use this function to compute the $NIE$
+
+```{r}
+#| label: ch12_func_mediation_NIE
+func_mediation_NIE <- function(data, formula, exposure.name, mediator.name, confound.names) {
+  outcome.name <- all.vars(formula[[2]])
+  
+  # reduced formula, without exposure in input
+  exposure.confound.names <- c(exposure.name, confound.names)
+  formula_red <- as.formula(paste(outcome.name, 
+                                  paste(exposure.confound.names, collapse = "+"), 
+                                  sep = "~"))
+  # mediator formula
+  formula_med <- as.formula(paste(mediator.name,
+                                  paste(exposure.confound.names, collapse = "+"), 
+                                  sep = "~"))
+  
+  # the models
+  the_models <- list(
+    "full" = formula,
+    "reduced" = formula_red,
+    "mediator" = formula_med)
+  
+  # the coefficients
+  the_coefs <- lapply(the_models, function(x) {
+    glm(formula = x, data = data) |>
+      coef()
+  }) |>
+    setNames(names(the_models))
+  
+  
+  NIE_prod <- the_coefs$full[mediator.name] * the_coefs$mediator[exposure.name]
+  
+  NIE_diff <- the_coefs$reduced[exposure.name] - the_coefs$full[exposure.name]
+
+  msg <- sprintf("NIE_prod of %f != NIE_diff of %f", NIE_prod, NIE_diff)
+  assertthat::assert_that(dplyr::near(NIE_prod, NIE_diff), msg = msg)
+  
+  # output compatible with boostrap function
+  data.frame(
+    term = c("NIE_prod", "NIE_diff"),
+    estimate = unname(c(NIE_prod, NIE_diff)),
+    std.err = NA_real_
+  )
+}
+```
+
+```{r}
+#| label: ch12_gssmed.mediate_effect
+gssmed.mediate_effect <- func_mediation_NIE(gssmed, 
+                                            formula = 
+                                              trump ~ magthsedu + conservative,
+                                            exposure.name = "magthsedu", 
+                                            mediator.name  = "conservative",
+                                            confound.names = NULL)
+gssmed.mediate_effect
+```
+
+and we evaluate the intervals with bootstrapping
+
+```{r}
+#| label: ch12_gssmed_boot
+#| cache: true
+gssmed.mediate_effect <- boot_est(data = gssmed, func = func_mediation_NIE,
+           times = 250, alpha = 0.05,
+           formula = trump ~ magthsedu + conservative, 
+           exposure.name = "magthsedu", 
+           mediator.name  = "conservative",
+           confound.names = NULL)
+gssmed.mediate_effect
+```
+
+## More Examples
+
+This function is used to compute the final results by the `func_mediation_np` and `func_mediation` below.
+
+```{r}
+#| label: ch12_func_mediation_calc
+func_mediation_calc <- function(NDE, NIE, CDE0, CDE1) {
+  # estimate the total effect
+  TE <- NDE + NIE
+  assertthat::assert_that(!dplyr::near(TE, 0),
+                          msg = "Total effect must not be zero.")
+  # estimate the proportion mediated
+  PM <- NIE / TE
+  # estimate the proportion eliminated setting M=1
+  PE1 <- (TE - CDE1) / TE
+  # estimate the proportion eliminated setting M=0
+  PE0 <- (TE - CDE0) / TE
+  
+  # output format can be used with bootstrap
+  data.frame(
+    term = c("TE", "PM", "PE(0)", "PE(1)"),
+    estimate = c(TE, PM, PE0, PE1),
+    std.err = NA_real_
+  )
+}
+```
+
+### Mediation nonparametric
+
+```{r}
+#| label: ch12_func_mediation_np
+func_mediation_np <- function(data, formula, exposure.name, mediator.name,
+                           confound.names) {
+  # character vectors of names used below
+  outcome.name <- all.vars(formula[[2]])
+  exposure.confound.names <- c(exposure.name, confound.names)
+  mediator.confound.names <- c(mediator.name, confound.names)
+  input.names <- c(exposure.name, mediator.name, confound.names)
+  all.names <- c(outcome.name, exposure.name, mediator.name, confound.names)
+  
+  # P(H)
+  probH <- data |>
+    fciR::calc_prob(var.name = confound.names, prob.name = "probH")
+  assertthat::assert_that(sum(probH$probH) == 1,
+                          msg = "Sum of prob. H must equal 1.")
+  
+  # P(M = m | A, H)
+  probMcondAH <- data |>
+    fciR::calc_prob_cond(condition.names = exposure.confound.names, 
+                        var.name = mediator.name, 
+                        prob.name = "probM") |>
+    tidyr::pivot_wider(names_from = exposure.name, values_from = "probM",
+                       names_prefix = "probMA") |>
+    # add P(H) to th data, it will be used later for standardization by H
+    dplyr::inner_join(y = probH, by = confound.names)
+  
+  # E(Y | A, M, H)
+  expYcondAMH <- data |>
+    group_by(across(all_of(input.names))) |>
+    summarize(expYcondAMH = mean(.data[[outcome.name]])) |>
+    tidyr::pivot_wider(names_from = exposure.name, values_from = expYcondAMH,
+                       names_prefix = "EYA")
+  
+  # NOTE: This is the final dataframe used to make all computations
+  #       It is an important dataframe when debuging
+  processed_data <- inner_join(x = expYcondAMH, y = probMcondAH,
+                    by = mediator.confound.names) |>
+    ungroup()
+  
+  NDE <- processed_data |>
+    mutate(NDEH = (EYA1 - EYA0) * probMA0) |>
+    # standardize over H
+    summarize(NDE = sum(NDEH * probH)) |>
+    pull()
+
+  NIE <- processed_data |>
+    mutate(NIEH = EYA1 * (probMA1 - probMA0)) |>
+    # standardize over H
+    summarize(NIE = sum(NIEH * probH)) |>
+    pull()
+
+  CDE <- processed_data |>
+    group_by(across(all_of(mediator.name))) |>
+    summarize(CDE = sum((EYA1 - EYA0) * probH)) |>
+    mutate(term = paste0("CDE(", .data[[mediator.name]], ")"))
+  
+  # calculated variables
+  calc <- func_mediation_calc(NDE = NDE, NIE = NIE, 
+                              CDE0 = CDE$CDE[CDE$term == "CDE(0)"], 
+                              CDE1 = CDE$CDE[CDE$term == "CDE(1)"])
+  
+  # output format can be used with bootstrap
+  out <- data.frame(
+    term = c("NDE", "NIE", CDE$term),
+    estimate = c(NDE, NIE, CDE$CDE),
+    std.err = NA_real_) |>
+    dplyr::bind_rows(calc)
+  # relocate the columns
+  the_terms <- c("TE", "CDE(0)", "CDE(1)", "NDE", "NIE", "PE(0)", "PE(1)", "PM")
+  pos <- match(the_terms, out$term)
+  out <- out[pos, ]
+  out
+}
+```
+
+```{r}
+#| label: ch12_doublewhatifdat
+data("doublewhatifdat", package = "fciR")
+```
+
+```{r}
+#| label: ch12_dwhatif.med.np
+dwhatif.med.np <- func_mediation_np(doublewhatifdat,
+                                formula = VL1 ~ `T` + A + AD0,
+                                exposure.name = "T", 
+                                mediator.name = "A",
+                                confound.names = c("AD0"))
+# relocate the columns
+dwhatif.med.np
+```
+
+### Mediation parametric
+
+```{r}
+#| label: ch12_func_mediation
+# estimate natural direct effect (NDE) and natural indirect effect (NIE)
+func_mediation <- function(data, formula, exposure.name, mediator.name,
+                           confound.names) {
+  # character vectors of names used below
+  outcome.name <- all.vars(formula[[2]])
+  exposure.confound.names <- c(exposure.name, confound.names)
+  input.names <- c(exposure.name, mediator.name, confound.names)
+
+  # fit a saturated model including the mediator
+  formula_out <- paste(outcome.name, paste(input.names, collapse = "*"), 
+                       sep = "~")
+  fit_out <- glm(formula = formula_out, family = "binomial", data = data)
+  # fit a saturated model for the mediator
+  formula_med <- paste(mediator.name, paste(exposure.confound.names, collapse = "*"), 
+                       sep = "~")
+  fit_med <- glm(formula = formula_med, family = "binomial", data = data)
+  
+  # create new data sets
+  newdat <- list()
+  newdat$A0M0 <- data |>
+    mutate(
+      !!exposure.name := 0L,
+      !!mediator.name := 0L)
+  newdat$A1M0 <- data |>
+    mutate(
+      !!exposure.name := 1L,
+      !!mediator.name := 0L)
+  newdat$A0M1 <- data |>
+    mutate(
+      !!exposure.name := 0L,
+      !!mediator.name := 1L)
+  newdat$A1M1 <- data |>
+    mutate(
+      !!exposure.name := 1L,
+      !!mediator.name := 1L)
+  
+  # estimate the first term  of equation (1) as a funciton of H
+  EY1M0H <- 
+    predict(fit_out, newdata = newdat$A1M0, type = "response") *
+    (1 - predict(fit_med, newdata = newdat$A0M0, type = "response")) +
+    predict(fit_out, newdata = newdat$A1M1, type = "response") *
+    predict(fit_med, newdata = newdat$A0M1, type = "response")
+  # standardize with respect to marginal distribution of H
+  EY1M0 <- mean(EY1M0H)
+  # estimate the second term  of equation (1) as a funciton of H
+  EY0M0H <- 
+    predict(fit_out, newdata = newdat$A0M0, type = "response") *
+    (1 - predict(fit_med, newdata = newdat$A0M0, type = "response")) +
+    predict(fit_out, newdata = newdat$A0M1, type = "response") *
+    predict(fit_med, newdata = newdat$A0M1, type = "response")
+  # standardize with respect to marginal distribution of H
+  EY0M0 <- mean(EY0M0H)
+    # estimate the first term  of equation (2) as a funciton of H
+  EY1M1H <- 
+    predict(fit_out, newdata = newdat$A1M0, type = "response") *
+    (1 - predict(fit_med, newdata = newdat$A1M0, type = "response")) +
+    predict(fit_out, newdata = newdat$A1M1, type = "response") *
+    predict(fit_med, newdata = newdat$A1M1, type = "response")
+  # standardize with respect to marginal distribution of H
+  EY1M1 <- mean(EY1M1H)
+  
+  NDE <- EY1M0 - EY0M0
+  NIE <- EY1M1 - EY1M0
+  
+  # estimate the controlled direct effects
+  CDE1H <- predict(fit_out, newdata = newdat$A1M1, type = "response") -
+    predict(fit_out, newdata = newdat$A0M1, type = "response")
+  # standardize with respect to marginal distribution of H
+  CDE1 <- mean(CDE1H)
+  
+  # estimate the controlled direct effects
+  CDE0H <- predict(fit_out, newdata = newdat$A1M0, type = "response") -
+    predict(fit_out, newdata = newdat$A0M0, type = "response")
+  # standardize with respect to marginal distribution of H
+  CDE0 <- mean(CDE0H)
+  
+    # calculated variables
+  calc <- func_mediation_calc(NDE = NDE, NIE = NIE, CDE0 = CDE0, CDE1 = CDE1)
+  
+  # output format can be used with bootstrap
+  out <- data.frame(
+    term = c("NDE", "NIE", "CDE(0)", "CDE(1)"),
+    estimate = c(NDE, NIE, CDE0, CDE1),
+    std.err = NA_real_) |>
+    dplyr::bind_rows(calc)
+  # relocate the columns
+  the_terms <- c("TE", "CDE(0)", "CDE(1)", "NDE", "NIE", "PE(0)", "PE(1)", "PM")
+  pos <- match(the_terms, out$term)
+  out <- out[pos, ]
+  out
+}
+```
+
+```{r}
+#| label: ch12_dwhatif.med
+# estimate controlled direct effect
+dwhatif.med <- func_mediation(doublewhatifdat,
+                                formula = VL1 ~ `T` + A + AD0,
+                                exposure.name = "T", 
+                                mediator.name = "A",
+                                confound.names = c("AD0"))
+dwhatif.med
+```
+
+### simulation `simmed`
+
+```{r}
+#| label: ch12_simmed
+simmed <- function(n = 1000, seed = 44444) {
+  set.seed(seed)
+  A <- rbinom(n, size = 1, prob = 0.5)
+  H <- rbinom(n, size = 1, prob = 0.5)
+  # let the mediator increase with A and/or H
+  tmppm <- A + H
+  pm <- exp(tmppm) / (1 + exp(tmppm))
+  M <- rbinom(n, size = 1, prob = pm)
+  # let the outcome increase with A and/or H but dcrease with M
+  tmppy <- H - M + A
+  py <- exp(tmppy) / (1 + exp(tmppy))
+  Y <- rbinom(n, size = 1, prob = py)
+  data.frame(
+    "H" = H,
+    "A" = A,
+    "M" = M,
+    "Y" = Y
+  )
+}
+```
+
+```{r }
+#| label: ch12_simmeddat
+#| cache: true
+simmeddat <- simmed()
+```
+
+```{r}
+#| label: ch12_simmed.np
+# estimate controlled direct effect
+simmed.np <- func_mediation_np(simmeddat,
+                                formula = Y ~ A + M + H,
+                                exposure.name = "A", 
+                                mediator.name = "M",
+                                confound.names = "H")
+simmed.np
+```
+
+```{r }
+#| label: ch12_simmed_np_boot
+#| cache: true
+the_terms <- c("TE", "CDE(0)", "CDE(1)", "NDE", "NIE", "PE(0)", "PE(1)", "PM")
+simmed.np.boot <- boot_est(data = simmeddat, func = func_mediation_np,
+           times = 500, alpha = 0.05,
+           terms = the_terms,
+           formula = Y ~ A + M + H, 
+           exposure.name = "A",
+           mediator.name = "M",
+           confound.names = "H")
+```
+
+```{r}
+#| label: tbl-ch12_03
+#| tbl-cap: "Table 12.3"
+#| fig-align: 'center'
+#| out-width: '100%'
+fciR::gt_measures(simmed.np.boot,
+                  title = "Table 12.3",
+                  subtitle = paste("Nonparametric Mediation Analysis of the",
+                                   "data generated by <em>simmed.r</em>",
+                                   sep = "<br>"))
+```
