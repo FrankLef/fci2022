@@ -272,8 +272,7 @@ func_time_odtr_optA1A2 <- function(data, A1 = "A1", A2 = "A2", H2 = "H2")  {
     bind_rows(replicate(nrow(data), optA1A2, simplify = FALSE))
   
   data |>
-    bind_cols(optA1A2_repeat) |>
-    identity()
+    bind_cols(optA1A2_repeat)
 }
 ```
 
